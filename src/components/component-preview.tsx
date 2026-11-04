@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { type PreviewDefinition, previewScreen } from "../../registry/preview";
 import { IPhone } from "./iphone";
 
@@ -18,6 +18,8 @@ export function ComponentPreview({
 }) {
   const [screenID, setScreenID] = useState(definition?.initialScreen);
   const [live, setLive] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   if (!definition) {
     return (
       <p className="native-note">
@@ -38,6 +40,7 @@ export function ComponentPreview({
                   type="button"
                   key={item.id}
                   aria-pressed={item.id === screen.id}
+                  disabled={!ready}
                   onClick={() => {
                     setScreenID(item.id);
                     setLive(false);
@@ -49,7 +52,12 @@ export function ComponentPreview({
             </fieldset>
           )}
           {LiveIPhone && (
-            <button className="text-link" type="button" onClick={() => setLive(!live)}>
+            <button
+              className="text-link"
+              type="button"
+              disabled={!ready}
+              onClick={() => setLive(!live)}
+            >
               {live ? "Watch recording" : "Try live locally"}
             </button>
           )}
