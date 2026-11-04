@@ -14,13 +14,14 @@ public struct HugsyFluidTabs: View {
   public var body: some View {
     ScrollView(.horizontal) {
       HStack(spacing: 4) {
-        ForEach(Array(NSOrderedSet(array: tabs).compactMap { $0 as? String }), id: \.self) { tab in
+        ForEach(uniqueTabs, id: \.self) { tab in
           Button {
             selection = tab
           } label: {
             Text(tab)
               .font(.callout.weight(.medium))
               .padding(.horizontal, 18).padding(.vertical, 10)
+              .frame(minHeight: 44)
               .background {
                 if selection == tab {
                   Capsule().fill(.background)
@@ -41,5 +42,10 @@ public struct HugsyFluidTabs: View {
     .onChange(of: tabs, initial: true) { _, values in
       if !values.contains(selection), let first = values.first { selection = first }
     }
+  }
+
+  private var uniqueTabs: [String] {
+    var seen = Set<String>()
+    return tabs.filter { seen.insert($0).inserted }
   }
 }

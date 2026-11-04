@@ -1,0 +1,188 @@
+import ArgumentParser
+import Foundation
+import HugsyCore
+import RegistryModels
+
+@main struct Hugsy: AsyncParsableCommand {
+  static let configuration = CommandConfiguration(
+    commandName: "hugsy", abstract: "Expressive SwiftUI components. Your source, your rules.",
+    version: "0.2.0",
+    subcommands: [
+      List.self, Info.self, Initialize.self, Add.self, Diff.self, Doctor.self, MCPCommand.self,
+      MCPConfig.self,
+    ]
+  )
+}
+
+private struct Options: ParsableArguments {
+  @Option(name: .long, help: "Project directory.") var cwd = FileManager.default
+    .currentDirectoryPath
+  @Flag(name: .long, help: "Machine-readable JSON.") var json = false
+
+  func write<Value: Encodable>(_ value: Value, text: String) throws {
+    let result = try json ? jsonString(value) : text
+    FileHandle.standardOutput.write(Data((result + "\n").utf8))
+  }
+
+  func perform(_ action: () throws -> Void) throws {
+    do { try action() } catch {
+      if json {
+        struct Failure: Encodable {
+          let error: Details
+          struct Details: Encodable { let message: String }
+        }
+        let output = try jsonString(Failure(error: .init(message: String(describing: error))))
+        FileHandle.standardError.write(Data((output + "\n").utf8))
+        throw ExitCode.failure
+      }
+      throw error
+    }
+  }
+}
+
+private struct List: ParsableCommand {
+  static let configuration = CommandConfiguration(abstract: "List or search the offline registry.")
+  @OptionGroup var options: Options
+  @Argument var query: String = ""
+  func run() throws {
+    try options.perform {
+      struct Result: Encodable { let components: [ComponentSummary] }
+      let components = try HugsyRegistry().search(query).map(ComponentSummary.init)
+      try options.write(
+        Result(components: components),
+        text: components.map {
+          "\($0.name.padding(toLength: 20, withPad: " ", startingAt: 0)) \($0.description)"
+        }.joined(separator: "\n"))
+    }
+  }
+}
+
+private struct Info: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    abstract: "Read Swift source, usage, and accessibility notes.")
+  @OptionGroup var options: Options
+  @Argument var name: String
+  func run() throws {
+    try options.perform {
+      let item = try HugsyRegistry().component(name)
+      try options.write(
+        item,
+        text:
+          "\(item.title)\n\(item.description)\n\n\(item.integration)\n\n\(item.usage)\n\n\(item.accessibility)"
+      )
+    }
+  }
+}
+
+private struct Initialize: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    commandName: "init", abstract: "Create hugsy.json without editing your Xcode project.")
+  @OptionGroup var options: Options
+  @Option(name: .long) var directory = "Hugsy"
+  @Flag(name: .long) var dryRun = false
+  func run() throws {
+    try options.perform {
+      let config = try Installer().initialize(
+        cwd: options.cwd, directory: directory, dryRun: dryRun)
+      struct Result: Encodable {
+        let config: ProjectConfig
+        let dryRun: Bool
+      }
+      try options.write(
+        Result(config: config, dryRun: dryRun),
+        text: "\(dryRun ? "Would create" : "Created") hugsy.json. Components go in \(directory)/.")
+    }
+  }
+}
+
+private struct Add: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    abstract: "Copy Swift source, preserving customized files.")
+  @OptionGroup var options: Options
+  @Argument var names: [String]
+  @Flag(name: .long) var dryRun = false
+  @Flag(name: .long) var force = false
+  func run() throws {
+    try options.perform {
+      let plan = try Installer().install(
+        cwd: options.cwd, names: names, dryRun: dryRun, force: force)
+      struct File: Encodable {
+        let name: String
+        let path: String
+        let status: FilePlan.Status
+        let sha256: String
+      }
+      struct Result: Encodable {
+        let dryRun: Bool
+        let files: [File]
+      }
+      let files = plan.files.map {
+        File(name: $0.name, path: $0.path, status: $0.status, sha256: $0.sha256)
+      }
+      try options.write(
+        Result(dryRun: dryRun, files: files),
+        text: files.map { "\(dryRun ? "plan" : "done") \($0.status.rawValue) \($0.path)" }.joined(
+          separator: "\n"))
+    }
+  }
+}
+
+private struct Diff: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    abstract: "Inspect installed and registry source without writing.")
+  @OptionGroup var options: Options
+  @Argument var names: [String]
+  func run() throws {
+    try options.perform {
+      let plan = try Installer().plan(cwd: options.cwd, names: names)
+      try options.write(
+        plan,
+        text: plan.files.map {
+          "\($0.name): \($0.status.rawValue)\n\nInstalled:\n\($0.previous ?? "Not installed")\n\nRegistry:\n\($0.source)"
+        }.joined(separator: "\n"))
+    }
+  }
+}
+
+private struct Doctor: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    abstract: "Check configuration and explain iOS target integration.")
+  @OptionGroup var options: Options
+  func run() throws {
+    try options.perform {
+      let root = URL(fileURLWithPath: options.cwd)
+      let configured = FileManager.default.fileExists(
+        atPath: root.appendingPathComponent("hugsy.json").path)
+      if configured { _ = try Installer().plan(cwd: options.cwd, names: ["fluid-tabs"]) }
+      struct Result: Encodable {
+        let configured: Bool
+        let platform = "ios"
+        let minimumVersion = "17.0"
+        let swift = "6.0"
+        let note =
+          "Add copied files to your iOS app target in Xcode, or choose a directory inside a Swift package target. No application dependency is added."
+      }
+      let result = Result(configured: configured)
+      try options.write(
+        result,
+        text:
+          "\(configured ? "Configuration valid" : "Run hugsy init first")\nRequires iOS 17+, Swift 6.\n\(result.note)"
+      )
+    }
+  }
+}
+
+private struct MCPCommand: AsyncParsableCommand {
+  static let configuration = CommandConfiguration(
+    commandName: "mcp", abstract: "Serve read-only MCP tools, resources, and prompts over stdio.")
+  func run() async throws { try await HugsyMCP.serve() }
+}
+
+private struct MCPConfig: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    commandName: "mcp-config", abstract: "Print portable MCP host configuration.")
+  func run() {
+    FileHandle.standardOutput.write(
+      Data("{\"mcpServers\":{\"hugsy\":{\"command\":\"hugsy\",\"args\":[\"mcp\"]}}}\n".utf8))
+  }
+}

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, GitFork, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 
-export function Mark() {
+function Mark() {
   return (
     <span className="brand-mark" aria-hidden="true">
       <span />

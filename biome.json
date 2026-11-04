@@ -43,7 +43,13 @@
         "useNodejsImportProtocol": "error",
         "useThrowOnlyError": "error"
       },
-      "performance": { "noBarrelFile": "error", "noReExportAll": "error" }
+      "performance": { "noBarrelFile": "error", "noReExportAll": "error" },
+      "nursery": {
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error",
+        "noUnsafeReturn": "error",
+        "noUnsafeTypeAssertion": "error"
+      }
     }
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },

@@ -1,6 +1,6 @@
 # Hugsy
 
-> Animation-heavy, copy-and-own SwiftUI components for macOS 14+ and Swift 6.
+> Animation-heavy, copy-and-own SwiftUI components for iOS 17+ and Swift 6.
 
 ## Start here
 

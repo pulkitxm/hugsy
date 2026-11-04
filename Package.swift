@@ -3,15 +3,40 @@ import PackageDescription
 
 let package = Package(
   name: "Hugsy",
-  platforms: [.macOS(.v14)],
+  platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "Hugsy", targets: ["Hugsy"]),
     .executable(name: "HugsyGallery", targets: ["HugsyGallery"]),
+    .executable(name: "hugsy", targets: ["hugsy"]),
+  ],
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
+    .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", exact: "0.12.1"),
   ],
   targets: [
     .target(name: "Hugsy", path: "registry/swift"),
-    .executableTarget(name: "HugsyGallery", dependencies: ["Hugsy"], path: "examples"),
+    .executableTarget(
+      name: "HugsyGallery", dependencies: ["Hugsy"], path: "examples", exclude: ["Info.plist"]),
     .testTarget(name: "HugsyTests", dependencies: ["Hugsy"], path: "tests/swift"),
+    .target(name: "RegistryModels", path: "tools/Models"),
+    .target(
+      name: "HugsyCore", dependencies: ["RegistryModels"], path: "tools/Core",
+      plugins: ["RegistryPlugin"]),
+    .executableTarget(
+      name: "hugsy",
+      dependencies: [
+        "HugsyCore",
+        "RegistryModels",
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+        .product(name: "MCP", package: "swift-sdk"),
+      ], path: "tools/CLI"),
+    .executableTarget(
+      name: "RegistryCompiler", dependencies: ["RegistryModels"], path: "tools/RegistryCompiler"),
+    .plugin(
+      name: "RegistryPlugin", capability: .buildTool(), dependencies: ["RegistryCompiler"],
+      path: "tools/RegistryPlugin"),
+    .testTarget(
+      name: "HugsyCoreTests", dependencies: ["HugsyCore", "RegistryModels"], path: "tests/core"),
   ],
   swiftLanguageModes: [.v6]
 )

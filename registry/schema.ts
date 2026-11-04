@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const componentName = z
+const componentName = z
   .string()
   .regex(/^[a-z]+(?:-[a-z]+)*$/)
   .max(80);
@@ -8,7 +8,7 @@ export const componentSchema = z.strictObject({
   name: componentName,
   title: z.string().min(1),
   description: z.string().min(1),
-  category: z.enum(["Overlay", "Feedback", "Navigation", "Layout"]),
+  category: z.enum(["Overlay", "Feedback", "Navigation", "Gestures", "Scroll"]),
   technique: z.string().min(1),
   filename: z.string().regex(/^Hugsy[A-Za-z]+\.swift$/),
   states: z.array(z.string()).min(1),
@@ -21,8 +21,7 @@ export const componentSchema = z.strictObject({
 });
 export const registrySchema = z.strictObject({
   version: z.literal(1),
-  platform: z.literal("macos"),
-  minimumVersion: z.literal("14.0"),
+  platform: z.literal("ios"),
+  minimumVersion: z.literal("17.0"),
   components: z.array(componentSchema).min(1),
 });
-export type Component = z.infer<typeof componentSchema>;
