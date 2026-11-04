@@ -1,18 +1,23 @@
 import Darwin
 import Foundation
+import RegistryModels
+
+public enum Distribution: String, Codable, Sendable { case package, source }
 
 public struct ProjectConfig: Codable, Equatable, Sendable {
   public let version: Int
   public let directory: String
+  public let distribution: Distribution
 
-  public init(directory: String) throws {
+  public init(directory: String, distribution: Distribution = .package) throws {
     guard directory.count <= 240,
       directory.range(of: "^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*$", options: .regularExpression) != nil
     else {
       throw HugsyError("Use a project-relative directory without spaces, traversal, or symlinks.")
     }
-    version = 1
+    version = 2
     self.directory = directory
+    self.distribution = distribution
   }
 
   private struct Key: CodingKey {
@@ -24,23 +29,28 @@ public struct ProjectConfig: Codable, Equatable, Sendable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: Key.self)
-    guard Set(container.allKeys.map(\.stringValue)) == ["version", "directory"],
+    guard Set(container.allKeys.map(\.stringValue)) == ["version", "directory", "distribution"],
       let versionKey = Key(stringValue: "version"),
       let directoryKey = Key(stringValue: "directory"),
-      try container.decode(Int.self, forKey: versionKey) == 1
+      let distributionKey = Key(stringValue: "distribution"),
+      try container.decode(Int.self, forKey: versionKey) == 2
     else {
-      throw HugsyError("Unsupported configuration. Expected version and directory only.")
+      throw HugsyError(
+        "Expected version 2 configuration with directory and distribution. Review existing files before replacing hugsy.json."
+      )
     }
-    try self.init(directory: container.decode(String.self, forKey: directoryKey))
+    try self.init(
+      directory: container.decode(String.self, forKey: directoryKey),
+      distribution: container.decode(Distribution.self, forKey: distributionKey))
   }
 }
 
 public struct FilePlan: Codable, Equatable, Sendable {
-  public enum Status: String, Codable, Sendable { case create, unchanged, conflict }
+  public enum Status: String, Codable, Sendable { case create, unchanged, update, conflict }
   public let name: String
   public let path: String
-  public let source: String
-  public let previous: String?
+  public let data: Data
+  public let previous: Data?
   public let status: Status
   public let sha256: String
 }
@@ -48,21 +58,32 @@ public struct FilePlan: Codable, Equatable, Sendable {
 public struct InstallPlan: Codable, Equatable, Sendable {
   public let root: String
   public let directory: String
+  public let distribution: Distribution
+  public let components: [String]
+  public let frameworks: [String]
+  public let instructions: [String]
   public let files: [FilePlan]
 }
 
 public struct Installer {
   private let replaceFile: (URL, URL) throws -> Void
+  private let registry: HugsyRegistry?
 
-  public init(replaceFile: @escaping (URL, URL) throws -> Void = Installer.renameFile) {
+  public init(
+    registry: HugsyRegistry? = nil,
+    replaceFile: @escaping (URL, URL) throws -> Void = Installer.renameFile
+  ) {
+    self.registry = registry
     self.replaceFile = replaceFile
   }
 
-  public func initialize(cwd: String, directory: String, dryRun: Bool = false) throws
+  public func initialize(
+    cwd: String, directory: String, distribution: Distribution = .package, dryRun: Bool = false
+  ) throws
     -> ProjectConfig
   {
     let root = try projectRoot(cwd)
-    let config = try ProjectConfig(directory: directory)
+    let config = try ProjectConfig(directory: directory, distribution: distribution)
     _ = try safeDirectory(root: root, directory: directory)
     let path = root.appendingPathComponent("hugsy.json")
     try assertRegular(path)
@@ -75,36 +96,82 @@ public struct Installer {
     return config
   }
 
-  public func plan(cwd: String, names: [String]) throws -> InstallPlan {
-    guard !names.isEmpty else { throw HugsyError("Choose at least one component.") }
+  public func configuration(cwd: String) throws -> ProjectConfig {
     let root = try projectRoot(cwd)
-    let configURL = root.appendingPathComponent("hugsy.json")
-    try assertRegular(configURL)
-    guard try fileStat(configURL) != nil else { throw HugsyError("Run hugsy init first.") }
-    let config = try JSONDecoder().decode(ProjectConfig.self, from: Data(contentsOf: configURL))
+    let path = root.appendingPathComponent("hugsy.json")
+    try assertRegular(path)
+    guard try fileStat(path) != nil else { throw HugsyError("Run hugsy init first.") }
+    return try JSONDecoder().decode(ProjectConfig.self, from: Data(contentsOf: path))
+  }
+
+  public func plan(cwd: String, names: [String]) throws -> InstallPlan {
+    let root = try projectRoot(cwd)
+    let config = try configuration(cwd: cwd)
     let directory = try safeDirectory(root: root, directory: config.directory)
-    let registry = try HugsyRegistry()
-    var seen = Set<String>()
-    let files = try names.filter { seen.insert($0).inserted }.map { name in
-      let component = try registry.component(name)
-      let destination = directory.appendingPathComponent(component.filename)
+    let registry = try registry ?? HugsyRegistry()
+    let stateURL = directory.appendingPathComponent("hugsy.lock.json")
+    try assertRegular(stateURL)
+    let state =
+      try fileStat(stateURL) == nil
+      ? nil : JSONDecoder().decode(InstallState.self, from: Data(contentsOf: stateURL))
+    guard state == nil || (state?.version == 1 && state?.distribution == config.distribution) else {
+      throw HugsyError("Installed state does not match distribution. Use a new destination.")
+    }
+    let selected = Array(Set((state?.components ?? []) + names)).sorted()
+    if selected.isEmpty {
+      return InstallPlan(
+        root: root.path, directory: config.directory, distribution: config.distribution,
+        components: [], frameworks: [], instructions: PackageLayout.instructions(config), files: [])
+    }
+    let components = try registry.resolved(selected)
+    let payloads = try PackageLayout.files(
+      components: components, distribution: config.distribution)
+    guard Set(state?.files.keys.map { $0 } ?? []).isSubset(of: Set(payloads.keys)) else {
+      throw HugsyError(
+        "Upstream files were removed. Reconcile installed files in a new destination; no files written."
+      )
+    }
+    func filePlan(_ path: String, data: Data, stateFile: Bool = false) throws -> FilePlan {
+      guard ComponentFile.isSafePath(path) else {
+        throw HugsyError("Unsafe installation path: \(path)")
+      }
+      if let slash = path.lastIndex(of: "/") {
+        _ = try safeDirectory(root: directory, directory: String(path[..<slash]))
+      }
+      let destination = directory.appendingPathComponent(path)
       try assertRegular(destination)
-      var previous: String?
+      var previous: Data?
       if try fileStat(destination) != nil {
-        previous = try String(contentsOf: destination, encoding: .utf8)
+        previous = try Data(contentsOf: destination)
       }
       let status: FilePlan.Status =
-        previous.map { $0 == component.source ? .unchanged : .conflict } ?? .create
+        previous.map {
+          $0 == data
+            ? .unchanged
+            : (stateFile || state?.files[path] == HugsyRegistry.digest($0) ? .update : .conflict)
+        } ?? .create
       return FilePlan(
-        name: name, path: destination.path, source: component.source, previous: previous,
-        status: status, sha256: component.sha256)
+        name: path, path: destination.path, data: data, previous: previous,
+        status: status, sha256: HugsyRegistry.digest(data))
     }
-    return InstallPlan(root: root.path, directory: config.directory, files: files)
+    var files = try payloads.sorted { $0.key < $1.key }.map { try filePlan($0.key, data: $0.value) }
+    let nextState = InstallState(
+      distribution: config.distribution, components: selected,
+      files: payloads.mapValues(HugsyRegistry.digest))
+    files.append(
+      try filePlan(
+        "hugsy.lock.json", data: Data((jsonString(nextState) + "\n").utf8), stateFile: true))
+    return InstallPlan(
+      root: root.path, directory: config.directory, distribution: config.distribution,
+      components: components.map(\.name),
+      frameworks: Array(Set(components.flatMap(\.frameworks))).sorted(),
+      instructions: PackageLayout.instructions(config), files: files)
   }
 
   @discardableResult public func install(
     cwd: String, names: [String], dryRun: Bool = false, force: Bool = false
   ) throws -> InstallPlan {
+    guard !names.isEmpty else { throw HugsyError("Choose at least one component.") }
     let plan = try plan(cwd: cwd, names: names)
     if dryRun { return plan }
     guard force || !plan.files.contains(where: { $0.status == .conflict }) else {
@@ -134,8 +201,11 @@ public struct Installer {
     do {
       for (index, file) in plan.files.enumerated() where file.status != .unchanged {
         let temporary = staging.appendingPathComponent(String(index))
-        try Data(file.source.utf8).write(to: temporary, options: .withoutOverwriting)
+        try file.data.write(to: temporary, options: .withoutOverwriting)
         let destination = URL(fileURLWithPath: file.path)
+        let relativeParent = String(
+          destination.deletingLastPathComponent().path.dropFirst(root.path.count + 1))
+        _ = try safeDirectory(root: root, directory: relativeParent, create: true)
         try assertRegular(destination)
         try replaceFile(temporary, destination)
         written.append(file)
@@ -144,7 +214,7 @@ public struct Installer {
       for file in written.reversed() {
         let destination = URL(fileURLWithPath: file.path)
         if let previous = file.previous {
-          try Data(previous.utf8).write(to: destination, options: .atomic)
+          try previous.write(to: destination, options: .atomic)
         } else {
           try FileManager.default.removeItem(at: destination)
         }
@@ -169,7 +239,9 @@ public struct Installer {
   }
 
   private func safeDirectory(root: URL, directory: String, create: Bool = false) throws -> URL {
-    _ = try ProjectConfig(directory: directory)
+    guard ComponentFile.isSafePath(directory) else {
+      throw HugsyError("Unsafe directory: \(directory)")
+    }
     var path = root
     for segment in directory.split(separator: "/") {
       path.appendPathComponent(String(segment))

@@ -39,6 +39,7 @@ function ComponentPage() {
           <div className="component-meta">
             <span>iOS 17+</span>
             <span>Swift 6</span>
+            <span>{item.frameworks.join(", ")}</span>
             <span>MIT</span>
             <a href={`https://github.com/pulkitxm/hugsy/blob/main/registry/swift/${item.filename}`}>
               View source
@@ -81,6 +82,12 @@ function ComponentPage() {
             component to your app.
           </p>
           <CodeBlock code={`hugsy add ${item.name}`} />
+          <p>
+            Run <code>hugsy init</code> first. Add the generated local package in Xcode, attach
+            <code> HugsyComponents</code> to your app target, then use
+            <code> import HugsyComponents</code>. See the installation guide for source and remote
+            package alternatives.
+          </p>
           <p>
             Prefer to copy it yourself? Open the{" "}
             <a href={`/r/${item.name}.swift`}>complete Swift file</a> and add it to your iOS app

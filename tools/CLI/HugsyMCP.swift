@@ -7,9 +7,9 @@ enum HugsyMCP {
   static func serve() async throws {
     let registry = try HugsyRegistry()
     let server = Server(
-      name: "hugsy", version: "0.2.0",
+      name: "hugsy", version: "0.3.0",
       instructions:
-        "Discover iOS SwiftUI components and plan installation. Every tool is read-only and offline. Use the native hugsy CLI for writes with user permission. Requires iOS 17+ and Swift 6. Preserve customized source and Reduce Motion behavior.",
+        "Discover iOS components and services across Apple frameworks and plan local package or source installation. Every tool is read-only and offline. Use the native hugsy CLI for writes with user permission. Requires iOS 17+ and Swift 6. Preserve customized source and Reduce Motion behavior.",
       capabilities: .init(prompts: .init(), resources: .init(), tools: .init()),
       configuration: .strict)
     await server.withMethodHandler(ListTools.self) { _ in
@@ -18,13 +18,13 @@ enum HugsyMCP {
       return .init(tools: [
         Tool(
           name: "search_components",
-          description: "Search native iOS component names, categories, and animation techniques.",
+          description: "Search iOS component names, categories, techniques, and system frameworks.",
           inputSchema: schema(properties: ["query": .object(["type": "string", "maxLength": 200])]),
           annotations: hints),
         Tool(
           name: "get_component",
           description:
-            "Read complete SwiftUI source, usage, accessibility notes, and its checksum.",
+            "Read all source files, binary resources, dependencies, framework requirements, usage, and checksums.",
           inputSchema: schema(
             properties: ["name": .object(["type": "string", "maxLength": 80])], required: ["name"]),
           annotations: hints),
@@ -71,7 +71,7 @@ enum HugsyMCP {
             let commands: [String]
             let warning: String
           }
-          let files = try names.map(registry.component)
+          let files = try registry.resolved(names)
           return try result(
             Output(
               files: files,
@@ -80,7 +80,7 @@ enum HugsyMCP {
                 "hugsy add \(names.joined(separator: " "))",
               ],
               warning:
-                "Inspect the iOS app target first. Never replace customized files without permission."
+                "Default installation creates a local Swift package. Add it in Xcode, attach HugsyComponents to the app target, and import HugsyComponents. Source mode requires target membership instead. Never replace customized files without permission."
             ))
         default: throw HugsyError("Unknown tool: \(parameters.name)")
         }
@@ -100,7 +100,7 @@ enum HugsyMCP {
           + registry.document.components.map {
             Resource(
               name: $0.name, uri: "hugsy://components/\($0.name)", description: $0.description,
-              mimeType: "text/x-swift")
+              mimeType: "application/json")
           })
     }
     await server.withMethodHandler(ReadResource.self) { parameters in
@@ -115,7 +115,9 @@ enum HugsyMCP {
         throw MCPError.invalidParams("Unknown resource")
       }
       let item = try registry.component(String(parameters.uri.dropFirst(prefix.count)))
-      return .init(contents: [.text(item.source, uri: parameters.uri, mimeType: "text/x-swift")])
+      return .init(contents: [
+        .text(try jsonString(item), uri: parameters.uri, mimeType: "application/json")
+      ])
     }
     await server.withMethodHandler(ListPrompts.self) { _ in
       .init(prompts: [

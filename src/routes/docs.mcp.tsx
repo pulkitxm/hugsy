@@ -70,7 +70,10 @@ function MCP() {
                   <td>
                     <code>name</code>
                   </td>
-                  <td>Full Swift source, usage, accessibility notes, and checksum.</td>
+                  <td>
+                    All source files, binary resources, frameworks, dependencies, usage, and
+                    checksums.
+                  </td>
                 </tr>
                 <tr>
                   <td>
@@ -79,7 +82,9 @@ function MCP() {
                   <td>
                     <code>names</code>, up to six
                   </td>
-                  <td>Source files and safe CLI commands. No filesystem access.</td>
+                  <td>
+                    Transitive dependency payloads and safe CLI commands. No filesystem access.
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -89,7 +94,7 @@ function MCP() {
           <h2>Resources and prompts</h2>
           <p>
             Read <code>hugsy://registry</code> for the complete registry or{" "}
-            <code>hugsy://components/&lt;name&gt;</code> for an individual Swift source file. The{" "}
+            <code>hugsy://components/&lt;name&gt;</code> for a complete component JSON payload. The{" "}
             <code>integrate_component</code> prompt accepts a component name and returns a
             source-aware integration checklist.
           </p>

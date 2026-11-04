@@ -1,25 +1,28 @@
 # hugsy
 
-Expressive, source-owned SwiftUI components for iOS.
+Source-owned iOS components and services, distributed with one native Swift CLI.
 
 [Website](https://hugsy.pulkit.page/) · [Components](https://hugsy.pulkit.page/components/) · [Documentation](https://hugsy.pulkit.page/docs/)
 
-Hugsy focuses on difficult interactions: expanding cards, gesture-driven sheets, radial actions, spring-reflow toasts, shared-geometry tabs, and stretchy headers. Each component is a standalone Swift file. Your app gains no third-party runtime dependency.
+The current catalog focuses on difficult SwiftUI interactions. The distribution format also supports UIKit, Foundation services, and other Apple frameworks through multi-file entries, shared dependencies, and binary resources. Framework support is not a claim that those components already exist. Adopting apps gain no third-party runtime dependency.
 
 ## Use a component
 
-Copy source from a component page into your iOS app and confirm its Xcode Target Membership. Requires iOS 17+ and Swift 6. Retain the MIT license notice.
-
-Or install the native Swift CLI on a Mac with Xcode:
+Install the native CLI on a Mac with Xcode:
 
 ```sh
 curl -fsSL https://hugsy.pulkit.page/install.sh | sh
-hugsy init --directory YourApp/Components/Hugsy
+hugsy init
 hugsy add expanding-cards --dry-run
 hugsy add expanding-cards
+hugsy doctor
 ```
 
-The installer verifies a pinned source archive, builds with Swift, and installs to `~/.local/bin`. Add that directory to PATH. CLI and MCP operations work offline after the first build. No JavaScript runtime is required to use the components, CLI, or MCP server.
+In Xcode, choose **Add Package Dependencies > Add Local**, select the generated `Hugsy` directory, and attach the **HugsyComponents** library product to your iOS app target. Add `import HugsyComponents` to consuming Swift files, then use the example from `hugsy info expanding-cards`. Requires iOS 17+ and Swift 6. Installing files does not link the app automatically.
+
+The generated package contains only selected components and their transitive registry dependencies. You can edit its source. Later additions retain earlier selections. Resources are bundled through SwiftPM. Commit the package and `hugsy.json` to your app repository.
+
+The installer verifies a pinned source archive, builds with Swift, and installs to `~/.local/bin`. Add that directory to PATH. CLI and MCP operations work offline after the first build. No JavaScript runtime is required.
 
 ```sh
 hugsy list --json
@@ -29,7 +32,15 @@ hugsy doctor
 hugsy mcp
 ```
 
-Customized files are preserved unless you explicitly use `--force`. The installer never edits Xcode project files.
+Customized files are preserved unless you explicitly use `--force`. Unmodified files can update using hashes recorded in `hugsy.lock.json`. The installer never edits Xcode project files or runs package installation scripts.
+
+## Other distribution modes
+
+For direct copying, start in a separate destination with `hugsy init --distribution source --directory YourApp/Components/Hugsy`. Add installed source to the app target and use its types directly, without importing the directory name. Resource-bearing entries require package mode. You may also copy the current standalone components from the website. Retain the MIT license notice.
+
+For the whole current catalog as an upstream dependency, add `https://github.com/pulkitxm/hugsy` in Xcode, select the **Hugsy** product, and use `import Hugsy`. Select a reviewed revision until version tags are published. This is distinct from the editable, selective local package.
+
+Version 1 configurations are rejected. Review existing copied files, choose a fresh destination, and replace `hugsy.json` deliberately before initializing version 2. See the [distribution plan](docs/distribution.md) for architecture, resource paths, future image-cache adapters, and release policy.
 
 ## MCP
 

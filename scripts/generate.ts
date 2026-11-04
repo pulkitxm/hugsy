@@ -24,11 +24,21 @@ await writeFile("public/social.png", social.render().asPng());
 const components = await Promise.all(
   catalog.map(async (item) => {
     const source = await readFile(`registry/swift/${item.filename}`, "utf8");
-    return { ...item, source, sha256: createHash("sha256").update(source).digest("hex") };
+    const files = await Promise.all(
+      item.files.map(async (file) => {
+        const data = await readFile(`registry/swift/${file.path}`);
+        return {
+          ...file,
+          data: data.toString("base64"),
+          sha256: createHash("sha256").update(data).digest("hex"),
+        };
+      }),
+    );
+    return { ...item, files, source, sha256: createHash("sha256").update(source).digest("hex") };
   }),
 );
 const registry = registrySchema.parse({
-  version: 1,
+  version: 2,
   platform: "ios",
   minimumVersion: "17.0",
   components,
@@ -37,6 +47,16 @@ if (new Set(components.map((item) => item.name)).size !== components.length) {
   throw new Error("Component names must be unique");
 }
 await writeFile("generated/registry.json", `${JSON.stringify(registry)}\n`);
+await writeFile(
+  "generated/site-registry.json",
+  `${JSON.stringify({
+    ...registry,
+    components: components.map((item) => ({
+      ...item,
+      files: item.files.map(({ path, kind }) => ({ path, kind })),
+    })),
+  })}\n`,
+);
 await writeFile("public/r/index.json", `${JSON.stringify(registry)}\n`);
 await Promise.all(
   components.flatMap((item) => [
@@ -70,7 +90,7 @@ await writeFile(
 await writeFile("public/robots.txt", `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`);
 await writeFile(
   "public/llms-full.txt",
-  `# Hugsy\n\nCopy-and-own animated SwiftUI components. iOS 17+, Swift 6. MIT licensed. No application dependencies.\n\nInstall the native Swift CLI from ${origin}/docs/. No JavaScript runtime is required to use Hugsy. Run hugsy list --json, hugsy info <name> --json, hugsy init, then hugsy add <name> --dry-run --json. Never overwrite customized source without permission. MCP: hugsy mcp.\n\n${components.map((item) => `## ${item.title}\n\n${item.description}\n\n${item.integration}\n\n${item.accessibility}\n\n${item.usage}\n\n${origin}/r/${item.name}.json\n`).join("\n")}`,
+  `# Hugsy\n\nSource-owned iOS components and services. iOS 17+, Swift 6. MIT licensed. No third-party runtime dependencies. Current catalog: SwiftUI. Distribution: Apple frameworks including UIKit and Foundation.\n\nInstall the native Swift CLI from ${origin}/docs/. Run hugsy list --json, hugsy info <name> --json, hugsy init, then hugsy add <name> --dry-run --json. The default creates a local Swift package. Add it in Xcode, attach HugsyComponents to the app target, and import HugsyComponents. Source mode requires explicit --distribution source and target membership, without an extra module import. Writing files does not link the app. Never overwrite customized source without permission. MCP: hugsy mcp.\n\n${components.map((item) => `## ${item.title}\n\n${item.description}\n\nFrameworks: ${item.frameworks.join(", ")}\n\n${item.integration}\n\n${item.accessibility}\n\n${item.usage}\n\n${origin}/r/${item.name}.json\n`).join("\n")}`,
 );
 const highlighter = await createHighlighter({
   themes: ["github-light", "github-dark"],

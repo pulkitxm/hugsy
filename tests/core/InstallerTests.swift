@@ -33,16 +33,17 @@ import Testing
     let root = try project()
     defer { try? FileManager.default.removeItem(at: root) }
     let installer = Installer()
-    _ = try installer.initialize(cwd: root.path, directory: "Sources/UI", dryRun: true)
+    _ = try installer.initialize(
+      cwd: root.path, directory: "Sources/UI", distribution: .source, dryRun: true)
     #expect(!FileManager.default.fileExists(atPath: root.appendingPathComponent("hugsy.json").path))
-    _ = try installer.initialize(cwd: root.path, directory: "Sources/UI")
+    _ = try installer.initialize(cwd: root.path, directory: "Sources/UI", distribution: .source)
     _ = try installer.install(cwd: root.path, names: ["fluid-tabs"], dryRun: true)
     #expect(!FileManager.default.fileExists(atPath: root.appendingPathComponent("Sources").path))
     let result = try installer.install(
       cwd: root.path, names: ["fluid-tabs", "fluid-tabs", "toast-stack"])
-    #expect(result.files.count == 2)
+    #expect(result.files.count == 4)
     let repeated = try installer.install(cwd: root.path, names: ["fluid-tabs"])
-    #expect(repeated.files.first?.status == .unchanged)
+    #expect(repeated.files.allSatisfy { $0.status == .unchanged })
     #expect(throws: HugsyError.self) {
       try installer.initialize(cwd: root.path, directory: "Other")
     }
@@ -52,7 +53,7 @@ import Testing
     let root = try project()
     defer { try? FileManager.default.removeItem(at: root) }
     let installer = Installer()
-    _ = try installer.initialize(cwd: root.path, directory: "UI")
+    _ = try installer.initialize(cwd: root.path, directory: "UI", distribution: .source)
     _ = try installer.install(cwd: root.path, names: ["fluid-tabs"])
     let path = root.appendingPathComponent("UI/HugsyFluidTabs.swift")
     try "custom\n".write(to: path, atomically: true, encoding: .utf8)
@@ -77,7 +78,7 @@ import Testing
       try? FileManager.default.removeItem(at: outside)
     }
     let installer = Installer()
-    _ = try installer.initialize(cwd: root.path, directory: "UI")
+    _ = try installer.initialize(cwd: root.path, directory: "UI", distribution: .source)
     try FileManager.default.createSymbolicLink(
       at: root.appendingPathComponent("UI"), withDestinationURL: outside)
     #expect(throws: HugsyError.self) {
@@ -93,7 +94,7 @@ import Testing
   @Test func rollbackRestoresReplacedAndNewFiles() throws {
     let root = try project()
     defer { try? FileManager.default.removeItem(at: root) }
-    _ = try Installer().initialize(cwd: root.path, directory: "UI")
+    _ = try Installer().initialize(cwd: root.path, directory: "UI", distribution: .source)
     _ = try Installer().install(cwd: root.path, names: ["fluid-tabs"])
     let path = root.appendingPathComponent("UI/HugsyFluidTabs.swift")
     try "local\n".write(to: path, atomically: true, encoding: .utf8)

@@ -1,6 +1,6 @@
 # Hugsy
 
-> Animation-heavy, copy-and-own SwiftUI components for iOS 17+ and Swift 6.
+> Source-owned iOS components and services for iOS 17+ and Swift 6. The current catalog is SwiftUI; distribution also supports UIKit and other Apple frameworks.
 
 ## Start here
 
@@ -13,3 +13,4 @@
 Run `hugsy list --json`, `hugsy info <name> --json`, `hugsy init`, and `hugsy add <name> --dry-run --json`.
 Run `hugsy mcp` for read-only tools, resources, and an integration prompt over stdio.
 Never overwrite customized source without explicit permission. The Swift source has no third-party dependencies.
+The default is an editable local Swift package. Add it in Xcode, attach HugsyComponents to the app target, and use import HugsyComponents. Source mode is explicit and requires target membership instead. Installing files does not link the app.

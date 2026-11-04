@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { Client } from "@modelcontextprotocol/client";
@@ -48,6 +48,66 @@ describe("native Swift CLI", () => {
     expect(JSON.parse(result.stderr).error.message).toContain("Unknown component");
     expect(result.stdout).toBe("");
   });
+  it("creates a local package, retains selections, and reports integration and conflicts", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "hugsy-package-"));
+    const run = (...args: string[]) =>
+      spawnSync(executable, [...args, "--cwd", cwd, "--json"], { encoding: "utf8" });
+    try {
+      expect(run("init").status).toBe(0);
+      const planned = JSON.parse(run("add", "fluid-tabs", "--dry-run").stdout);
+      expect(planned.distribution).toBe("package");
+      expect(planned.instructions.join(" ")).toContain("import HugsyComponents");
+      expect(existsSync(join(cwd, "Hugsy"))).toBe(false);
+      expect(run("add", "fluid-tabs").status).toBe(0);
+      expect(run("add", "toast-stack").status).toBe(0);
+      expect(readFileSync(join(cwd, "Hugsy", "Package.swift"), "utf8")).toContain(
+        "HugsyComponents",
+      );
+      const source = join(
+        cwd,
+        "Hugsy",
+        "Sources",
+        "HugsyComponents",
+        "fluid-tabs",
+        "HugsyFluidTabs.swift",
+      );
+      writeFileSync(source, "local edits\n");
+      const doctor = JSON.parse(run("doctor").stdout);
+      expect(doctor.conflicts).toContain("Sources/HugsyComponents/fluid-tabs/HugsyFluidTabs.swift");
+      expect(doctor.targetLinkage).toContain("Not inspected");
+      expect(run("add", "fluid-tabs").status).toBe(1);
+      expect(readFileSync(source, "utf8")).toBe("local edits\n");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
+  it("supports explicit source distribution without a fabricated import module", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "hugsy-source-"));
+    try {
+      expect(
+        spawnSync(executable, [
+          "init",
+          "--distribution",
+          "source",
+          "--directory",
+          "App/UI",
+          "--cwd",
+          cwd,
+        ]).status,
+      ).toBe(0);
+      const result = spawnSync(executable, ["add", "fluid-tabs", "--cwd", cwd, "--json"], {
+        encoding: "utf8",
+      });
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout).instructions.join(" ")).toContain(
+        "Do not import the directory name",
+      );
+      expect(existsSync(join(cwd, "App/UI/HugsyFluidTabs.swift"))).toBe(true);
+      expect(existsSync(join(cwd, "App/UI/Package.swift"))).toBe(false);
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
 });
 
 it("negotiates MCP and serves tools, resources, prompts, validation, and errors", async () => {
@@ -86,10 +146,18 @@ it("negotiates MCP and serves tools, resources, prompts, validation, and errors"
         await client.callTool({ name: "plan_install", arguments: { names: ["expanding-cards"] } }),
       ),
     ).toContain("--dry-run");
+    expect(
+      JSON.stringify(
+        await client.callTool({ name: "plan_install", arguments: { names: ["expanding-cards"] } }),
+      ),
+    ).toContain("import HugsyComponents");
     expect((await client.listResources()).resources).toHaveLength(7);
     expect(
       JSON.stringify(await client.readResource({ uri: "hugsy://components/fluid-tabs" })),
     ).toContain("import SwiftUI");
+    expect(
+      (await client.readResource({ uri: "hugsy://components/fluid-tabs" })).contents[0]?.mimeType,
+    ).toBe("application/json");
     expect(JSON.stringify(await client.readResource({ uri: "hugsy://registry" }))).toContain(
       "expanding-cards",
     );
