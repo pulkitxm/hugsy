@@ -1,12 +1,17 @@
 import { execFile } from "node:child_process";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
+import { setTimeout as wait } from "node:timers/promises";
 import { promisify } from "node:util";
+import sharp from "sharp";
 import type { Plugin } from "vite";
 import { z } from "zod";
 import { catalog } from "../registry/catalog.ts";
 import {
   isLocalPreviewRequest,
   nativeActions,
+  nativeGalleryReady,
   nativeSessionSchema,
 } from "../src/lib/native-preview.ts";
 
@@ -48,16 +53,38 @@ export function nativePreview(): Plugin {
       .find((device) => device.udid === simulator);
     if (
       device?.name !== "Hugsy Preview" ||
-      device.state !== "Booted" ||
       !device.deviceTypeIdentifier.startsWith("com.apple.CoreSimulator.SimDeviceType.iPhone-")
     ) {
-      throw new Error("Use a booted iPhone simulator named Hugsy Preview.");
+      throw new Error("Use a dedicated iPhone simulator named Hugsy Preview.");
     }
+    if (device.state === "Shutdown") {
+      await execute("xcrun", ["simctl", "boot", device.udid], { env: environment });
+    }
+    await execute("xcrun", ["simctl", "bootstatus", device.udid, "-b"], {
+      env: environment,
+    });
     await execute("sh", ["scripts/build-ios.sh"], { env: environment });
     await execute(
       "xcrun",
       ["simctl", "install", device.udid, resolve(".build/ios/HugsyGallery.app")],
       { env: environment },
+    );
+    const stream = await execute(
+      "bunx",
+      [
+        "serve-sim@0.1.49",
+        "--detach",
+        "--quiet",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "3200",
+        device.udid,
+      ],
+      { env: environment },
+    );
+    z.object({ port: z.literal(3200), device: z.literal(device.udid) }).parse(
+      JSON.parse(stream.stdout),
     );
     return device.deviceTypeIdentifier
       .replace("com.apple.CoreSimulator.SimDeviceType.iPhone-", "iPhone ")
@@ -171,26 +198,44 @@ export function nativePreview(): Plugin {
               ],
               { env: environment },
             );
+            const deadline = Date.now() + 30000;
+            while (Date.now() < deadline) {
+              const ready = await fetch(`${origin}${helper}/ax`, {
+                signal: AbortSignal.timeout(10000),
+              })
+                .then(async (response) => response.ok && nativeGalleryReady(await response.json()))
+                .catch(() => false);
+              if (ready) {
+                return;
+              }
+              await wait(150);
+            }
+            throw new Error("The native gallery did not become ready.");
           });
           queue = launch.catch(() => undefined);
           await launch;
-          const result = await fetch(`${origin}${helper}/config`, {
-            signal: AbortSignal.timeout(5000),
-          });
-          if (!result.ok) {
-            throw new Error("Start the local simulator stream first.");
+          const temporary = await mkdtemp(resolve(tmpdir(), "hugsy-native-frame-"));
+          try {
+            const screenshot = resolve(temporary, "screen.png");
+            await execute("xcrun", ["simctl", "io", target, "screenshot", screenshot], {
+              env: environment,
+            });
+            const screen = await sharp(screenshot).metadata();
+            const config = nativeSessionSchema.parse({
+              width: screen.width,
+              height: screen.height,
+              component: name,
+              model,
+            });
+            response.end(JSON.stringify(config));
+          } finally {
+            await rm(temporary, { recursive: true, force: true });
           }
-          const screen = nativeSessionSchema
-            .pick({ width: true, height: true })
-            .parse(await result.json());
-          const config = nativeSessionSchema.parse({
-            ...screen,
-            component: name,
-            model,
-          });
-          response.end(JSON.stringify(config));
         }
-        void respond().catch(() => {
+        void respond().catch((error: unknown) => {
+          server.config.logger.error(
+            error instanceof Error ? error.message : "Native preview failed.",
+          );
           if (!response.headersSent) {
             response.writeHead(503);
           }

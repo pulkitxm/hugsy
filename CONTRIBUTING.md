@@ -26,6 +26,36 @@ sh scripts/build-ios.sh
 
 If Command Line Tools is selected, prefix Swift commands with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`. Use a dedicated simulator named `Hugsy Preview` for captures. Set its UUID in `HUGSY_SIMULATOR`, then run `bun scripts/capture-native.ts`. Never use a personal simulator for evidence.
 
+## Live native component previews
+
+The development site can show the real SwiftUI gallery inside its component pages, without simulator device lists or debugging panels. This is a local preview, not a public hosted simulator.
+
+Set the UUID of the dedicated iPhone simulator, then enable the development bridge:
+
+```sh
+HUGSY_SIMULATOR="$HUGSY_SIMULATOR" bun run dev
+```
+
+Open `http://127.0.0.1:3000/components/expanding-cards/`. The bridge boots `Hugsy Preview` if necessary, builds the current registry sources, installs the gallery only into that simulator, and starts a loopback-only stream using pinned `serve-sim` development tooling. It waits for the native gallery to render before showing the live feed. The component selected by the page launches without device lists or debugging panels.
+
+The screen preserves the native framebuffer proportions and forwards pointer input to the simulator. Native accessibility buttons provide keyboard alternatives. Browser Reduce Motion preferences are applied to the dedicated simulator's actual accessibility setting.
+
+The preview has one shared local simulator session. Opening another component changes that session. Device form factors should only be added after their native layouts have been implemented and verified. Never relabel or stretch the iPhone feed as a different device.
+
+The bridge accepts only local, same-origin requests. It is absent from production builds, which retain accurately labeled native recordings and require no runtime server. The Swift CLI and adopting apps do not depend on this development tooling.
+
+With the development server running, verify the live screen, native input, reset, reduced motion, recording fallback, request isolation, and framebuffer fidelity on desktop and mobile:
+
+```sh
+HUGSY_SIMULATOR="$HUGSY_SIMULATOR" bun run test:e2e:native
+```
+
+Stop only the preview's dedicated stream when finished:
+
+```sh
+bunx serve-sim@0.1.49 --kill "$HUGSY_SIMULATOR"
+```
+
 ## Required checks
 
 - Biome formatting and recommended rules, all accessibility and security rules, strict unused-code rules, and type-aware promise checks.
