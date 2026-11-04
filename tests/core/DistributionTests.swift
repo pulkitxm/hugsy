@@ -310,7 +310,8 @@ import Testing
       "xcodebuild", "-quiet", "-scheme", "Consumer", "-sdk", "iphonesimulator", "-destination",
       "generic/platform=iOS Simulator", "-derivedDataPath",
       root.appendingPathComponent("DerivedData").path,
-      "CODE_SIGNING_ALLOWED=NO", "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES", "build",
+      "CODE_SIGNING_ALLOWED=NO", "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES", "SWIFT_SUPPRESS_WARNINGS=NO",
+      "build",
     ]
     build.standardOutput = handle
     build.standardError = handle
