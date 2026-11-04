@@ -2,10 +2,12 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { catalog } from "./registry/catalog.ts";
+import { nativePreview } from "./scripts/native-preview.ts";
 
 export default defineConfig({
   base: "/",
   plugins: [
+    nativePreview(),
     tanstackStart({
       router: { basepath: "/", routeTreeFileHeader: [] },
       prerender: {

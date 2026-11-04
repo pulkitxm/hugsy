@@ -58,6 +58,7 @@ private struct NativeGallery: View {
       VStack(alignment: .leading, spacing: 26) {
         HStack {
           Text("studio").font(.system(size: 20, weight: .semibold, design: .rounded)).tracking(-0.7)
+            .accessibilityIdentifier("hugsy-gallery-ready")
           Spacer()
           Image(systemName: "circle.grid.2x2").font(.system(size: 20, weight: .regular))
         }.padding(.top, 14)

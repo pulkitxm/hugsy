@@ -1,10 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { componentParameters } from "../../registry/parameters";
 import { registry } from "../../registry/registry";
 import { CodeBlock } from "../components/code-block";
-import { IPhone } from "../components/iphone";
+import { ComponentPreview } from "../components/component-preview";
 import { LibrarySidebar } from "../components/library-sidebar";
 import { seo } from "../lib/seo";
 
@@ -58,18 +58,22 @@ function ComponentPage() {
               {tab}
             </button>
           ))}
+          <span className="preview-platform">
+            <Smartphone size={13} aria-hidden="true" />
+            iPhone
+          </span>
         </div>
         {view === "Preview" ? (
-          <div className={`native-stage visual-${item.name}`}>
-            <IPhone key={item.name} name={item.name} title={item.title} playable />
-          </div>
+          <ComponentPreview name={item.name} title={item.title} />
         ) : (
           <div className="source-preview">
             <CodeBlock code={item.source} label={item.filename} />
           </div>
         )}
         <p className="native-note">
-          Real SwiftUI, captured on an iPhone 17 Pro simulator.{" "}
+          {import.meta.env.DEV && import.meta.env["VITE_HUGSY_NATIVE"] === true
+            ? "Native SwiftUI from the local iPhone simulator. No web recreation. "
+            : "Real SwiftUI, captured on an iPhone 17 Pro simulator. "}
           <a href="https://github.com/pulkitxm/hugsy/tree/main/examples">
             Run the native gallery
             <ArrowUpRight size={10} />

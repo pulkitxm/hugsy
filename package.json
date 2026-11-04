@@ -30,6 +30,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:native": "playwright test --config playwright.native.config.ts",
     "test:protocol": "vitest run --config vitest.protocol.config.ts",
     "check:repository": "bun scripts/check-repository.ts",
     "check:dead-code": "knip --max-issues 0 --treat-config-hints-as-errors",

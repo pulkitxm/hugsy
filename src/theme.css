@@ -624,7 +624,7 @@
   }
   .iphone-screen {
     position: relative;
-    aspect-ratio: 1260 / 2736;
+    aspect-ratio: 402 / 874;
     border-radius: 36px;
     overflow: hidden;
     background: #f6f5ef;
@@ -634,7 +634,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
   .iphone-screen > video {
     position: absolute;
@@ -697,7 +697,7 @@
     top: -20px;
   }
   .native-stage {
-    background: var(--visual);
+    background: var(--soft);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 38px 20px 25px;
@@ -733,6 +733,88 @@
     text-decoration: underline;
     text-underline-offset: 3px;
     margin-left: 5px;
+  }
+  .live-device {
+    width: min(100%, 324px);
+  }
+  .native-stage .native-phone {
+    width: 100%;
+  }
+  .native-phone .iphone-screen {
+    border-radius: 15.2% / 7%;
+  }
+  .native-phone .dynamic-island {
+    width: 31.2%;
+    height: 4.2%;
+    top: 1.6%;
+    left: 34.4%;
+  }
+  .native-touch-surface {
+    position: relative;
+    height: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    touch-action: none;
+    user-select: none;
+  }
+  .native-touch-surface > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: none;
+  }
+  .native-action {
+    position: absolute;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    pointer-events: none;
+  }
+  .native-action:focus-visible {
+    outline: 2px solid #0066cc;
+    outline-offset: -2px;
+    border-radius: 5px;
+  }
+  .native-session-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .native-session-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--secondary);
+  }
+  .native-live-dot,
+  .native-waiting-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #23804a;
+  }
+  .native-waiting-dot {
+    background: var(--muted);
+  }
+  .native-device-label {
+    font-size: 9px;
+    color: var(--secondary);
+    margin-top: 1px;
+  }
+  .live-preview-unavailable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--secondary);
+    text-align: center;
   }
 }
 
@@ -776,6 +858,15 @@
   .preview-tabs > button[aria-pressed="true"] {
     border-bottom-color: var(--foreground);
     color: var(--foreground);
+  }
+  .preview-platform {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    color: var(--secondary);
+    font-size: 10px;
+    padding-bottom: 4px;
   }
   .source-preview .code-block pre {
     max-height: 700px;
