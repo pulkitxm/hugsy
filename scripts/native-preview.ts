@@ -159,12 +159,23 @@ export function nativePreview(): Plugin {
             return;
           }
           const name = url.pathname.slice("/session/".length);
+          const component = catalog.find((component) => component.name === name);
           if (
             request.method !== "POST" ||
             !url.pathname.startsWith("/session/") ||
-            !catalog.some((component) => component.name === name)
+            !component?.preview
           ) {
             response.writeHead(404).end(JSON.stringify({ error: "Unknown native component." }));
+            return;
+          }
+          const selected = component.preview.screens.find(
+            (screen) =>
+              screen.id === (url.searchParams.get("screen") ?? component.preview?.initialScreen),
+          );
+          if (!selected) {
+            response
+              .writeHead(400)
+              .end(JSON.stringify({ error: "Unknown native preview screen." }));
             return;
           }
           prepared ??= prepare().catch((error: unknown) => {
@@ -195,6 +206,8 @@ export function nativePreview(): Plugin {
                 "dev.hugsy.gallery",
                 "--component",
                 name,
+                "--screen",
+                selected.id,
               ],
               { env: environment },
             );

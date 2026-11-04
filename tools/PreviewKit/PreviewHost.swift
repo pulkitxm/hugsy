@@ -22,7 +22,7 @@ import SwiftUI
     case failed(String)
   }
   @State private var loaded: Loaded
-  @State private var playRequest = 0
+  @State private var playback: Task<Void, Never>?
 
   public init(
     registrations: [PreviewRegistration], arguments: [String] = ProcessInfo.processInfo.arguments
@@ -41,7 +41,8 @@ import SwiftUI
         throw PreviewDefinitionError.invalid("Missing native preview: \(launch.component)")
       }
       let session = try PreviewSession(
-        component: catalog.component(launch.component), screen: launch.screen, state: launch.state)
+        component: catalog.component(launch.component), screen: launch.screen, state: launch.state,
+        captureID: launch.captureID)
       _loaded = State(initialValue: .ready(session, registration, launch.recording))
     } catch {
       _loaded = State(initialValue: .failed(error.localizedDescription))
@@ -49,22 +50,30 @@ import SwiftUI
   }
 
   public var body: some View {
-    switch loaded {
-    case .ready(let session, let registration, let recording):
-      if let failure = session.failure {
-        unavailable(failure)
-      } else {
-        registration.render(session)
-          .accessibilityElement(children: .contain)
-          .accessibilityIdentifier("hugsy-gallery-ready")
-          .onOpenURL { url in
-            if url.scheme == "hugsy-preview", url.host == "play" { playRequest += 1 }
-          }
-          .task(id: playRequest) {
-            if recording || playRequest > 0 { await session.play() }
-          }
+    ZStack {
+      switch loaded {
+      case .ready(let session, let registration, _):
+        if let failure = session.failure {
+          unavailable(failure)
+        } else {
+          registration.render(session)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("hugsy-gallery-ready")
+        }
+      case .failed(let failure): unavailable(failure)
       }
-    case .failed(let failure): unavailable(failure)
+    }
+    .onAppear {
+      if case .ready(let session, _, _) = loaded { session.ready() }
+      if case .ready(_, _, true) = loaded { play() }
+    }
+    .onDisappear { playback?.cancel() }
+  }
+
+  private func play() {
+    if case .ready(let session, _, _) = loaded {
+      playback?.cancel()
+      playback = Task { await session.play() }
     }
   }
 

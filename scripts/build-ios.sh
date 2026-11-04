@@ -2,11 +2,12 @@
 set -eu
 cd "$(dirname "$0")/.."
 export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
+host_sdk=$(xcrun --sdk macosx --show-sdk-path)
 SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 export SDKROOT
 mkdir -p .build/ios/HugsyGallery.app .build/preview
 xcrun --sdk macosx swiftc -parse-as-library -swift-version 6 -warnings-as-errors \
-  -sdk "$(xcrun --sdk macosx --show-sdk-path)" \
+  -sdk "${host_sdk}" \
   tools/Models/*.swift tools/RegistryCompiler/RegistryCompiler.swift -o .build/preview/RegistryCompiler
 .build/preview/RegistryCompiler registry .build/preview/EmbeddedRegistry.swift
 cp examples/Info.plist .build/ios/HugsyGallery.app/Info.plist

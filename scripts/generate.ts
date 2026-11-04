@@ -4,6 +4,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { createHighlighter } from "shiki";
 import { catalog } from "../registry/catalog";
 import { highlightSchema } from "../registry/highlight-schema";
+import { previewDuration } from "../registry/preview";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
 import {
@@ -76,11 +77,16 @@ const paths = [
 ];
 await mkdir("public/native", { recursive: true });
 await Promise.all(
-  components.map((item) =>
-    writeFile(
-      `public/native/${item.name}.vtt`,
-      `WEBVTT\n\n00:00.000 --> 00:12.000\n${item.title}. ${item.description}\n`,
-    ),
+  components.flatMap((item) =>
+    (item.preview?.screens ?? []).map((screen) => {
+      const seconds = Math.ceil(previewDuration(screen) / 1000 + 2)
+        .toString()
+        .padStart(2, "0");
+      return writeFile(
+        `public/native/${screen.asset}.vtt`,
+        `WEBVTT\n\n00:00.000 --> 00:${seconds}.000\n${item.title}: ${screen.label}. ${item.description}\n`,
+      );
+    }),
   ),
 );
 await writeFile(

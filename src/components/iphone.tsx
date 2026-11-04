@@ -25,18 +25,20 @@ export function PhoneFrame({
 export function IPhone({
   name,
   title,
+  asset = name,
   priority = false,
   playable = false,
 }: {
   name: string;
   title: string;
+  asset?: string;
   priority?: boolean;
   playable?: boolean;
 }) {
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
-  const poster = `/native/${name}.webp`;
+  const poster = `/native/${asset}.webp`;
   async function play() {
     setError(false);
     if (video.current) {
@@ -73,12 +75,12 @@ export function IPhone({
             aria-label={`${title} native animation demonstration`}
             onError={() => setError(true)}
           >
-            <source src={`/native/${name}.mp4`} type="video/mp4" />
+            <source src={`/native/${asset}.mp4`} type="video/mp4" />
             <track
               kind="captions"
               srcLang="en"
               label="Demo description"
-              src={`/native/${name}.vtt`}
+              src={`/native/${asset}.vtt`}
             />
           </video>
         )}

@@ -5,6 +5,7 @@ import sharp from "sharp";
 
 async function openPreview(page: Page) {
   await page.goto("components/expanding-cards/", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Try live locally" }).click();
   await expect(page.getByText("Live SwiftUI", { exact: true })).toBeVisible({ timeout: 60000 });
   await expect(page.getByRole("button", { name: /THE ART OF DOING LESS/ })).toBeVisible();
 }
@@ -139,6 +140,7 @@ test("a disconnected stream retains an accurately labeled recording and can retr
 }) => {
   await page.route("**/__native/session/**", (route) => route.fulfill({ status: 503 }));
   await page.goto("components/expanding-cards/", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Try live locally" }).click();
   await expect(page.getByText(/Live preview unavailable/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Play expanding cards demo" })).toBeVisible();
   await expect(page.getByText("Live SwiftUI", { exact: true })).toHaveCount(0);

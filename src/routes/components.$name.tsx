@@ -58,22 +58,29 @@ function ComponentPage() {
               {tab}
             </button>
           ))}
-          <span className="preview-platform">
-            <Smartphone size={13} aria-hidden="true" />
-            iPhone
-          </span>
+          {item.preview && (
+            <span className="preview-platform">
+              <Smartphone size={13} aria-hidden="true" />
+              iPhone
+            </span>
+          )}
         </div>
         {view === "Preview" ? (
-          <ComponentPreview name={item.name} title={item.title} />
+          <ComponentPreview
+            key={item.name}
+            name={item.name}
+            title={item.title}
+            definition={item.preview}
+          />
         ) : (
           <div className="source-preview">
             <CodeBlock code={item.source} label={item.filename} />
           </div>
         )}
         <p className="native-note">
-          {import.meta.env.DEV && import.meta.env["VITE_HUGSY_NATIVE"] === true
-            ? "Native SwiftUI from the local iPhone simulator. No web recreation. "
-            : "Real SwiftUI, captured on an iPhone 17 Pro simulator. "}
+          {item.preview
+            ? "Real native rendering, recorded on an iPhone 17 Pro simulator. "
+            : "Framework-neutral iOS source. "}
           <a href="https://github.com/pulkitxm/hugsy/tree/main/examples">
             Run the native gallery
             <ArrowUpRight size={10} />

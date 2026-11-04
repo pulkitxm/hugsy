@@ -71,6 +71,21 @@ for (const path of paths) {
   }
 }
 registrySchema.parse(JSON.parse(readFileSync(join(root, "r/index.json"), "utf8")));
+const previewAssets = catalog.flatMap(
+  (item) => item.preview?.screens.map((screen) => screen.asset) ?? [],
+);
+if (new Set(previewAssets).size !== previewAssets.length) {
+  throw new Error("Native preview assets must be unique across the catalog.");
+}
+for (const asset of previewAssets) {
+  for (const extension of ["webp", "mp4", "vtt"]) {
+    if (!existsSync(join(root, "native", `${asset}.${extension}`))) {
+      throw new Error(
+        `Missing native preview asset: ${asset}.${extension}. Run the native capture task.`,
+      );
+    }
+  }
+}
 for (const file of [
   "robots.txt",
   "sitemap.xml",

@@ -29,6 +29,7 @@ public struct PreviewLaunch: Sendable {
   public let screen: String?
   public let state: String?
   public let recording: Bool
+  public let captureID: String?
 
   public init(arguments: [String]) throws {
     func value(_ flag: String) throws -> String? {
@@ -42,5 +43,9 @@ public struct PreviewLaunch: Sendable {
     screen = try value("--screen")
     state = try value("--state")
     recording = arguments.contains("--record")
+    captureID = try value("--capture-id")
+    if let captureID, UUID(uuidString: captureID) == nil {
+      throw PreviewDefinitionError.invalid("Capture IDs must be UUIDs.")
+    }
   }
 }

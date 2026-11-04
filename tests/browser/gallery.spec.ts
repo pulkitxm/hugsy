@@ -192,3 +192,31 @@ for (const path of pages) {
 test("unknown routes return a real static 404", async ({ request }) => {
   expect((await request.get("components/not-a-component/")).status()).toBe(404);
 });
+
+test("multi-screen previews select real native captures without starting a simulator", async ({
+  page,
+  request,
+}) => {
+  const simulatorRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/__native/")) {
+      simulatorRequests.push(request.url());
+    }
+  });
+  await page.goto("components/fluid-tabs/");
+  await expect(page.locator(".native-stage")).toHaveAttribute("data-preview-screen", "for-you");
+  await page.getByRole("button", { name: "Following", exact: true }).click();
+  await expect(page.locator(".native-stage")).toHaveAttribute("data-preview-screen", "following");
+  await expect(page.locator(".native-stage img")).toHaveAttribute(
+    "src",
+    "/native/fluid-tabs-following.webp",
+  );
+  expect((await request.get("native/fluid-tabs-following.mp4")).status()).toBe(200);
+  await page.getByRole("button", { name: "Saved", exact: true }).click();
+  await expect(page.locator(".native-stage img")).toHaveAttribute(
+    "src",
+    "/native/fluid-tabs-saved.webp",
+  );
+  expect((await request.get("native/fluid-tabs-saved.mp4")).status()).toBe(200);
+  expect(simulatorRequests).toEqual([]);
+});

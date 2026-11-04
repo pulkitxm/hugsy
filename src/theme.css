@@ -868,6 +868,37 @@
     font-size: 10px;
     padding-bottom: 4px;
   }
+  .preview-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 11px;
+  }
+  .preview-screen-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .preview-screen-switcher button {
+    padding: 9px 12px;
+    border-radius: 5px;
+    color: var(--secondary);
+  }
+  .preview-screen-switcher button[aria-pressed="true"] {
+    background: var(--soft);
+    color: var(--foreground);
+  }
+  .nonvisual-preview {
+    color: var(--secondary);
+    font-size: 14px;
+    letter-spacing: -0.02em;
+  }
   .source-preview .code-block pre {
     max-height: 700px;
   }
