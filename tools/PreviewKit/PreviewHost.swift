@@ -22,6 +22,7 @@ import SwiftUI
     case failed(String)
   }
   @State private var loaded: Loaded
+  @State private var playRequest = 0
 
   public init(
     registrations: [PreviewRegistration], arguments: [String] = ProcessInfo.processInfo.arguments
@@ -56,8 +57,11 @@ import SwiftUI
         registration.render(session)
           .accessibilityElement(children: .contain)
           .accessibilityIdentifier("hugsy-gallery-ready")
-          .task {
-            if recording { await session.play() }
+          .onOpenURL { url in
+            if url.scheme == "hugsy-preview", url.host == "play" { playRequest += 1 }
+          }
+          .task(id: playRequest) {
+            if recording || playRequest > 0 { await session.play() }
           }
       }
     case .failed(let failure): unavailable(failure)
