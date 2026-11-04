@@ -16,6 +16,9 @@ const server = createServer((request, response) => {
     response.writeHead(404).end("Not found");
   });
 });
-server.listen(4173, "127.0.0.1");
+const port = Number.parseInt(process.env["HUGSY_PORT"] ?? "4173", 10);
+server.listen(port, "127.0.0.1", () =>
+  process.stdout.write(`Static site listening on http://127.0.0.1:${port}/hugsy/\n`),
+);
 process.once("SIGTERM", () => server.close());
 process.once("SIGINT", () => server.close());

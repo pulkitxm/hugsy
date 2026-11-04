@@ -1,0 +1,95 @@
+name: Security
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 7 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
+        with:
+          fail-on-severity: high
+  codeql:
+    name: CodeQL ${{ matrix.language }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: javascript-typescript
+            runner: ubuntu-24.04
+            build-mode: none
+          - language: actions
+            runner: ubuntu-24.04
+            build-mode: none
+          - language: swift
+            runner: macos-26
+            build-mode: manual
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@93a54aaef5ced74c8d9fae64bdfb97f6a18c21b4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - if: matrix.language == 'swift'
+        run: swift build --disable-sandbox
+      - uses: github/codeql-action/analyze@93a54aaef5ced74c8d9fae64bdfb97f6a18c21b4
+        with:
+          category: language-${{ matrix.language }}
+  deep:
+    name: Repository scan and SBOM
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2
+        with:
+          tool: trivy@0.76.1,syft@1.56.0
+      - run: trivy fs --exit-code 1 --severity HIGH,CRITICAL --scanners vuln,secret,misconfig --skip-dirs .build,node_modules .
+      - run: syft scan dir:. --output cyclonedx-json=sbom.cdx.json
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 7
+  scorecard:
+    name: OpenSSF Scorecard
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: ossf/scorecard-action@46dc3187a971a9febf3aeb7f94ccde489f7bb46a
+        with:
+          results_file: scorecard.sarif
+          results_format: sarif
+          publish_results: false
+      - uses: github/codeql-action/upload-sarif@93a54aaef5ced74c8d9fae64bdfb97f6a18c21b4
+        with:
+          sarif_file: scorecard.sarif

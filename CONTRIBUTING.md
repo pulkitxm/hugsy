@@ -44,9 +44,11 @@ Automated accessibility checks are not a VoiceOver certification. Test the nativ
 
 `skipLibCheck` skips vendor declaration internals, not project code. The generated route tree is ignored by formatting and policy checks, but remains in the TypeScript program.
 
-Biome's `useLiteralKeys` conflicts with TypeScript's index-signature property-access rule. It is disabled for TypeScript. CSS specificity ordering is disabled only in the shared stylesheet because the rule compares unrelated component selectors across independent scopes. Functional accessibility directives permit keyboard focus on scrollable source blocks.
+Biome's `useLiteralKeys` conflicts with TypeScript's index-signature property-access rule. It is disabled for TypeScript. CSS specificity ordering is disabled only in `src/theme.css` because the rule compares unrelated component selectors across independent scopes. Functional accessibility directives permit keyboard focus on scrollable source blocks.
 
 The secret scanner's entropy threshold accommodates Swift source examples. Gitleaks scans independently. Patched `basic-ftp` and `re2js` overrides fix development-tool advisories; revisit them when upstream tool ranges include the fixes. The blocking audit threshold is high severity, not a claim that every transitive advisory is absent.
+
+The required `CI` job combines source checks, desktop and mobile browser tests, Lighthouse, native Swift compilation, native tests, CLI/MCP interoperability, workflow security, shell checks, and secret scanning. Pages publishes the exact tested artifact only after that gate passes. CodeQL covers TypeScript, Swift, and workflows. Dependency review runs on pull requests; Trivy, SBOM generation, and Scorecard run weekly or on demand. Dependency updates cover Bun, Swift, and pinned actions.
 
 ## Pull requests
 
