@@ -136,6 +136,9 @@ test("documentation navigation and installation are native-first", async ({ page
   await page.goto("docs/");
   await page.getByRole("link", { name: "Installation", exact: true }).first().click();
   await expect(page).toHaveURL(/\/docs\/installation\/$/);
+  await expect(
+    page.getByRole("heading", { name: "Installation", exact: true, level: 1 }),
+  ).toBeVisible();
   const body = await page.locator("main").textContent();
   expect(body).toContain("curl -fsSL");
   expect(body).toContain("Add Package Dependencies > Add Local");
