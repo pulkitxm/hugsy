@@ -31,15 +31,13 @@ await writeFile(
   })}\n`,
 );
 await Promise.all(["LICENSE", "README.md"].map((file) => copyFile(file, `dist/cli/${file}`)));
-const packed = z
-  .array(z.object({ filename: z.string() }))
-  .parse(
-    JSON.parse(
-      execFileSync("npm", ["pack", "./dist/cli", "--pack-destination", "generated", "--json"], {
-        encoding: "utf8",
-      }),
-    ),
-  );
+const packed = z.array(z.object({ filename: z.string() })).parse(
+  JSON.parse(
+    execFileSync("npm", ["pack", "./dist/cli", "--pack-destination", "generated", "--json"], {
+      encoding: "utf8",
+    }),
+  ),
+);
 const artifact = packed[0];
 if (!artifact) {
   throw new Error("CLI package was not produced");

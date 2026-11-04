@@ -1,0 +1,26 @@
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import { catalog } from "./registry/catalog.ts";
+
+export default defineConfig({
+  base: "/hugsy/",
+  plugins: [
+    tanstackStart({
+      router: { basepath: "/hugsy", routeTreeFileHeader: [] },
+      prerender: {
+        enabled: true,
+        crawlLinks: false,
+        autoStaticPathsDiscovery: false,
+        failOnError: true,
+        autoSubfolderIndex: true,
+      },
+      pages: [
+        { path: "/" },
+        { path: "/docs" },
+        ...catalog.map((item) => ({ path: `/components/${item.name}` })),
+      ],
+    }),
+    react(),
+  ],
+});

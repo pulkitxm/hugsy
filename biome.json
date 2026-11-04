@@ -46,5 +46,15 @@
       "performance": { "noBarrelFile": "error", "noReExportAll": "error" }
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "overrides": [
+    {
+      "includes": ["**/*.ts", "**/*.tsx"],
+      "linter": { "rules": { "complexity": { "useLiteralKeys": "off" } } }
+    },
+    {
+      "includes": ["src/styles.css"],
+      "linter": { "rules": { "style": { "noDescendingSpecificity": "off" } } }
+    }
+  ]
 }

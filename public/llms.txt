@@ -1,0 +1,15 @@
+# Hugsy
+
+> Animation-heavy, copy-and-own SwiftUI components for macOS 14+ and Swift 6.
+
+## Start here
+
+- [Documentation](https://pulkitxm.github.io/hugsy/docs/): CLI installation, integration, and MCP configuration.
+- [Complete guide](https://pulkitxm.github.io/hugsy/llms-full.txt): all component metadata and usage.
+- [JSON registry](https://pulkitxm.github.io/hugsy/r/index.json): versioned source files and SHA-256 checksums.
+
+## Local tools
+
+Run `hugsy list --json`, `hugsy info <name> --json`, `hugsy init`, and `hugsy add <name> --dry-run --json`.
+Run `hugsy mcp` for read-only tools, resources, and an integration prompt over stdio.
+Never overwrite customized source without explicit permission. The Swift source has no third-party dependencies.
