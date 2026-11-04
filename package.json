@@ -1,0 +1,72 @@
+{
+  "name": "@pulkitxm/hugsy",
+  "version": "0.1.0",
+  "description": "Copy-and-own animated SwiftUI components, CLI and MCP server",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pulkitxm/hugsy.git"
+  },
+  "homepage": "https://pulkitxm.github.io/hugsy/",
+  "bin": {
+    "hugsy": "dist/cli/index.js"
+  },
+  "files": [
+    "dist/cli",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.16"
+  },
+  "packageManager": "bun@1.4.2",
+  "scripts": {
+    "dev": "bun run generate && vite --port 3000",
+    "generate": "bun scripts/generate.ts",
+    "build:cli": "bun run generate && bun scripts/build-cli.ts",
+    "build": "bun run build:cli && vite build && bun scripts/check-site.ts",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check --error-on-warnings .",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "check:repository": "bun scripts/check-repository.ts",
+    "check:dead-code": "knip --max-issues 0",
+    "check:markdown": "markdownlint-cli2 '**/*.md' '!node_modules' '!dist'",
+    "check:swift": "swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test",
+    "check:lighthouse": "lhci autorun",
+    "ci": "bun run generate && bun run lint && bun run typecheck && bun run check:repository && bun run check:dead-code && bun run check:markdown && bun run test:coverage && bun run build",
+    "prepare": "bun run build:cli"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "@tanstack/react-router": "1.170.46",
+    "@tanstack/react-start": "1.169.4",
+    "commander": "15.0.0",
+    "lucide-react": "1.68.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@biomejs/biome": "2.6.5",
+    "@lhci/cli": "0.16.0",
+    "@modelcontextprotocol/client": "2.4.0",
+    "@playwright/test": "1.64.1",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "@vitest/coverage-v8": "5.1.0",
+    "esbuild": "0.28.2",
+    "knip": "6.44.1",
+    "markdownlint-cli2": "0.24.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.1.0"
+  }
+}
