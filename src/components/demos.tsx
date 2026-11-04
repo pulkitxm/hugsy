@@ -199,25 +199,42 @@ export function CommandDemo({ hero = false }: { hero?: boolean }) {
 
 type Toast = { id: number; title: string; detail: string };
 function ToastRow({ item, onDismiss }: { item: Toast; onDismiss: (id: number) => void }) {
+  const [closing, setClosing] = useState(false);
   useEffect(() => {
     if (item.id < 3) {
       return;
     }
-    const timer = globalThis.setTimeout(() => onDismiss(item.id), 5000);
+    const timer = globalThis.setTimeout(() => setClosing(true), 5000);
     return () => globalThis.clearTimeout(timer);
-  }, [item, onDismiss]);
+  }, [item]);
+  useEffect(() => {
+    if (!closing) {
+      return;
+    }
+    const timer = globalThis.setTimeout(() => onDismiss(item.id), 250);
+    return () => globalThis.clearTimeout(timer);
+  }, [closing, item.id, onDismiss]);
   return (
-    <div className="toast-row">
-      <span className="toast-check">
-        <Check size={15} />
-      </span>
-      <div>
-        <strong>{item.title}</strong>
-        <small>{item.detail}</small>
+    <div className={`toast-slot ${closing ? "is-closing" : ""}`} aria-hidden={closing}>
+      <div className="toast-clip">
+        <div className="toast-row">
+          <span className="toast-check">
+            <Check size={15} />
+          </span>
+          <div>
+            <strong>{item.title}</strong>
+            <small>{item.detail}</small>
+          </div>
+          <button
+            type="button"
+            disabled={closing}
+            aria-label={`Dismiss ${item.title}`}
+            onClick={() => setClosing(true)}
+          >
+            <X size={13} />
+          </button>
+        </div>
       </div>
-      <button type="button" aria-label={`Dismiss ${item.title}`} onClick={() => onDismiss(item.id)}>
-        <X size={13} />
-      </button>
     </div>
   );
 }
