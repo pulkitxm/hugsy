@@ -4,8 +4,8 @@ if ! command -v swift >/dev/null 2>&1; then
   printf '%s\n' 'Install Xcode with Swift 6 before installing Hugsy.' >&2
   exit 1
 fi
-revision=ce5b8b9dc1950183072552058071a85ccb2b614b
-checksum=b4c3a7707ae149ffb9b67c55259f29f4f11e2996ed9f5318b815cd4c9b7bc47a
+revision=aa87a8b5cb19539abcf626942cc35c86d701f8f6
+checksum=f37517243c4b08251dc145640d10c3873bf69b99848e73b5ce69b97559d0b84d
 temporary=$(mktemp -d)
 trap 'rm -rf "${temporary}"' EXIT HUP INT TERM
 archive="${temporary}/source.tar.gz"
