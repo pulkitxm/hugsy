@@ -1,6 +1,9 @@
 import CryptoKit
 import Foundation
-import RegistryModels
+
+#if SWIFT_PACKAGE
+  import RegistryModels
+#endif
 
 @main struct RegistryCompiler {
   static func main() throws {
