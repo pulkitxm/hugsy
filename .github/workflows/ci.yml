@@ -64,9 +64,24 @@ jobs:
         with:
           bun-version: 1.4.2
       - run: bun install --frozen-lockfile --ignore-scripts
-      - run: bun run check:swift
+      - run: bun run check:swift:core
       - run: sh scripts/build-ios.sh
       - run: bun run test:protocol
+  render:
+    name: Native image rendering
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run check:swift:render
   hygiene:
     name: Workflows, shell, and secrets
     runs-on: ubuntu-24.04
@@ -98,7 +113,7 @@ jobs:
   gate:
     name: CI
     if: ${{ always() }}
-    needs: [source, browser, native, hygiene]
+    needs: [source, browser, native, render, hygiene]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
@@ -107,8 +122,9 @@ jobs:
           SOURCE: ${{ needs.source.result }}
           BROWSER: ${{ needs.browser.result }}
           NATIVE: ${{ needs.native.result }}
+          RENDER: ${{ needs.render.result }}
           HYGIENE: ${{ needs.hygiene.result }}
-        run: test "$SOURCE" = success && test "$BROWSER" = success && test "$NATIVE" = success && test "$HYGIENE" = success
+        run: test "$SOURCE" = success && test "$BROWSER" = success && test "$NATIVE" = success && test "$RENDER" = success && test "$HYGIENE" = success
   deploy:
     name: Publish Pages
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
