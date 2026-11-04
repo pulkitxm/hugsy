@@ -1,6 +1,6 @@
 # Support
 
-Start with the [documentation](https://hugsi.pulkit.page/docs/) and run `hugsy doctor` in your project.
+Start with the [documentation](https://hugsy.pulkit.page/docs/) and run `hugsy doctor` in your project.
 
 For bugs, open a [GitHub issue](https://github.com/pulkitxm/hugsy/issues/new) with the component name, macOS, Xcode, Swift, and Hugsy versions, a minimal synthetic reproduction, and the expected behavior. Redact paths, credentials, and private content from logs.
 

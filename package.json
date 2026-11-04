@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/pulkitxm/hugsy.git"
   },
-  "homepage": "https://hugsi.pulkit.page/",
+  "homepage": "https://hugsy.pulkit.page/",
   "engines": {
     "node": ">=22.16"
   },

@@ -2,7 +2,7 @@
 
 Expressive, source-owned SwiftUI components for iOS.
 
-[Website](https://hugsi.pulkit.page/) · [Components](https://hugsi.pulkit.page/components/) · [Documentation](https://hugsi.pulkit.page/docs/)
+[Website](https://hugsy.pulkit.page/) · [Components](https://hugsy.pulkit.page/components/) · [Documentation](https://hugsy.pulkit.page/docs/)
 
 Hugsy focuses on difficult interactions: expanding cards, gesture-driven sheets, radial actions, spring-reflow toasts, shared-geometry tabs, and stretchy headers. Each component is a standalone Swift file. Your app gains no third-party runtime dependency.
 
@@ -13,7 +13,7 @@ Copy source from a component page into your iOS app and confirm its Xcode Target
 Or install the native Swift CLI on a Mac with Xcode:
 
 ```sh
-curl -fsSL https://hugsi.pulkit.page/install.sh | sh
+curl -fsSL https://hugsy.pulkit.page/install.sh | sh
 hugsy init --directory YourApp/Components/Hugsy
 hugsy add expanding-cards --dry-run
 hugsy add expanding-cards
