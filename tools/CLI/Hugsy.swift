@@ -5,8 +5,9 @@ import RegistryModels
 
 @main struct Hugsy: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
-    commandName: "hugsy", abstract: "Expressive SwiftUI components. Your source, your rules.",
-    version: "0.2.0",
+    commandName: "hugsy",
+    abstract: "Source-owned iOS components and services, packaged for your app.",
+    version: "0.3.0",
     subcommands: [
       List.self, Info.self, Initialize.self, Add.self, Diff.self, Doctor.self, MCPCommand.self,
       MCPConfig.self,
@@ -68,7 +69,7 @@ private struct Info: ParsableCommand {
       try options.write(
         item,
         text:
-          "\(item.title)\n\(item.description)\n\n\(item.integration)\n\n\(item.usage)\n\n\(item.accessibility)"
+          "\(item.title)\n\(item.description)\nFrameworks: \(item.frameworks.joined(separator: ", "))\nFiles: \(item.files.map(\.path).joined(separator: ", "))\nDependencies: \(item.dependencies.joined(separator: ", "))\n\n\(item.integration)\n\n\(item.usage)\n\n\(item.accessibility)"
       )
     }
   }
@@ -79,25 +80,31 @@ private struct Initialize: ParsableCommand {
     commandName: "init", abstract: "Create hugsy.json without editing your Xcode project.")
   @OptionGroup var options: Options
   @Option(name: .long) var directory = "Hugsy"
+  @Option(name: .long, help: "package (default) or source.") var distribution = "package"
   @Flag(name: .long) var dryRun = false
   func run() throws {
     try options.perform {
+      guard let mode = Distribution(rawValue: distribution) else {
+        throw HugsyError("Distribution must be package or source.")
+      }
       let config = try Installer().initialize(
-        cwd: options.cwd, directory: directory, dryRun: dryRun)
+        cwd: options.cwd, directory: directory, distribution: mode, dryRun: dryRun)
       struct Result: Encodable {
         let config: ProjectConfig
         let dryRun: Bool
       }
       try options.write(
         Result(config: config, dryRun: dryRun),
-        text: "\(dryRun ? "Would create" : "Created") hugsy.json. Components go in \(directory)/.")
+        text:
+          "\(dryRun ? "Would create" : "Created") hugsy.json. \(mode.rawValue) distribution in \(directory)/. Run hugsy add <name>, then hugsy doctor for target integration."
+      )
     }
   }
 }
 
 private struct Add: ParsableCommand {
   static let configuration = CommandConfiguration(
-    abstract: "Copy Swift source, preserving customized files.")
+    abstract: "Install iOS components and their dependencies, preserving customized files.")
   @OptionGroup var options: Options
   @Argument var names: [String]
   @Flag(name: .long) var dryRun = false
@@ -115,14 +122,21 @@ private struct Add: ParsableCommand {
       struct Result: Encodable {
         let dryRun: Bool
         let files: [File]
+        let distribution: Distribution
+        let components: [String]
+        let frameworks: [String]
+        let instructions: [String]
       }
       let files = plan.files.map {
         File(name: $0.name, path: $0.path, status: $0.status, sha256: $0.sha256)
       }
       try options.write(
-        Result(dryRun: dryRun, files: files),
+        Result(
+          dryRun: dryRun, files: files, distribution: plan.distribution,
+          components: plan.components,
+          frameworks: plan.frameworks, instructions: plan.instructions),
         text: files.map { "\(dryRun ? "plan" : "done") \($0.status.rawValue) \($0.path)" }.joined(
-          separator: "\n"))
+          separator: "\n") + "\n\n" + plan.instructions.joined(separator: "\n"))
     }
   }
 }
@@ -138,7 +152,7 @@ private struct Diff: ParsableCommand {
       try options.write(
         plan,
         text: plan.files.map {
-          "\($0.name): \($0.status.rawValue)\n\nInstalled:\n\($0.previous ?? "Not installed")\n\nRegistry:\n\($0.source)"
+          "\($0.name): \($0.status.rawValue)\n\nInstalled:\n\($0.previous.flatMap { String(data: $0, encoding: .utf8) } ?? "Not installed or binary data")\n\nRegistry:\n\(String(data: $0.data, encoding: .utf8) ?? "Binary data (see JSON base64 payload)")"
         }.joined(separator: "\n"))
     }
   }
@@ -153,20 +167,36 @@ private struct Doctor: ParsableCommand {
       let root = URL(fileURLWithPath: options.cwd)
       let configured = FileManager.default.fileExists(
         atPath: root.appendingPathComponent("hugsy.json").path)
-      if configured { _ = try Installer().plan(cwd: options.cwd, names: ["fluid-tabs"]) }
+      let config = configured ? try Installer().configuration(cwd: options.cwd) : nil
+      let plan = configured ? try Installer().plan(cwd: options.cwd, names: []) : nil
       struct Result: Encodable {
         let configured: Bool
         let platform = "ios"
         let minimumVersion = "17.0"
         let swift = "6.0"
-        let note =
-          "Add copied files to your iOS app target in Xcode, or choose a directory inside a Swift package target. No application dependency is added."
+        let distribution: Distribution?
+        let instructions: [String]
+        let conflicts: [String]
+        let targetLinkage =
+          "Not inspected. Confirm the library product or source target membership in Xcode."
       }
-      let result = Result(configured: configured)
+      let instructions =
+        config.map { config in
+          config.distribution == .package
+            ? [
+              "Add Local Package: \(config.directory). Attach HugsyComponents to the app target. Use import HugsyComponents."
+            ]
+            : [
+              "Confirm copied files in \(config.directory) belong to the app target. No extra module import."
+            ]
+        } ?? ["Run hugsy init, then hugsy add <name>."]
+      let result = Result(
+        configured: configured, distribution: config?.distribution, instructions: instructions,
+        conflicts: plan?.files.filter { $0.status == .conflict }.map(\.name) ?? [])
       try options.write(
         result,
         text:
-          "\(configured ? "Configuration valid" : "Run hugsy init first")\nRequires iOS 17+, Swift 6.\n\(result.note)"
+          "\(configured ? "Configuration valid" : "Run hugsy init first")\nRequires iOS 17+, Swift 6.\n\(instructions.joined(separator: "\n"))\n\(result.targetLinkage)"
       )
     }
   }

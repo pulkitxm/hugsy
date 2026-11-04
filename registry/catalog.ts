@@ -1,4 +1,4 @@
 import entries from "./catalog.json" with { type: "json" };
-import { componentSchema } from "./schema.ts";
+import { componentMetadataSchema } from "./schema.ts";
 
-export const catalog = componentSchema.omit({ source: true, sha256: true }).array().parse(entries);
+export const catalog = componentMetadataSchema.array().parse(entries);

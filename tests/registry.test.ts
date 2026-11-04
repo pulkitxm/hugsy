@@ -13,13 +13,19 @@ describe("iOS registry", () => {
     for (const item of registry.components) {
       const source = readFileSync(`registry/swift/${item.filename}`, "utf8");
       expect(item.source).toBe(source);
+      expect(item.frameworks).toEqual(["SwiftUI"]);
+      for (const file of item.files) {
+        const data = readFileSync(`registry/swift/${file.path}`);
+        expect(file.data).toBe(data.toString("base64"));
+        expect(file.sha256).toBe(createHash("sha256").update(data).digest("hex"));
+      }
       expect(createHash("sha256").update(source).digest("hex")).toBe(item.sha256);
       expect(source).toContain("accessibilityReduceMotion");
       expect(item.states.length).toBeGreaterThan(2);
     }
   });
   it("rejects malformed, unknown, and unsafe registry fields", () => {
-    expect(() => registrySchema.parse({ ...registry, version: 2 })).toThrow();
+    expect(() => registrySchema.parse({ ...registry, version: 1 })).toThrow();
     expect(() => registrySchema.parse({ ...registry, platform: "web" })).toThrow();
     expect(() => registrySchema.parse({ ...registry, extra: true })).toThrow();
     const item = registry.components[0];

@@ -24,11 +24,21 @@ await writeFile("public/social.png", social.render().asPng());
 const components = await Promise.all(
   catalog.map(async (item) => {
     const source = await readFile(`registry/swift/${item.filename}`, "utf8");
-    return { ...item, source, sha256: createHash("sha256").update(source).digest("hex") };
+    const files = await Promise.all(
+      item.files.map(async (file) => {
+        const data = await readFile(`registry/swift/${file.path}`);
+        return {
+          ...file,
+          data: data.toString("base64"),
+          sha256: createHash("sha256").update(data).digest("hex"),
+        };
+      }),
+    );
+    return { ...item, files, source, sha256: createHash("sha256").update(source).digest("hex") };
   }),
 );
 const registry = registrySchema.parse({
-  version: 1,
+  version: 2,
   platform: "ios",
   minimumVersion: "17.0",
   components,
