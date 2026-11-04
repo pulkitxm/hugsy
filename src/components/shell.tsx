@@ -1,55 +1,51 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, GitFork, Moon, Sun } from "lucide-react";
-import { useState } from "react";
-
-function Mark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-    </span>
-  );
-}
+import { ArrowUpRight, Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const [dark, setDark] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("hugsy-theme") === "dark";
+      document.documentElement.dataset["theme"] = saved ? "dark" : "light";
+      setDark(saved);
+    } catch {
+      document.documentElement.dataset["theme"] = "light";
+    }
+  }, []);
   function toggleTheme() {
-    const current =
-      document.documentElement.dataset["theme"] ??
-      (globalThis.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    const next = current === "dark" ? "light" : "dark";
-    document.documentElement.dataset["theme"] = next;
-    setDark(next === "dark");
+    const next = !dark;
+    setDark(next);
+    document.documentElement.dataset["theme"] = next ? "dark" : "light";
+    try {
+      localStorage.setItem("hugsy-theme", next ? "dark" : "light");
+    } catch {
+      return;
+    }
   }
   return (
-    <header className="header">
+    <header className="site-header">
       <div className="header-inner">
-        <Link to="/" className="brand" aria-label="Hugsy home">
-          <Mark />
-          hugsy<span className="brand-period">.</span>
+        <Link to="/" className="wordmark" aria-label="Hugsy home">
+          hugsy<span>.</span>
         </Link>
         <nav aria-label="Main navigation">
-          <Link to="/" hash="components">
-            Components<span className="nav-count">06</span>
-          </Link>
+          <Link to="/components/">Components</Link>
           <Link to="/docs/">Documentation</Link>
-        </nav>
-        <div className="header-actions">
           <a href="https://github.com/pulkitxm/hugsy" className="github-link">
-            <GitFork size={17} />
             GitHub
             <ArrowUpRight size={13} />
           </a>
-          <span className="header-divider" />
-          <button
-            className="icon-button"
-            type="button"
-            aria-label="Toggle color theme"
-            onClick={toggleTheme}
-          >
-            {dark ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
-        </div>
+        </nav>
+        <button
+          className="icon-button theme-toggle"
+          type="button"
+          aria-label="Toggle color theme"
+          aria-pressed={dark}
+          onClick={toggleTheme}
+        >
+          {dark ? <Sun size={17} /> : <Moon size={17} />}
+        </button>
       </div>
     </header>
   );
@@ -57,20 +53,17 @@ export function Header() {
 
 export function Footer() {
   return (
-    <footer className="footer">
-      <div>
-        <Link to="/" className="brand">
-          <Mark />
+    <footer className="site-footer">
+      <div className="footer-inner">
+        <Link to="/" className="wordmark">
           hugsy.
         </Link>
-        <p>A little more feeling. A lot less rebuilding.</p>
-      </div>
-      <div className="footer-right">
-        <span>Made for the Mac. Yours to make.</span>
-        <a href="https://github.com/pulkitxm/hugsy/blob/main/LICENSE">
-          MIT License <ArrowUpRight size={12} />
-        </a>
-        <span className="mono">© 2026 HUGSY</span>
+        <p>SwiftUI components. Yours to make.</p>
+        <div>
+          <a href="https://github.com/pulkitxm/hugsy">GitHub</a>
+          <a href="https://github.com/pulkitxm/hugsy/blob/main/LICENSE">MIT License</a>
+          <span>© 2026</span>
+        </div>
       </div>
     </footer>
   );

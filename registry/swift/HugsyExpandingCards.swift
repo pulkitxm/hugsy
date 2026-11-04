@@ -25,46 +25,43 @@ public struct HugsyExpandingCards<Item: Identifiable, Content: View>: View {
   }
 
   public var body: some View {
-    ZStack(alignment: .top) {
-      VStack(spacing: 16) {
-        ForEach(items) { item in
+    VStack(spacing: 16) {
+      ForEach(items) { item in
+        if selected == item.id {
+          content(item, true)
+            .frame(maxWidth: .infinity).frame(height: expandedHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 32))
+            .matchedGeometryEffect(id: item.id, in: geometry, anchor: .topLeading)
+            .overlay(alignment: .topTrailing) {
+              Button("Close details", systemImage: "xmark") { close() }
+                .labelStyle(.iconOnly).frame(width: 44, height: 44)
+                .background(.regularMaterial, in: Circle()).padding(16)
+                .accessibilityFocused($focused, equals: item.id)
+            }
+            .offset(y: max(0, drag.height))
+            .gesture(
+              DragGesture().updating($drag) { value, state, _ in
+                state = value.translation
+              }.onEnded { value in
+                if value.predictedEndTranslation.height > 140 { close() }
+              }
+            )
+            .accessibilityAction(.escape) { close() }
+            .onAppear { focused = item.id }
+        } else if selected == nil {
           Button {
             selected = item.id
           } label: {
             content(item, false)
               .frame(maxWidth: .infinity).frame(height: cardHeight)
               .clipShape(RoundedRectangle(cornerRadius: 28))
-              .matchedGeometryEffect(id: item.id, in: geometry)
+              .matchedGeometryEffect(id: item.id, in: geometry, anchor: .topLeading)
           }
           .buttonStyle(.plain)
-          .opacity(selected == item.id ? 0 : 1)
           .accessibilityHint("Opens card details")
           .accessibilityFocused($focused, equals: item.id)
+          .transition(.opacity)
         }
-      }
-      .accessibilityHidden(selected != nil)
-      if let item = items.first(where: { $0.id == selected }) {
-        content(item, true)
-          .frame(maxWidth: .infinity).frame(height: expandedHeight)
-          .clipShape(RoundedRectangle(cornerRadius: 32))
-          .matchedGeometryEffect(id: item.id, in: geometry, isSource: false)
-          .overlay(alignment: .topTrailing) {
-            Button("Close details", systemImage: "xmark") { close() }
-              .labelStyle(.iconOnly).padding(14)
-              .background(.regularMaterial, in: Circle()).padding(16)
-              .accessibilityFocused($focused, equals: item.id)
-          }
-          .offset(y: max(0, drag.height))
-          .gesture(
-            DragGesture().updating($drag) { value, state, _ in
-              state = value.translation
-            }.onEnded { value in
-              if value.predictedEndTranslation.height > 140 { close() }
-            }
-          )
-          .accessibilityAction(.escape) { close() }
-          .onAppear { focused = item.id }
-          .zIndex(2)
       }
     }
     .animation(reduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.86), value: selected)

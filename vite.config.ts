@@ -18,6 +18,11 @@ export default defineConfig({
       pages: [
         { path: "/" },
         { path: "/docs" },
+        { path: "/components" },
+        { path: "/docs/installation" },
+        { path: "/docs/cli" },
+        { path: "/docs/mcp" },
+        { path: "/docs/accessibility" },
         ...catalog.map((item) => ({ path: `/components/${item.name}` })),
       ],
     }),

@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import sirv from "sirv";
 
-const assets = sirv("dist/client", { dev: true });
+const assets = sirv("dist/client", { dev: true, gzip: true, brotli: true });
 const server = createServer((request, response) => {
   if (request.url === "/hugsy") {
     response.writeHead(301, { Location: "/hugsy/" }).end();
