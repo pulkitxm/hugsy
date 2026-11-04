@@ -7,7 +7,16 @@ import { registrySchema } from "../registry/schema";
 
 const root = "dist/client";
 const origin = "https://pulkitxm.github.io/hugsy";
-const paths = ["/", "/docs/", ...catalog.map((item) => `/components/${item.name}/`)];
+const paths = [
+  "/",
+  "/components/",
+  "/docs/",
+  "/docs/installation/",
+  "/docs/cli/",
+  "/docs/mcp/",
+  "/docs/accessibility/",
+  ...catalog.map((item) => `/components/${item.name}/`),
+];
 function elements(node: DefaultTreeAdapterTypes.Node): DefaultTreeAdapterTypes.Element[] {
   const own = "tagName" in node ? [node] : [];
   return "childNodes" in node ? own.concat(node.childNodes.flatMap(elements)) : own;

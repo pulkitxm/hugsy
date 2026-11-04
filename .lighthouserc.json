@@ -4,7 +4,7 @@
       "startServerCommand": "bun scripts/serve.ts",
       "url": [
         "http://127.0.0.1:4173/hugsy/",
-        "http://127.0.0.1:4173/hugsy/components/card-stack/",
+        "http://127.0.0.1:4173/hugsy/components/expanding-cards/",
         "http://127.0.0.1:4173/hugsy/docs/"
       ],
       "numberOfRuns": 3,

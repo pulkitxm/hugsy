@@ -1,9 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
+import { componentParameters } from "../../registry/parameters";
 import { registry } from "../../registry/registry";
 import { CodeBlock } from "../components/code-block";
-import { ComponentDemo } from "../components/demos";
+import { IPhone } from "../components/iphone";
+import { LibrarySidebar } from "../components/library-sidebar";
 import { seo } from "../lib/seo";
 
 export const Route = createFileRoute("/components/$name")({
@@ -25,109 +27,128 @@ function ComponentPage() {
   const item = Route.useLoaderData();
   const [view, setView] = useState("Preview");
   return (
-    <div className="component-page section-width">
-      <Link to="/" hash="components" className="back-link">
-        <ArrowLeft size={14} />
-        Back to the collection
-      </Link>
-      <div className="component-page-heading">
-        <span className="eyebrow">
-          {item.category.toUpperCase()} / {item.technique.toUpperCase()}
-        </span>
-        <h1>
-          {item.title}
-          <span className="orange-period">.</span>
-        </h1>
-        <p>{item.description}</p>
-        <div className="detail-tags">
-          <span>
-            <Check size={12} />
-            macOS 14+
-          </span>
-          <span>
-            <Check size={12} />
-            Swift 6
-          </span>
-          <span>
-            <Check size={12} />
-            Reduce Motion
-          </span>
-          <span>
-            <Check size={12} />
-            No dependencies
-          </span>
-        </div>
-      </div>
-      <div className="detail-layout">
-        <div>
-          <div className="preview-switch">
-            {["Preview", "Source"].map((tab) => (
-              <button
-                type="button"
-                key={tab}
-                aria-pressed={view === tab}
-                className={view === tab ? "active" : ""}
-                onClick={() => setView(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-            <span>SWIFTUI / BROWSER RECREATION</span>
-          </div>
-          {view === "Preview" ? (
-            <div className={`detail-demo preview-${item.name}`}>
-              <ComponentDemo name={item.name} />
-            </div>
-          ) : (
-            <CodeBlock label={item.filename} code={item.source} />
-          )}
-          <p className="preview-disclaimer">
-            Interactive browser recreation, not a SwiftUI runtime. Run{" "}
-            <code>swift run HugsyGallery</code> from the repository for the native implementation.
-          </p>
-          <section className="detail-section">
-            <h2>Installation</h2>
-            <p>
-              <Link to="/docs/">Install the CLI</Link> once, then add the source to your project.
-            </p>
-            <CodeBlock code={`hugsy add ${item.name}`} />
-          </section>
-          <section className="detail-section">
-            <h2>Usage</h2>
-            <p>{item.integration}</p>
-            <CodeBlock label="SwiftUI" code={item.usage} />
-          </section>
-          <section className="detail-section">
-            <h2>Accessibility & motion</h2>
-            <p>{item.accessibility}</p>
-            <h3>Interaction states</h3>
-            <div className="state-tags">
-              {item.states.map((state) => (
-                <span key={state}>{state}</span>
-              ))}
-            </div>
-          </section>
-        </div>
-        <aside className="detail-aside">
-          <span className="eyebrow">GIVE IT A TRY</span>
-          <p>{item.interaction}</p>
-          <hr />
-          <span className="eyebrow">ONE FILE. ALL YOURS.</span>
-          <p>Copy it. Change the spring. Make it feel like your app.</p>
-          <a href={`/hugsy/r/${item.name}.json`}>
-            Registry JSON
-            <ArrowUpRight size={13} />
-          </a>
-          <a href={`https://github.com/pulkitxm/hugsy/blob/main/registry/swift/${item.filename}`}>
-            View Swift source
-            <ArrowUpRight size={13} />
-          </a>
-          <Link to="/docs/" hash="mcp">
-            Use with MCP
-            <ArrowUpRight size={13} />
+    <div className="library-layout container">
+      <LibrarySidebar />
+      <article className="component-document">
+        <div className="page-heading">
+          <Link to="/components/" className="overline">
+            Components / {item.category}
           </Link>
-        </aside>
-      </div>
+          <h1>{item.title}</h1>
+          <p>{item.description}</p>
+          <div className="component-meta">
+            <span>iOS 17+</span>
+            <span>Swift 6</span>
+            <span>MIT</span>
+            <a href={`https://github.com/pulkitxm/hugsy/blob/main/registry/swift/${item.filename}`}>
+              View source
+              <ArrowUpRight size={12} />
+            </a>
+          </div>
+        </div>
+        <div className="preview-tabs">
+          {["Preview", "Source"].map((tab) => (
+            <button
+              type="button"
+              key={tab}
+              aria-pressed={view === tab}
+              onClick={() => setView(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        {view === "Preview" ? (
+          <div className={`native-stage visual-${item.name}`}>
+            <IPhone key={item.name} name={item.name} title={item.title} playable />
+          </div>
+        ) : (
+          <div className="source-preview">
+            <CodeBlock code={item.source} label={item.filename} />
+          </div>
+        )}
+        <p className="native-note">
+          Real SwiftUI, captured on an iPhone 17 Pro simulator.{" "}
+          <a href="https://github.com/pulkitxm/hugsy/tree/main/examples">
+            Run the native gallery
+            <ArrowUpRight size={10} />
+          </a>
+        </p>
+        <section className="doc-section" id="installation">
+          <h2>Installation</h2>
+          <p>
+            <Link to="/docs/installation/">Install the native Swift CLI</Link>, then add the
+            component to your app.
+          </p>
+          <CodeBlock code={`hugsy add ${item.name}`} />
+          <p>
+            Prefer to copy it yourself? Open the{" "}
+            <a href={`/hugsy/r/${item.name}.swift`}>complete Swift file</a> and add it to your iOS
+            app target in Xcode. No package dependency is required.
+          </p>
+        </section>
+        <section className="doc-section" id="usage">
+          <h2>Usage</h2>
+          <CodeBlock code={item.usage} label="SwiftUI" />
+          <p>{item.integration}</p>
+        </section>
+        <section className="doc-section" id="api">
+          <h2>API reference</h2>
+          <div className="api-table component-api">
+            <table>
+              <caption className="sr-only">{item.title} parameters</caption>
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Type & behavior</th>
+                  <th>Default</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(componentParameters[item.name] ?? []).map((parameter) => (
+                  <tr key={parameter.name}>
+                    <td>
+                      <code>{parameter.name}</code>
+                    </td>
+                    <td>
+                      <code>{parameter.type}</code>
+                      <p>{parameter.description}</p>
+                    </td>
+                    <td>
+                      <code>{parameter.defaultValue}</code>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section className="doc-section" id="interaction">
+          <h2>Interaction</h2>
+          <p>{item.interaction}</p>
+          <div className="interaction-states">
+            {item.states.map((state) => (
+              <span key={state}>{state}</span>
+            ))}
+          </div>
+        </section>
+        <section className="doc-section" id="accessibility">
+          <h2>Accessibility</h2>
+          <p>{item.accessibility}</p>
+          <p>
+            Test with VoiceOver, Dynamic Type, and Reduce Motion on a physical device before
+            shipping. The gallery demonstrates the interaction, not every application-specific
+            content state.
+          </p>
+        </section>
+        <div className="document-footer">
+          <Link to="/components/">Back to components</Link>
+          <a href="https://github.com/pulkitxm/hugsy/issues">
+            Suggest an improvement
+            <ArrowUpRight size={12} />
+          </a>
+        </div>
+      </article>
     </div>
   );
 }

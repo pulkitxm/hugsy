@@ -6,7 +6,11 @@ export default defineConfig({
   forbidOnly: true,
   retries: process.env["CI"] ? 1 : 0,
   workers: 4,
-  use: { baseURL: "http://127.0.0.1:4173/hugsy/", trace: "retain-on-failure" },
+  use: {
+    baseURL: "http://127.0.0.1:4173/hugsy/",
+    trace: "retain-on-failure",
+    ...(!process.env["CI"] ? { channel: "chrome" } : {}),
+  },
   projects: [
     {
       name: "desktop",
