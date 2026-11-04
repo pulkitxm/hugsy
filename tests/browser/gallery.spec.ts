@@ -193,6 +193,20 @@ test("unknown routes return a real static 404", async ({ request }) => {
   expect((await request.get("components/not-a-component/")).status()).toBe(404);
 });
 
+test("prerendered screen controls wait for browser handlers", async ({ browser, baseURL }) => {
+  if (!baseURL) {
+    throw new Error("Configure the website origin before testing preview controls.");
+  }
+  const page = await browser.newPage({ javaScriptEnabled: false, baseURL });
+  try {
+    await page.goto("components/fluid-tabs/");
+    await expect(page.getByRole("button", { name: "Following", exact: true })).toBeDisabled();
+    await expect(page.locator(".native-stage img")).toBeVisible();
+  } finally {
+    await page.close();
+  }
+});
+
 test("multi-screen previews select real native captures without starting a simulator", async ({
   page,
   request,
