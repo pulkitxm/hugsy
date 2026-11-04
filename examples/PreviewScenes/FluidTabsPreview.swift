@@ -11,7 +11,7 @@ struct FluidTabsPreview: View {
     Binding(
       get: { session.screen.label },
       set: { label in
-        if let screen = session.component.preview.screens.first(where: { $0.label == label }) {
+        if let screen = session.definition.screens.first(where: { $0.label == label }) {
           session.show(screen: screen.id)
         }
       })
@@ -20,7 +20,7 @@ struct FluidTabsPreview: View {
   var body: some View {
     PreviewScaffold(session: session) {
       HugsyFluidTabs(
-        tabs: session.component.preview.screens.map(\.label), selection: selection)
+        tabs: session.definition.screens.map(\.label), selection: selection)
       PreviewArtwork(
         colors: session.screen.id == "following"
           ? PreviewContent.after.colors : PreviewContent.still.colors

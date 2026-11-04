@@ -14,6 +14,7 @@ public struct PreviewPosition: Hashable, Sendable {
   public enum Phase: String, Sendable { case ready, playing, finished, cancelled }
 
   public let component: Component
+  public let definition: PreviewDefinition
   public let entryScreen: PreviewScreen
   public private(set) var screen: PreviewScreen
   public private(set) var state: String
@@ -24,13 +25,17 @@ public struct PreviewPosition: Hashable, Sendable {
   public var position: PreviewPosition { .init(screen: screen.id, state: state) }
 
   public init(component: Component, screen: String? = nil, state: String? = nil) throws {
-    try component.preview.validate()
-    let selected = try component.preview.screen(screen)
+    guard let preview = component.preview else {
+      throw PreviewDefinitionError.invalid("This component does not declare a visual preview.")
+    }
+    try preview.validate()
+    let selected = try preview.screen(screen)
     let selectedState = state ?? selected.initialState
     guard selected.states.contains(selectedState) else {
       throw PreviewDefinitionError.invalid("Unknown preview state: \(selectedState)")
     }
     self.component = component
+    self.definition = preview
     self.entryScreen = selected
     self.screen = selected
     self.state = selectedState
@@ -38,7 +43,7 @@ public struct PreviewPosition: Hashable, Sendable {
 
   public func show(screen id: String, state: String? = nil) {
     do {
-      let selected = try component.preview.screen(id)
+      let selected = try definition.screen(id)
       let selectedState = state ?? selected.initialState
       guard selected.states.contains(selectedState) else {
         throw PreviewDefinitionError.invalid("Unknown preview state: \(selectedState)")

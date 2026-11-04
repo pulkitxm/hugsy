@@ -37,7 +37,7 @@ export const componentMetadataSchema = z.strictObject({
   accessibility: z.string().min(1),
   integration: z.string().min(1),
   usage: z.string().min(1),
-  preview: previewDefinitionSchema,
+  preview: previewDefinitionSchema.optional(),
 });
 export const componentSchema = componentMetadataSchema.extend({
   files: z

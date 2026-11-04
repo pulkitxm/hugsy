@@ -92,7 +92,7 @@ describe("shared preview definitions", () => {
       expect(previewDefinitionSchema.safeParse(component.preview).success).toBe(true);
     }
     const tabs = catalog.find((component) => component.name === "fluid-tabs");
-    expect(tabs?.preview.screens.map((screen) => screen.id)).toEqual([
+    expect(tabs?.preview?.screens.map((screen) => screen.id)).toEqual([
       "for-you",
       "following",
       "saved",

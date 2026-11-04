@@ -47,7 +47,7 @@ struct PreviewScaffold<Content: View>: View {
           Text("A LITTLE COLLECTION OF GOOD THINGS").font(
             .system(size: 8, weight: .medium, design: .monospaced)
           ).tracking(1.1).foregroundStyle(.secondary)
-          Text(session.component.preview.headline).font(.system(size: 38, weight: .medium))
+          Text(session.definition.headline).font(.system(size: 38, weight: .medium))
             .tracking(-1.7).lineSpacing(-2)
         }
         content

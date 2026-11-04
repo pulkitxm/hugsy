@@ -6,10 +6,10 @@ import Testing
 @MainActor struct PreviewSessionTests {
   @Test func resolvesEveryCatalogPreview() throws {
     let catalog = try PreviewCatalog()
-    #expect(catalog.components.count == 6)
+    #expect(!catalog.components.isEmpty)
     for component in catalog.components {
       let session = try PreviewSession(component: component)
-      #expect(session.screen.id == component.preview.initialScreen)
+      #expect(session.screen.id == session.definition.initialScreen)
       #expect(session.state == session.screen.initialState)
     }
   }

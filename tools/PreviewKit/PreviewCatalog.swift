@@ -11,7 +11,9 @@ public struct PreviewCatalog: Sendable {
     guard let data = Data(base64Encoded: embeddedRegistryBase64) else {
       throw PreviewDefinitionError.invalid("The bundled preview catalog is invalid.")
     }
-    components = try JSONDecoder().decode(RegistryDocument.self, from: data).components
+    components = try JSONDecoder().decode(RegistryDocument.self, from: data).components.filter {
+      $0.preview != nil
+    }
   }
 
   public func component(_ id: String) throws -> Component {

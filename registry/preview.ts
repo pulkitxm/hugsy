@@ -11,7 +11,7 @@ export const previewStepSchema = z.strictObject({
   durationMilliseconds: z.number().int().min(100).max(10000),
 });
 
-export const previewScreenSchema = z.strictObject({
+const previewScreenSchema = z.strictObject({
   id: identifier,
   label: z.string().min(1),
   asset: identifier,
