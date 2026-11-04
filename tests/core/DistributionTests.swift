@@ -184,4 +184,143 @@ import Testing
     }
     #expect(try FileManager.default.contentsOfDirectory(atPath: outside.path).isEmpty)
   }
+
+  @Test func sourceModeRejectsCaseInsensitiveFileCollisions() throws {
+    let root = try project()
+    defer { try? FileManager.default.removeItem(at: root) }
+    let first = try component(
+      "first", files: ["Helpers/Shared.swift": Data("struct First {}\n".utf8)])
+    let second = try component(
+      "second", files: ["helpers/shared.swift": Data("struct Second {}\n".utf8)])
+    let installer = Installer(
+      registry: try HugsyRegistry(document: RegistryDocument(components: [first, second])))
+    _ = try installer.initialize(cwd: root.path, directory: "UI", distribution: .source)
+    #expect(throws: HugsyError.self) {
+      try installer.install(cwd: root.path, names: ["first", "second"])
+    }
+    #expect(!FileManager.default.fileExists(atPath: root.appendingPathComponent("UI").path))
+  }
+
+  @Test func packageRollbackPreservesStateAndRejectsRemovedFiles() throws {
+    let root = try project()
+    defer { try? FileManager.default.removeItem(at: root) }
+    let original = try component(
+      "service", files: ["Helper.swift": Data("struct Helper {}\n".utf8)],
+      source: "public let value = 1\n")
+    let changed = try component(
+      "service", files: ["Helper.swift": Data("struct Helper {}\n".utf8)],
+      source: "public let value = 2\n")
+    let installer = Installer(
+      registry: try HugsyRegistry(document: RegistryDocument(components: [original])))
+    _ = try installer.initialize(cwd: root.path, directory: "Hugsy")
+    _ = try installer.install(cwd: root.path, names: ["service"])
+    let stateURL = root.appendingPathComponent("Hugsy/hugsy.lock.json")
+    let previousState = try Data(contentsOf: stateURL)
+    var writes = 0
+    let failing = Installer(
+      registry: try HugsyRegistry(document: RegistryDocument(components: [changed]))
+    ) { source, destination in
+      writes += 1
+      if writes == 2 { throw HugsyError("Synthetic state write failure") }
+      try Installer.renameFile(source, destination)
+    }
+    #expect(throws: HugsyError.self) { try failing.install(cwd: root.path, names: ["service"]) }
+    #expect(try Data(contentsOf: stateURL) == previousState)
+    #expect(
+      try installer.plan(cwd: root.path, names: ["service"]).files.allSatisfy {
+        $0.status == .unchanged
+      })
+    let removed = try component("service")
+    let removal = Installer(
+      registry: try HugsyRegistry(document: RegistryDocument(components: [removed])))
+    #expect(throws: HugsyError.self) { try removal.install(cwd: root.path, names: ["service"]) }
+    #expect(try Data(contentsOf: stateURL) == previousState)
+    try Data("invalid state\n".utf8).write(to: stateURL)
+    #expect(throws: DecodingError.self) { try installer.plan(cwd: root.path, names: ["service"]) }
+  }
+
+  @Test(.timeLimit(.minutes(2))) func generatedPackageCompilesInMixedFrameworkIOSConsumer() throws {
+    let root = try project()
+    defer { try? FileManager.default.removeItem(at: root) }
+    let cache = try component(
+      "image-cache", files: ["Helpers/Storage.swift": Data("let fixtureValue = 42\n".utf8)],
+      source:
+        "public struct HugsyFixtureCache: Sendable { public init() {} ; public var value: Int { fixtureValue } }\n"
+    )
+    let image = try component(
+      "cached-image", frameworks: ["UIKit", "Foundation"], dependencies: ["image-cache"],
+      files: ["asset.bin": Data([0, 255, 128])],
+      source: """
+        import Foundation
+        import UIKit
+
+        @MainActor public final class HugsyFixtureImage: UIView {
+          public static func resourceData() throws -> Data {
+            guard let url = Bundle.module.url(forResource: "asset", withExtension: "bin", subdirectory: "Resources/cached-image") else {
+              throw CocoaError(.fileReadNoSuchFile)
+            }
+            _ = HugsyFixtureCache().value
+            return try Data(contentsOf: url)
+          }
+        }
+
+        """)
+    let tabs = try HugsyRegistry().component("fluid-tabs")
+    let installer = Installer(
+      registry: try HugsyRegistry(document: RegistryDocument(components: [cache, image, tabs])))
+    _ = try installer.initialize(cwd: root.path, directory: "Hugsy")
+    _ = try installer.install(cwd: root.path, names: ["cached-image", "fluid-tabs"])
+    let consumer = root.appendingPathComponent("Consumer")
+    let sources = consumer.appendingPathComponent("Sources/Consumer")
+    try FileManager.default.createDirectory(at: sources, withIntermediateDirectories: true)
+    try """
+    // swift-tools-version: 6.0
+    import PackageDescription
+
+    let package = Package(
+      name: "Consumer", platforms: [.iOS(.v17)],
+      products: [.library(name: "Consumer", targets: ["Consumer"])],
+      dependencies: [.package(path: "../Hugsy")],
+      targets: [.target(name: "Consumer", dependencies: [.product(name: "HugsyComponents", package: "Hugsy")])]
+    )
+
+    """.write(
+      to: consumer.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+    try """
+    import HugsyComponents
+    import SwiftUI
+    import UIKit
+
+    @MainActor public func integration() throws -> some View {
+      _ = try HugsyFixtureImage.resourceData()
+      _ = HugsyFixtureImage(frame: .zero)
+      return HugsyFluidTabs(tabs: ["One", "Two"], selection: .constant("One"))
+    }
+
+    """.write(
+      to: sources.appendingPathComponent("Consumer.swift"), atomically: true, encoding: .utf8)
+    let build = Process()
+    let log = root.appendingPathComponent("build.log")
+    _ = FileManager.default.createFile(atPath: log.path, contents: nil)
+    let handle = try FileHandle(forWritingTo: log)
+    defer { try? handle.close() }
+    build.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
+    build.currentDirectoryURL = consumer
+    build.arguments = [
+      "xcodebuild", "-quiet", "-scheme", "Consumer", "-sdk", "iphonesimulator", "-destination",
+      "generic/platform=iOS Simulator", "-derivedDataPath",
+      root.appendingPathComponent("DerivedData").path,
+      "CODE_SIGNING_ALLOWED=NO", "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES", "build",
+    ]
+    build.standardOutput = handle
+    build.standardError = handle
+    try build.run()
+    build.waitUntilExit()
+    let diagnostics = try String(contentsOf: log, encoding: .utf8)
+    #expect(build.terminationStatus == 0, "\(diagnostics)")
+    let resource = root.appendingPathComponent(
+      "DerivedData/Build/Products/Debug-iphonesimulator/HugsyComponents_HugsyComponents.bundle/Resources/cached-image/asset.bin"
+    )
+    #expect(try Data(contentsOf: resource) == Data([0, 255, 128]))
+  }
 }

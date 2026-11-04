@@ -1,4 +1,4 @@
-import data from "../generated/registry.json";
-import { registrySchema } from "./schema";
+import data from "../generated/site-registry.json";
+import { websiteRegistrySchema } from "./schema";
 
-export const registry = registrySchema.parse(data);
+export const registry = websiteRegistrySchema.parse(data);

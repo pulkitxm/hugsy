@@ -196,7 +196,7 @@ private struct Doctor: ParsableCommand {
       try options.write(
         result,
         text:
-          "\(configured ? "Configuration valid" : "Run hugsy init first")\nRequires iOS 17+, Swift 6.\n\(instructions.joined(separator: "\n"))\n\(result.targetLinkage)"
+          "\(configured ? "Configuration valid" : "Run hugsy init first")\nRequires iOS 17+, Swift 6.\n\(instructions.joined(separator: "\n"))\n\(result.targetLinkage)\nLocal conflicts: \(result.conflicts.isEmpty ? "none" : result.conflicts.joined(separator: ", "))"
       )
     }
   }
