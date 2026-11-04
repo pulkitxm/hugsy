@@ -8,14 +8,14 @@ const files = execFileSync(
   { encoding: "utf8" },
 )
   .split("\0")
-  .filter(Boolean);
+  .filter((path) => path.length > 0 && lstatSync(path, { throwIfNoEntry: false }) !== undefined);
 const failures: string[] = [];
 for (const path of files) {
   if (lstatSync(path).isSymbolicLink()) {
     failures.push(`${path}: Tracked symlinks are not allowed`);
     continue;
   }
-  if (/\.(?:jpg|png|mp4)$/.test(path)) {
+  if (/\.(?:webp|jpg|png|mp4)$/.test(path)) {
     if (lstatSync(path).size > 6000000) {
       failures.push(`${path}: Media exceeds 6 MB`);
     }
