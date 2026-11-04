@@ -26,7 +26,7 @@ test("every route is prerendered, directly accessible, and free of overflow or b
     expect(await response?.text()).toContain("<h1");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `https://hugsy.pulkit.page/${path}`,
+      `https://hugsi.pulkit.page/${path}`,
     );
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,

@@ -1,1 +1,1 @@
-export const siteOrigin = "https://hugsy.pulkit.page";
+export const siteOrigin = "https://hugsi.pulkit.page";

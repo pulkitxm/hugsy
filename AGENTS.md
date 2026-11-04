@@ -12,7 +12,7 @@ Hugsy is an animation-heavy, iOS-first, copy-and-own SwiftUI registry. Do not ad
 - New components need source, metadata, interaction states, usage, a browser demo, and compilation in the native gallery.
 - Pages deploys only `dist/client`. Never introduce runtime server functions, secrets, analytics, or external fonts.
 - Keep website, build, and capture automation in TypeScript. Do not introduce Python. Swift is for the native components, example app, CLI, and MCP server.
-- Maintain root-path routing on `https://hugsy.pulkit.page`, unique canonical URLs, prerendered content, and gzip budgets.
+- Maintain root-path routing on `https://hugsi.pulkit.page`, unique canonical URLs, prerendered content, and gzip budgets.
 - Use synthetic demo content. Never publish project data or credentials in screenshots or logs.
 - Use Pukbot for supported GitHub writes, checkpoint commits, and squash merges. PR descriptions must be one line.
 
