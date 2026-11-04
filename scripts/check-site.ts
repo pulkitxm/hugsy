@@ -4,9 +4,9 @@ import { gzipSync } from "node:zlib";
 import { type DefaultTreeAdapterTypes, parse } from "parse5";
 import { catalog } from "../registry/catalog";
 import { registrySchema } from "../registry/schema";
+import { siteOrigin as origin } from "../registry/site";
 
 const root = "dist/client";
-const origin = "https://pulkitxm.github.io/hugsy";
 const paths = [
   "/",
   "/components/",
@@ -60,10 +60,10 @@ for (const path of paths) {
         continue;
       }
       const url = new URL(value, `${origin}${path}`);
-      if (!url.pathname.startsWith("/hugsy/")) {
-        throw new Error(`Link escapes Pages base: ${value}`);
+      if (url.origin !== origin) {
+        throw new Error(`Unexpected protocol-relative link: ${value}`);
       }
-      const file = join(root, decodeURIComponent(url.pathname.slice("/hugsy/".length)));
+      const file = join(root, decodeURIComponent(url.pathname.slice(1)));
       if (!existsSync(file) && !existsSync(join(file, "index.html"))) {
         throw new Error(`Broken local link: ${path} -> ${value}`);
       }
@@ -79,10 +79,14 @@ for (const file of [
   ".nojekyll",
   "social.png",
   "404.html",
+  "CNAME",
 ]) {
   if (!existsSync(join(root, file))) {
     throw new Error(`Missing publish artifact: ${file}`);
   }
+}
+if (readFileSync(join(root, "CNAME"), "utf8").trim() !== new URL(origin).hostname) {
+  throw new Error("Pages domain does not match canonical origin");
 }
 let javascript = 0;
 let css = 0;

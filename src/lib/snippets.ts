@@ -1,4 +1,4 @@
-export const installCommand = "curl -fsSL https://pulkitxm.github.io/hugsy/install.sh | sh";
+export const installCommand = "curl -fsSL https://hugsy.pulkit.page/install.sh | sh";
 export const firstComponent =
   "cd YourApp\nhugsy init --directory YourApp/Components/Hugsy\nhugsy add expanding-cards --dry-run\nhugsy add expanding-cards";
 export const packageConfig = '{\n  "version": 1,\n  "directory": "YourApp/Components/Hugsy"\n}';

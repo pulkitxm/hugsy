@@ -3,9 +3,9 @@
     "collect": {
       "startServerCommand": "HUGSY_PORT=4174 bun scripts/serve.ts",
       "url": [
-        "http://127.0.0.1:4174/hugsy/",
-        "http://127.0.0.1:4174/hugsy/components/expanding-cards/",
-        "http://127.0.0.1:4174/hugsy/docs/"
+        "http://127.0.0.1:4174/",
+        "http://127.0.0.1:4174/components/expanding-cards/",
+        "http://127.0.0.1:4174/docs/"
       ],
       "numberOfRuns": 3,
       "settings": { "chromeFlags": "--headless --no-sandbox" }

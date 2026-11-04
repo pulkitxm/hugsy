@@ -12,7 +12,7 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "stylesheet", href: stylesheet },
-      { rel: "icon", type: "image/svg+xml", href: "/hugsy/favicon.svg" },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
     ],
   }),
   shellComponent: Shell,

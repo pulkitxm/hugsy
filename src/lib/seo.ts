@@ -1,4 +1,4 @@
-const origin = "https://pulkitxm.github.io/hugsy";
+import { siteOrigin as origin } from "../../registry/site";
 
 export function seo(title: string, description: string, path: string) {
   return {

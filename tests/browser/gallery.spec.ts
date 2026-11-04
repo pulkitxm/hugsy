@@ -26,7 +26,7 @@ test("every route is prerendered, directly accessible, and free of overflow or b
     expect(await response?.text()).toContain("<h1");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `https://pulkitxm.github.io/hugsy/${path}`,
+      `https://hugsy.pulkit.page/${path}`,
     );
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
@@ -48,7 +48,7 @@ test("landing page is separate from collection and links to real iPhone showcase
   ).toBeVisible();
   await expect(page.getByRole("searchbox")).toHaveCount(0);
   await page.getByRole("link", { name: "Browse components" }).click();
-  await expect(page).toHaveURL(/\/hugsy\/components\/$/);
+  await expect(page).toHaveURL(/\/components\/$/);
   await expect(page.locator("article.collection-card")).toHaveCount(6);
 });
 

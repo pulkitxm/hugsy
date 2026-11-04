@@ -11,7 +11,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-The development site is at `http://localhost:3000/hugsy/`. The static preview is at `http://127.0.0.1:4173/hugsy/`.
+The development site is at `http://localhost:3000/`. The static preview is at `http://127.0.0.1:4173/`.
 
 ```sh
 bun run build

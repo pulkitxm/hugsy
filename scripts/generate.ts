@@ -5,6 +5,7 @@ import { createHighlighter } from "shiki";
 import { catalog } from "../registry/catalog";
 import { highlightSchema } from "../registry/highlight-schema";
 import { registrySchema } from "../registry/schema";
+import { siteOrigin as origin } from "../registry/site";
 import {
   firstComponent,
   installCommand,
@@ -43,7 +44,6 @@ await Promise.all(
     writeFile(`public/r/${item.name}.swift`, item.source),
   ]),
 );
-const origin = "https://pulkitxm.github.io/hugsy";
 const paths = [
   "/",
   "/components/",
@@ -67,10 +67,7 @@ await writeFile(
   "public/sitemap.xml",
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${origin}${path}</loc></url>`).join("")}</urlset>\n`,
 );
-await writeFile(
-  "public/robots.txt",
-  `User-agent: *\nAllow: /hugsy/\nSitemap: ${origin}/sitemap.xml\n`,
-);
+await writeFile("public/robots.txt", `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`);
 await writeFile(
   "public/llms-full.txt",
   `# Hugsy\n\nCopy-and-own animated SwiftUI components. iOS 17+, Swift 6. MIT licensed. No application dependencies.\n\nInstall the native Swift CLI from ${origin}/docs/. No JavaScript runtime is required to use Hugsy. Run hugsy list --json, hugsy info <name> --json, hugsy init, then hugsy add <name> --dry-run --json. Never overwrite customized source without permission. MCP: hugsy mcp.\n\n${components.map((item) => `## ${item.title}\n\n${item.description}\n\n${item.integration}\n\n${item.accessibility}\n\n${item.usage}\n\n${origin}/r/${item.name}.json\n`).join("\n")}`,
