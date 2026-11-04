@@ -93,6 +93,10 @@ let css = 0;
 for (const file of readdirSync(join(root, "assets"))) {
   const size = gzipSync(readFileSync(join(root, "assets", file))).byteLength;
   if (file.endsWith(".js")) {
+    const source = readFileSync(join(root, "assets", file), "utf8");
+    if (source.includes("/__native/") || source.includes("127.0.0.1:3200")) {
+      throw new Error(`Local simulator transport leaked into the static site: ${file}`);
+    }
     javascript += size;
   }
   if (file.endsWith(".css")) {

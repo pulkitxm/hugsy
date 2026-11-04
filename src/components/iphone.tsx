@@ -1,5 +1,26 @@
 import { Play, RotateCcw } from "lucide-react";
-import { useRef, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
+
+export function PhoneFrame({
+  children,
+  aspectRatio = 402 / 874,
+  native = false,
+}: {
+  children: ReactNode;
+  aspectRatio?: number;
+  native?: boolean;
+}) {
+  return (
+    <div className={native ? "iphone native-phone" : "iphone"}>
+      <span className="phone-button phone-button-left" />
+      <span className="phone-button phone-button-right" />
+      <div className="iphone-screen" style={{ aspectRatio }}>
+        {children}
+        <span className="dynamic-island" aria-hidden="true" />
+      </div>
+    </div>
+  );
+}
 
 export function IPhone({
   name,
@@ -31,42 +52,37 @@ export function IPhone({
   }
   return (
     <div className="device-preview">
-      <div className="iphone">
-        <span className="phone-button phone-button-left" />
-        <span className="phone-button phone-button-right" />
-        <div className="iphone-screen">
-          <img
-            src={poster}
-            width={1260}
-            height={2736}
-            alt={`${title}, rendered by SwiftUI on an iPhone simulator`}
-            loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : "auto"}
-          />
-          {playing && !error && (
-            <video
-              ref={video}
-              controls
-              autoPlay
-              muted
-              playsInline
-              preload="none"
-              poster={poster}
-              aria-label={`${title} native animation demonstration`}
-              onError={() => setError(true)}
-            >
-              <source src={`/native/${name}.mp4`} type="video/mp4" />
-              <track
-                kind="captions"
-                srcLang="en"
-                label="Demo description"
-                src={`/native/${name}.vtt`}
-              />
-            </video>
-          )}
-          <span className="dynamic-island" aria-hidden="true" />
-        </div>
-      </div>
+      <PhoneFrame>
+        <img
+          src={poster}
+          width={1206}
+          height={2622}
+          alt={`${title}, rendered by SwiftUI on an iPhone simulator`}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+        />
+        {playing && !error && (
+          <video
+            ref={video}
+            controls
+            autoPlay
+            muted
+            playsInline
+            preload="none"
+            poster={poster}
+            aria-label={`${title} native animation demonstration`}
+            onError={() => setError(true)}
+          >
+            <source src={`/native/${name}.mp4`} type="video/mp4" />
+            <track
+              kind="captions"
+              srcLang="en"
+              label="Demo description"
+              src={`/native/${name}.vtt`}
+            />
+          </video>
+        )}
+      </PhoneFrame>
       {playable && (
         <div className="native-playback">
           <button

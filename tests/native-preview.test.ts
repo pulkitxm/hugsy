@@ -2,11 +2,29 @@ import { describe, expect, it } from "vitest";
 import {
   isLocalPreviewRequest,
   nativeActions,
+  nativeGalleryReady,
   nativeSessionSchema,
   nativeTouch,
 } from "../src/lib/native-preview";
 
 describe("native preview transport", () => {
+  it("does not report a blank launch screen as a ready component", () => {
+    expect(nativeGalleryReady([])).toBe(false);
+    expect(nativeGalleryReady(null)).toBe(false);
+    expect(
+      nativeGalleryReady([
+        {
+          frame: { x: 0, y: 0, width: 402, height: 874 },
+          children: [
+            {
+              AXUniqueId: "hugsy-gallery-ready",
+              frame: { x: 20, y: 60, width: 50, height: 24 },
+            },
+          ],
+        },
+      ]),
+    ).toBe(true);
+  });
   it("preserves the native framebuffer dimensions", () => {
     expect(
       nativeSessionSchema.parse({
@@ -21,22 +39,25 @@ describe("native preview transport", () => {
     ).toThrow();
   });
 
-  it("encodes native touch input with clamped coordinates and wrapped sequence numbers", () => {
-    const data = new DataView(nativeTouch(1, -0.2, 1.2, 65537));
-    expect(data.byteLength).toBe(13);
-    expect(data.getUint8(0)).toBe(0x10);
-    expect(data.getUint8(1)).toBe(1);
-    expect(data.getFloat32(2, true)).toBe(0);
-    expect(data.getFloat32(6, true)).toBe(1);
-    expect(data.getUint16(10, true)).toBe(1);
-    expect(data.getUint8(12)).toBe(0);
+  it("encodes the supported native touch protocol with clamped coordinates", () => {
+    const data = nativeTouch(1, -0.2, 1.2);
+    expect(data[0]).toBe(0x03);
+    expect(JSON.parse(new TextDecoder().decode(data.subarray(1)))).toEqual({
+      type: "move",
+      x: 0,
+      y: 1,
+      edge: 0,
+    });
   });
 
   it("retains subpixel precision when forwarding a native gesture", () => {
-    const data = new DataView(nativeTouch(2, 0.25, 0.75, 4));
-    expect(data.getFloat32(2, true)).toBe(0.25);
-    expect(data.getFloat32(6, true)).toBe(0.75);
-    expect(data.getUint8(1)).toBe(2);
+    const data = nativeTouch(2, 0.25, 0.75);
+    expect(JSON.parse(new TextDecoder().decode(data.subarray(1)))).toEqual({
+      type: "end",
+      x: 0.25,
+      y: 0.75,
+      edge: 0,
+    });
   });
 
   it("exposes keyboard alternatives from native buttons without inventing controls", () => {
