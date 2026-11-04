@@ -37,7 +37,7 @@ jobs:
             runner: ubuntu-24.04
             build-mode: none
           - language: swift
-            runner: macos-15-intel
+            runner: macos-15
             build-mode: manual
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
