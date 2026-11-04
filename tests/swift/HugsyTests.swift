@@ -30,11 +30,40 @@ import Testing
   }
 
   @Test func allViewsAcceptEmptyCollections() {
-    _ = HugsyCommandPalette(commands: []) {}
     _ = HugsyFluidTabs(tabs: [], selection: .constant(""))
-    _ = HugsyMagnifyingDock(items: [])
-    _ = HugsyAnimatedSidebar(title: "Empty", items: [], selection: .constant(""))
-    _ = HugsyCardStack(items: [HugsySidebarItem]()) { Text($0.title) }
+    _ = HugsyRadialMenu(actions: [], isExpanded: .constant(false))
+    _ = HugsyExpandingCards(items: [Sample](), selection: .constant(nil)) { item, _ in Text(item.id)
+    }
+    _ = HugsyMorphingSheet(position: .constant(.compact)) { _ in Text("Details") }
+    _ = HugsyStretchyHeader {
+      Color.blue
+    } content: {
+      Text("Details")
+    }
     _ = HugsyToastStack(toasts: HugsyToasts())
   }
+
+  @Test(arguments: [false, true]) func nativeViewsRenderInBothAppearances(dark: Bool) {
+    let toasts = HugsyToasts()
+    toasts.show("Synthetic notification")
+    let content = VStack {
+      HugsyFluidTabs(tabs: ["Overview", "Activity"], selection: .constant("Overview"))
+      HugsyRadialMenu(
+        actions: [
+          .init(id: "files", title: "Files", symbol: "folder") {}
+        ], isExpanded: .constant(true))
+      HugsyExpandingCards(items: [Sample(id: "story")], selection: .constant(nil)) { item, _ in
+        Text(item.id).frame(maxWidth: .infinity, maxHeight: .infinity).background(.blue)
+      }
+      HugsyMorphingSheet(position: .constant(.compact)) { _ in Text("Now playing") }
+      HugsyToastStack(toasts: toasts)
+    }
+    .environment(\.colorScheme, dark ? .dark : .light)
+    .frame(width: 600, height: 1000)
+    let renderer = ImageRenderer(content: content)
+    #expect(renderer.nsImage?.size.width == 600)
+    #expect(renderer.nsImage?.size.height == 1000)
+  }
+
+  private struct Sample: Identifiable { let id: String }
 }
