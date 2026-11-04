@@ -1,6 +1,7 @@
 {
   "name": "@pulkitxm/hugsy",
   "version": "0.1.0",
+  "private": true,
   "description": "Copy-and-own animated SwiftUI components, CLI and MCP server",
   "type": "module",
   "license": "MIT",
