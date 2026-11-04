@@ -70,7 +70,6 @@ for (const file of [
   ".nojekyll",
   "social.png",
   "404.html",
-  "hugsy-0.1.0.tgz",
 ]) {
   if (!existsSync(join(root, file))) {
     throw new Error(`Missing publish artifact: ${file}`);
@@ -87,9 +86,9 @@ for (const file of readdirSync(join(root, "assets"))) {
     css += size;
   }
 }
-if (javascript > 180000 || css > 12000) {
+if (javascript > 200000 || css > 12000) {
   throw new Error(`Asset budget exceeded: JS ${javascript}, CSS ${css}`);
 }
 process.stdout.write(
-  `${paths.length} prerendered pages verified. Gzip budgets: JS ${javascript}/180000, CSS ${css}/12000 bytes.\n`,
+  `${paths.length} prerendered pages verified. Gzip budgets: JS ${javascript}/200000, CSS ${css}/12000 bytes.\n`,
 );

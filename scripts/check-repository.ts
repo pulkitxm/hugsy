@@ -15,6 +15,12 @@ for (const path of files) {
     failures.push(`${path}: Tracked symlinks are not allowed`);
     continue;
   }
+  if (/\.(?:jpg|png|mp4)$/.test(path)) {
+    if (lstatSync(path).size > 6000000) {
+      failures.push(`${path}: Media exceeds 6 MB`);
+    }
+    continue;
+  }
   const content = readFileSync(path, "utf8");
   for (const error of checkPolicy(path, content)) {
     failures.push(`${path}: ${error}`);

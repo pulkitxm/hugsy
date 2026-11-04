@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const componentName = z
+const componentName = z
   .string()
   .regex(/^[a-z]+(?:-[a-z]+)*$/)
   .max(80);

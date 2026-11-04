@@ -1,6 +1,6 @@
 {
   "name": "@pulkitxm/hugsy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Copy-and-own animated SwiftUI components, CLI and MCP server",
   "type": "module",
@@ -10,14 +10,6 @@
     "url": "https://github.com/pulkitxm/hugsy.git"
   },
   "homepage": "https://pulkitxm.github.io/hugsy/",
-  "bin": {
-    "hugsy": "dist/cli/index.js"
-  },
-  "files": [
-    "dist/cli",
-    "LICENSE",
-    "README.md"
-  ],
   "engines": {
     "node": ">=22.16"
   },
@@ -29,8 +21,8 @@
   "scripts": {
     "dev": "bun run generate && vite --port 3000",
     "generate": "bun scripts/generate.ts",
-    "build:cli": "bun run generate && bun scripts/build-cli.ts",
-    "build": "bun run build:cli && vite build && bun scripts/check-site.ts",
+    "build:cli": "swift build --product hugsy -Xswiftc -warnings-as-errors",
+    "build": "bun run generate && vite build && bun scripts/check-site.ts",
     "preview": "vite preview --port 4173",
     "typecheck": "tsc --noEmit",
     "lint": "biome check --error-on-warnings .",
@@ -38,20 +30,19 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:protocol": "vitest run --config vitest.protocol.config.ts",
     "check:repository": "bun scripts/check-repository.ts",
     "check:dead-code": "knip --max-issues 0",
     "check:markdown": "markdownlint-cli2 '**/*.md' '!node_modules' '!dist'",
     "check:html": "html-validate 'dist/client/**/*.html'",
-    "check:swift": "xcrun swift-format lint --strict --recursive Package.swift registry/swift examples tests/swift && swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test",
+    "check:swift": "xcrun swift-format lint --strict --recursive Package.swift registry/swift examples tools tests/swift tests/core && swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test",
     "check:lighthouse": "lhci autorun",
     "ci": "bun run build && bun run lint && bun run typecheck && bun run check:repository && bun run check:dead-code && bun run check:markdown && bun run check:html && bun run test:coverage",
-    "prepare": "bun run build:cli"
+    "prepare": "bun run generate"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "2.4.0",
     "@tanstack/react-router": "1.170.46",
     "@tanstack/react-start": "1.169.4",
-    "commander": "15.0.0",
     "lucide-react": "1.68.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -70,11 +61,11 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.2.1",
     "@vitest/coverage-v8": "5.1.0",
-    "esbuild": "0.28.2",
     "html-validate": "11.18.0",
     "knip": "6.44.1",
     "markdownlint-cli2": "0.24.0",
     "parse5": "8.1.0",
+    "shiki": "4.6.0",
     "sirv": "3.0.2",
     "typescript": "7.0.2",
     "vite": "8.3.5",

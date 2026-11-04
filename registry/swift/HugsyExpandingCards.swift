@@ -18,8 +18,9 @@ public struct HugsyExpandingCards<Item: Identifiable, Content: View>: View {
   ) {
     self.items = items
     self._selected = selection
-    self.cardHeight = max(44, cardHeight)
-    self.expandedHeight = max(cardHeight, expandedHeight)
+    let minimum = max(44, cardHeight)
+    self.cardHeight = minimum
+    self.expandedHeight = max(minimum, expandedHeight)
     self.content = content
   }
 

@@ -1,5 +1,9 @@
 import SwiftUI
 
+#if os(iOS)
+  import UIKit
+#endif
+
 #if SWIFT_PACKAGE
   import Hugsy
 #endif
@@ -35,7 +39,7 @@ private let stories = [
     colors: [Color(red: 0.89, green: 0.77, blue: 0.63), Color(red: 0.70, green: 0.62, blue: 0.51)]),
   Story(
     id: "after", title: "After the\nlast light.", subtitle: "NOTES FROM THE CITY",
-    colors: [Color(red: 0.62, green: 0.57, blue: 0.75), Color(red: 0.34, green: 0.32, blue: 0.49)]),
+    colors: [Color(red: 0.42, green: 0.36, blue: 0.56), Color(red: 0.25, green: 0.22, blue: 0.38)]),
 ]
 
 private struct NativeGallery: View {
@@ -46,6 +50,7 @@ private struct NativeGallery: View {
   @State private var sheetPosition: HugsySheetPosition = .compact
   @State private var toasts = HugsyToasts()
   @State private var status = "Made for a little more feeling."
+  @State private var captureOffset: CGFloat = 0
 
   var body: some View {
     ZStack {
@@ -167,6 +172,9 @@ private struct NativeGallery: View {
             RoundedRectangle(cornerRadius: 8).fill(.primary.opacity(0.05)).frame(height: 55)
           }
         }.padding(24)
+          #if os(iOS)
+            .background(PreviewScrollDriver(offset: captureOffset))
+          #endif
       }.clipShape(RoundedRectangle(cornerRadius: 28))
     default:
       HugsyExpandingCards(
@@ -184,7 +192,8 @@ private struct NativeGallery: View {
               )
               .font(.system(size: 14)).lineSpacing(4).padding(.top, 16)
             }
-          }.padding(24).foregroundStyle(.white)
+          }.padding(24).foregroundStyle(
+            story.id == "still" ? Color(red: 0.18, green: 0.16, blue: 0.13) : .white)
         }
       }
       if selected == nil {
@@ -200,6 +209,7 @@ private struct NativeGallery: View {
 
   private func recordSequence() async {
     guard ProcessInfo.processInfo.arguments.contains("--record") else {
+      if component == "morphing-sheet" { sheetPosition = .expanded }
       if component == "toast-stack" {
         toasts.show("A little inspiration, saved", duration: .seconds(60))
       }
@@ -216,12 +226,37 @@ private struct NativeGallery: View {
           toasts.show(
             ["Saved to your collection", "Your workspace is in sync", "A new note, just for you"][
               step % 3])
+        case "stretchy-header": captureOffset = step.isMultiple(of: 2) ? -150 : 0
         default: selected = step.isMultiple(of: 2) ? stories[step % stories.count].id : nil
         }
       }
     } catch { return }
   }
 }
+
+#if os(iOS)
+  private struct PreviewScrollDriver: UIViewRepresentable {
+    let offset: CGFloat
+    final class Coordinator { var offset = CGFloat.nan }
+    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeUIView(context: Context) -> UIView { UIView(frame: .zero) }
+    func updateUIView(_ uiView: UIView, context: Context) {
+      guard context.coordinator.offset != offset else { return }
+      context.coordinator.offset = offset
+      DispatchQueue.main.async {
+        var ancestor = uiView.superview
+        while let view = ancestor {
+          if let scroll = view as? UIScrollView {
+            scroll.setContentOffset(
+              CGPoint(x: 0, y: offset - scroll.adjustedContentInset.top), animated: true)
+            return
+          }
+          ancestor = view.superview
+        }
+      }
+    }
+  }
+#endif
 
 private struct Artwork: View {
   let colors: [Color]

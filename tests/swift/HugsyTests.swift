@@ -66,4 +66,18 @@ import Testing
   }
 
   private struct Sample: Identifiable { let id: String }
+
+  @Test func invalidSizesAreClampedToUsableBounds() {
+    let sheet = HugsyMorphingSheet(
+      position: .constant(.compact), compactHeight: -100, expandedHeight: -100
+    ) { _ in Text("Details") }
+    #expect(sheet.compactHeight == 100)
+    #expect(sheet.expandedHeight == 144)
+    let cards = HugsyExpandingCards(
+      items: [Sample](), selection: .constant(nil), cardHeight: -10, expandedHeight: -20
+    ) { item, _ in Text(item.id) }
+    #expect(cards.cardHeight == 44)
+    #expect(cards.expandedHeight == 44)
+    #expect(HugsyRadialMenu(actions: [], isExpanded: .constant(false), radius: -10).radius == 70)
+  }
 }

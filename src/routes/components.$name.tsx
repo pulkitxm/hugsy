@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import { useState } from "react";
-import { registry } from "../../cli/registry";
+import { registry } from "../../registry/registry";
 import { CodeBlock } from "../components/code-block";
 import { ComponentDemo } from "../components/demos";
 import { seo } from "../lib/seo";

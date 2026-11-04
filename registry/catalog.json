@@ -10,7 +10,7 @@
     "interaction": "Tap a card to open its details. Drag downward to dismiss, or use the close button.",
     "accessibility": "Native buttons expose card actions. Expanded content hides the underlying cards from VoiceOver. A labeled close button and Escape accessibility action provide alternatives to dragging. Reduce Motion removes spring interpolation.",
     "integration": "Supply Identifiable items and one content builder. The builder receives the item and its expanded state. Keep card IDs stable and unique. Place the component in a container with enough vertical room for the expanded content. It is an inline expanding surface, not a system modal sheet.",
-    "usage": "HugsyExpandingCards(items: stories) { story, expanded in\n  VStack(alignment: .leading, spacing: 16) {\n    Text(story.title).font(.largeTitle.bold())\n    if expanded { Text(story.description) }\n  }\n  .padding(28)\n  .frame(maxWidth: .infinity, maxHeight: .infinity)\n  .background(story.color.gradient)\n}"
+    "usage": "@State private var selected: Story.ID?\n\nHugsyExpandingCards(items: stories, selection: $selected) { story, expanded in\n  VStack(alignment: .leading, spacing: 16) {\n    Text(story.title).font(.largeTitle.bold())\n    if expanded { Text(story.description) }\n  }\n  .padding(28)\n  .frame(maxWidth: .infinity, maxHeight: .infinity)\n  .background(story.color.gradient)\n}"
   },
   {
     "name": "morphing-sheet",
@@ -36,7 +36,7 @@
     "interaction": "Open the action menu, then choose an action. The actions spring outward in sequence and collapse after selection.",
     "accessibility": "Every action is a labeled native button. Collapsed actions are removed from hit testing and accessibility. The trigger announces expanded or collapsed state. Reduce Motion removes travel interpolation and trigger rotation.",
     "integration": "Supply stable, unique action IDs and main-actor closures. Use three or four actions to keep targets separated. Reserve the component's full width and height in the layout. Actions close the menu before running their closures.",
-    "usage": "HugsyRadialMenu(actions: [\n  .init(id: \"photo\", title: \"Add photo\", symbol: \"camera\") { addPhoto() },\n  .init(id: \"note\", title: \"New note\", symbol: \"square.and.pencil\") { newNote() },\n  .init(id: \"link\", title: \"Save link\", symbol: \"link\") { saveLink() }\n])"
+    "usage": "@State private var expanded = false\n\nHugsyRadialMenu(actions: [\n  .init(id: \"photo\", title: \"Add photo\", symbol: \"camera\") { addPhoto() },\n  .init(id: \"note\", title: \"New note\", symbol: \"square.and.pencil\") { newNote() },\n  .init(id: \"link\", title: \"Save link\", symbol: \"link\") { saveLink() }\n], isExpanded: $expanded)"
   },
   {
     "name": "toast-stack",

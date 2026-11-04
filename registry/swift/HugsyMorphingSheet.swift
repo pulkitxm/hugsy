@@ -19,8 +19,9 @@ public struct HugsyMorphingSheet<Content: View>: View {
     @ViewBuilder content: @escaping (HugsySheetPosition) -> Content
   ) {
     self._position = position
-    self.compactHeight = max(100, compactHeight)
-    self.expandedHeight = max(compactHeight + 44, expandedHeight)
+    let minimum = max(100, compactHeight)
+    self.compactHeight = minimum
+    self.expandedHeight = max(minimum + 44, expandedHeight)
     self.content = content
   }
 
