@@ -9,7 +9,17 @@ import {
 } from "../lib/native-preview";
 import { IPhone, PhoneFrame } from "./iphone";
 
-export default function LiveIPhone({ name, title }: { name: string; title: string }) {
+export default function LiveIPhone({
+  name,
+  title,
+  screen,
+  asset,
+}: {
+  name: string;
+  title: string;
+  screen: string;
+  asset: string;
+}) {
   const [session, setSession] = useState<NativeSession | null>(null);
   const [connected, setConnected] = useState(false);
   const [rendered, setRendered] = useState(false);
@@ -89,7 +99,7 @@ export default function LiveIPhone({ name, title }: { name: string; title: strin
     async function start() {
       try {
         const response = await fetch(
-          `/__native/session/${name}?reduceMotion=${reduceMotion}&revision=${revision}`,
+          `/__native/session/${name}?screen=${screen}&reduceMotion=${reduceMotion}&revision=${revision}`,
           {
             method: "POST",
             signal: controller.signal,
@@ -142,7 +152,7 @@ export default function LiveIPhone({ name, title }: { name: string; title: strin
       connection.current?.close();
       connection.current = null;
     };
-  }, [name, revision, reduceMotion, send, updateActions]);
+  }, [name, screen, revision, reduceMotion, send, updateActions]);
 
   useEffect(() => {
     if (failed) {
@@ -212,7 +222,7 @@ export default function LiveIPhone({ name, title }: { name: string; title: strin
   if (failed) {
     return (
       <div className="live-preview-unavailable">
-        <IPhone name={name} title={title} playable priority />
+        <IPhone name={name} title={title} asset={asset} playable priority />
         <p role="status">Live preview unavailable. The native recording is still available.</p>
         <button type="button" className="text-link" onClick={() => setRevision(revision + 1)}>
           Retry live preview
@@ -236,7 +246,7 @@ export default function LiveIPhone({ name, title }: { name: string; title: strin
         >
           {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: These events report stream loading, not input. */}
           <img
-            src={session ? `/__native/screen?revision=${revision}` : `/native/${name}.webp`}
+            src={session ? `/__native/screen?revision=${revision}` : `/native/${asset}.webp`}
             width={session?.width ?? 1206}
             height={session?.height ?? 2622}
             alt={`${title}, running in the native iPhone simulator`}

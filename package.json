@@ -37,7 +37,7 @@
     "check:markdown": "markdownlint-cli2 '**/*.md' '!node_modules' '!dist'",
     "check:html": "html-validate 'dist/client/**/*.html'",
     "check:yaml": "bun scripts/check-yaml.ts",
-    "check:swift": "xcrun swift-format lint --strict --recursive Package.swift registry/swift examples tools tests/swift tests/core && swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test",
+    "check:swift": "xcrun swift-format lint --strict --recursive Package.swift registry/swift examples tools tests && swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test",
     "check:lighthouse": "lhci autorun",
     "ci": "bun run build && bun run lint && bun run typecheck && bun run check:repository && bun run check:dead-code && bun run check:markdown && bun run check:html && bun run check:yaml && bun run test:coverage",
     "prepare": "bun run generate && bun scripts/install-hooks.ts"
