@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const deployedOrigin = process.env["HUGSY_TEST_ORIGIN"];
+
 export default defineConfig({
   testDir: "tests/browser",
   fullyParallel: true,
@@ -7,7 +9,7 @@ export default defineConfig({
   retries: process.env["CI"] ? 1 : 0,
   workers: 4,
   use: {
-    baseURL: "http://127.0.0.1:4173/hugsy/",
+    baseURL: deployedOrigin ?? "http://127.0.0.1:4173/",
     trace: "retain-on-failure",
     ...(!process.env["CI"] ? { channel: "chrome" } : {}),
   },
@@ -18,9 +20,13 @@ export default defineConfig({
     },
     { name: "mobile", use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" } },
   ],
-  webServer: {
-    command: "bun scripts/serve.ts",
-    url: "http://127.0.0.1:4173/hugsy/",
-    reuseExistingServer: !process.env["CI"],
-  },
+  ...(!deployedOrigin
+    ? {
+        webServer: {
+          command: "bun scripts/serve.ts",
+          url: "http://127.0.0.1:4173/",
+          reuseExistingServer: !process.env["CI"],
+        },
+      }
+    : {}),
 });

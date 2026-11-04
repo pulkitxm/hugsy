@@ -83,8 +83,8 @@ function ComponentPage() {
           <CodeBlock code={`hugsy add ${item.name}`} />
           <p>
             Prefer to copy it yourself? Open the{" "}
-            <a href={`/hugsy/r/${item.name}.swift`}>complete Swift file</a> and add it to your iOS
-            app target in Xcode. No package dependency is required.
+            <a href={`/r/${item.name}.swift`}>complete Swift file</a> and add it to your iOS app
+            target in Xcode. No package dependency is required.
           </p>
         </section>
         <section className="doc-section" id="usage">

@@ -15,7 +15,7 @@ export function IPhone({
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
-  const poster = `/hugsy/native/${name}.webp`;
+  const poster = `/native/${name}.webp`;
   async function play() {
     setError(false);
     if (video.current) {
@@ -55,12 +55,12 @@ export function IPhone({
               aria-label={`${title} native animation demonstration`}
               onError={() => setError(true)}
             >
-              <source src={`/hugsy/native/${name}.mp4`} type="video/mp4" />
+              <source src={`/native/${name}.mp4`} type="video/mp4" />
               <track
                 kind="captions"
                 srcLang="en"
                 label="Demo description"
-                src={`/hugsy/native/${name}.vtt`}
+                src={`/native/${name}.vtt`}
               />
             </video>
           )}

@@ -4,10 +4,10 @@ import { defineConfig } from "vite";
 import { catalog } from "./registry/catalog.ts";
 
 export default defineConfig({
-  base: "/hugsy/",
+  base: "/",
   plugins: [
     tanstackStart({
-      router: { basepath: "/hugsy", routeTreeFileHeader: [] },
+      router: { basepath: "/", routeTreeFileHeader: [] },
       prerender: {
         enabled: true,
         crawlLinks: false,

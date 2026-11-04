@@ -7,7 +7,7 @@ let package = Package(
   products: [
     .library(name: "Hugsy", targets: ["Hugsy"]),
     .executable(name: "HugsyGallery", targets: ["HugsyGallery"]),
-    .executable(name: "hugsy", targets: ["hugsy"]),
+    .executable(name: "hugsy", targets: ["HugsyCLI"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.8.2"),
@@ -23,7 +23,7 @@ let package = Package(
       name: "HugsyCore", dependencies: ["RegistryModels"], path: "tools/Core",
       plugins: ["RegistryPlugin"]),
     .executableTarget(
-      name: "hugsy",
+      name: "HugsyCLI",
       dependencies: [
         "HugsyCore",
         "RegistryModels",

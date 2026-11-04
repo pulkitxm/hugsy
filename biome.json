@@ -59,7 +59,7 @@
       "linter": { "rules": { "complexity": { "useLiteralKeys": "off" } } }
     },
     {
-      "includes": ["src/styles.css", "src/theme.css"],
+      "includes": ["src/theme.css"],
       "linter": { "rules": { "style": { "noDescendingSpecificity": "off" } } }
     }
   ]

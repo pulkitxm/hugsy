@@ -4,9 +4,9 @@
 
 ## Start here
 
-- [Documentation](https://pulkitxm.github.io/hugsy/docs/): CLI installation, integration, and MCP configuration.
-- [Complete guide](https://pulkitxm.github.io/hugsy/llms-full.txt): all component metadata and usage.
-- [JSON registry](https://pulkitxm.github.io/hugsy/r/index.json): versioned source files and SHA-256 checksums.
+- [Documentation](https://hugsy.pulkit.page/docs/): CLI installation, integration, and MCP configuration.
+- [Complete guide](https://hugsy.pulkit.page/llms-full.txt): all component metadata and usage.
+- [JSON registry](https://hugsy.pulkit.page/r/index.json): versioned source files and SHA-256 checksums.
 
 ## Local tools
 

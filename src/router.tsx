@@ -4,7 +4,7 @@ import { routeTree } from "./routeTree.gen";
 export function getRouter() {
   return createRouter({
     routeTree,
-    basepath: "/hugsy",
+    basepath: "/",
     trailingSlash: "always",
     scrollRestoration: true,
     defaultPreload: "intent",

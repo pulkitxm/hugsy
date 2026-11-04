@@ -103,10 +103,9 @@ function MCP() {
             permission.
           </p>
           <p>
-            The static website also provides <a href="/hugsy/llms.txt">llms.txt</a>,{" "}
-            <a href="/hugsy/llms-full.txt">complete component notes</a>, and the{" "}
-            <a href="/hugsy/r/index.json">JSON registry</a>. GitHub Pages does not host an MCP
-            process.
+            The static website also provides <a href="/llms.txt">llms.txt</a>,{" "}
+            <a href="/llms-full.txt">complete component notes</a>, and the{" "}
+            <a href="/r/index.json">JSON registry</a>. GitHub Pages does not host an MCP process.
           </p>
         </section>
         <div className="document-footer">
