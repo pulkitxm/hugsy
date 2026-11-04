@@ -82,6 +82,8 @@ The secret scanner's entropy threshold accommodates Swift source examples. Gitle
 
 The required `CI` job combines source checks, desktop and mobile browser tests, Lighthouse, native Swift compilation, native tests, CLI/MCP interoperability, workflow security, shell checks, and secret scanning. Pages publishes the exact tested artifact only after that gate passes. CodeQL covers TypeScript, Swift, and workflows. Dependency review runs on pull requests; Trivy, SBOM generation, and Scorecard run weekly or on demand. Dependency updates cover Bun, Swift, and pinned actions.
 
+Native image-rendering tests run on Apple Silicon because the Intel runner's virtual Metal device cannot reliably render SwiftUI. Intel still validates compilation, non-rendering tests, package consumers, and CLI/MCP behavior. Both jobs block publication. `bun run check:swift` continues to run the complete native suite locally.
+
 ## Pull requests
 
 Use conventional titles and commits, a single-line description, coherent checkpoint commits, and small diffs. No prose comments in code. Put rationale in names and documentation. Never add attribution trailers. Use Pukbot for supported GitHub operations and squash merges.

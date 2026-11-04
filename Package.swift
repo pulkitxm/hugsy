@@ -26,6 +26,7 @@ let package = Package(
       name: "HugsyPreviewKitTests", dependencies: ["HugsyPreviewKit", "RegistryModels"],
       path: "tests/preview"),
     .testTarget(name: "HugsyTests", dependencies: ["Hugsy"], path: "tests/swift"),
+    .testTarget(name: "HugsyRenderTests", dependencies: ["Hugsy"], path: "tests/render"),
     .target(name: "RegistryModels", path: "tools/Models"),
     .target(
       name: "HugsyCore", dependencies: ["RegistryModels"], path: "tools/Core",
