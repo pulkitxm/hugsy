@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   dependencies:
     name: Dependency review
@@ -34,7 +37,7 @@ jobs:
             runner: ubuntu-24.04
             build-mode: none
           - language: swift
-            runner: macos-26
+            runner: macos-15
             build-mode: manual
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
@@ -51,6 +54,8 @@ jobs:
           build-mode: ${{ matrix.build-mode }}
       - if: matrix.language == 'swift'
         run: swift build --disable-sandbox
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
       - uses: github/codeql-action/analyze@93a54aaef5ced74c8d9fae64bdfb97f6a18c21b4
         with:
           category: language-${{ matrix.language }}
