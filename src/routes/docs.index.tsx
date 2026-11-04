@@ -29,8 +29,9 @@ function Introduction() {
           to get right.
         </p>
         <p>
-          This is source you adopt, not a framework your app depends on. Each component is a
-          standalone Swift file using only SwiftUI and the system SDK.
+          This is source you adopt, packaged locally by default. The CLI can distribute multiple
+          files, shared dependencies, and resources for UIKit, Foundation services, and other Apple
+          frameworks too. Today’s catalog remains focused on SwiftUI interactions.
         </p>
         <section className="doc-section">
           <h2>Start with an interaction</h2>
@@ -46,7 +47,9 @@ function Introduction() {
           <ul>
             <li>An iOS app targeting iOS 17 or newer.</li>
             <li>Xcode with a Swift 6 toolchain.</li>
-            <li>A place for the copied files in your app target.</li>
+            <li>
+              The generated local package attached to your app target, or directly included source.
+            </li>
           </ul>
           <p>
             The CLI runs natively on macOS 14+. Your iOS app does not need the CLI, MCP SDK, or any

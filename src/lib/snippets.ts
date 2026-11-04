@@ -1,7 +1,8 @@
 export const installCommand = "curl -fsSL https://hugsy.pulkit.page/install.sh | sh";
 export const firstComponent =
-  "cd YourApp\nhugsy init --directory YourApp/Components/Hugsy\nhugsy add expanding-cards --dry-run\nhugsy add expanding-cards";
-export const packageConfig = '{\n  "version": 1,\n  "directory": "YourApp/Components/Hugsy"\n}';
+  "cd YourApp\nhugsy init\nhugsy add expanding-cards --dry-run\nhugsy add expanding-cards\nhugsy doctor";
+export const packageConfig =
+  '{\n  "version": 2,\n  "directory": "Hugsy",\n  "distribution": "package"\n}';
 export const mcpConfig =
   '{\n  "mcpServers": {\n    "hugsy": {\n      "command": "hugsy",\n      "args": ["mcp"]\n    }\n  }\n}';
 export const manualInstall =

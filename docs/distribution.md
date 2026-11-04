@@ -30,6 +30,9 @@ Package-only resources are rejected in this mode instead of being silently broke
   not claim support for older OS versions or non-iOS platforms.
 - Dependencies are registry-owned source, not third-party runtime packages.
   Supporting arbitrary external packages requires a separate policy decision.
+- All selected source compiles into one `HugsyComponents` module. Registry
+  dependencies share that module, so do not import them as separate modules.
+  Prefix public and helper symbols to avoid collisions between entries.
 
 ## Installed layout
 
@@ -46,9 +49,10 @@ Hugsy/
 
 `hugsy.lock.json` records the selected entries and the original hashes of installed
 files. Adding another entry retains previous selections. Unmodified older source
-can update; customized source requires an explicit `--force`. Generated manifests,
-licenses, and state files receive the same conflict protection. Removed upstream
-files are not silently deleted; installations requiring removals fail with a
+can update; customized source requires an explicit `--force`. Generated manifests
+and licenses receive the same conflict protection. State is installer-managed;
+malformed or incompatible state is rejected. Removed upstream files are not
+silently deleted; installations requiring removals fail with a
 manual reconciliation message.
 
 Resources are copied as a directory and accessed using `Bundle.module` beneath
@@ -89,6 +93,14 @@ and SwiftUI image components through registry dependency edges. Do not build an
 image cache solely to demonstrate packaging. Validate this contract with synthetic
 multi-file, mixed-framework, dependency, and binary-resource fixtures instead.
 
+Other iOS feature areas include Swift Charts, WidgetKit, App Intents, MapKit,
+WebKit, AVFoundation, SpriteKit, RealityKit, SwiftData, Core Data, Combine, and
+Observation. Their source can use the same registry contract. Feature-specific
+entitlements, privacy declarations, extensions, model compilation, and app setup
+remain explicit integration requirements, not work that writing a package can
+silently perform. This implementation packages Swift source and copied resources;
+it is not a replacement for every framework's specialized build pipeline.
+
 Only introduce separate remote packages when independent release cycles, external
 dependencies, licensing, or platform requirements justify them. Binary XCFramework
 distribution is deferred until there is a real binary-only requirement.
@@ -97,6 +109,6 @@ distribution is deferred until there is a real binary-only requirement.
 
 Test both distributions, repeated and incremental installs, dependency validation,
 edit preservation, update hashes, resources, unsafe paths, symlinks, and rollback.
-Build the generated package and a synthetic consuming app, including UIKit and
+Build the generated package and a synthetic consuming module, including UIKit and
 Foundation fixtures. Keep CLI JSON, MCP plans, website instructions, and README in
 agreement. Run repository, Swift, protocol, and browser checks before opening the PR.

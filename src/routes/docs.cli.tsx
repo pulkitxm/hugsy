@@ -20,13 +20,19 @@ function CLI() {
       "hugsy info <name>",
       "Read source, usage, integration requirements, and accessibility behavior.",
     ],
-    ["hugsy init", "Create hugsy.json. Use --directory to select the destination."],
+    [
+      "hugsy init",
+      "Create version 2 hugsy.json. Default: local package. Use --distribution source for direct copying and --directory for the destination.",
+    ],
     [
       "hugsy add <names...>",
-      "Copy one or more components, verifying integrity and preserving local edits.",
+      "Install selected entries and transitive dependencies. Retain previous selections, verify file hashes, and preserve edits.",
     ],
     ["hugsy diff <names...>", "Read the installed and registry versions without changing files."],
-    ["hugsy doctor", "Validate configuration and explain iOS target integration."],
+    [
+      "hugsy doctor",
+      "Validate configuration and installed state, report conflicts, and explain target integration. Xcode linkage is not inspected.",
+    ],
     ["hugsy mcp", "Start the local, read-only MCP server over stdio."],
     ["hugsy mcp-config", "Print portable MCP host configuration."],
   ];

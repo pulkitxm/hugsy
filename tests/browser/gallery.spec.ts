@@ -138,6 +138,11 @@ test("documentation navigation and installation are native-first", async ({ page
   await expect(page).toHaveURL(/\/docs\/installation\/$/);
   const body = await page.locator("main").textContent();
   expect(body).toContain("curl -fsSL");
+  expect(body).toContain("Add Package Dependencies > Add Local");
+  expect(body).toContain("import HugsyComponents");
+  expect(body).toContain("--distribution source");
+  expect(body).toContain("UIKit");
+  expect(body).toContain("Foundation");
   expect(body).not.toMatch(/\bnpm\b|\bnpx\b|Node\.js/);
   expect(await page.locator(".syntax-token").count()).toBeGreaterThan(15);
   await page.getByRole("link", { name: "MCP", exact: true }).click();

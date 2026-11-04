@@ -20,28 +20,20 @@ function Installation() {
       <div className="page-heading">
         <p className="overline">Getting started</p>
         <h1>Installation</h1>
-        <p>One Swift file. No dependency in your app.</p>
+        <p>One CLI. Editable packages or directly owned source.</p>
       </div>
       <div className="prose">
-        <section className="doc-section first-section" id="copy">
-          <h2>Copy a component</h2>
-          <ol>
-            <li>
-              Open a <Link to="/components/">component page</Link> and select{" "}
-              <strong>Source</strong>.
-            </li>
-            <li>Copy the Swift file into your project.</li>
-            <li>
-              In Xcode, select the file and confirm your iOS app is checked under{" "}
-              <strong>Target Membership</strong>.
-            </li>
-            <li>
-              Use the component in your SwiftUI view. Keep its supporting types in the same file.
-            </li>
-          </ol>
+        <section className="doc-section first-section" id="distribution">
+          <h2>Choose your distribution</h2>
           <p>
-            Nothing needs to be added to Package Dependencies. Retain the MIT license notice when
-            adopting source.
+            The default is a local Swift package containing only your selected components and their
+            registry dependencies. It supports multiple Swift files and binary resources, without
+            third-party runtime packages. You can edit the installed source.
+          </p>
+          <p>
+            The current catalog uses SwiftUI. The same format supports UIKit, Foundation services
+            such as image caching, and other Apple frameworks. These are distribution capabilities,
+            not additional components already in the catalog.
           </p>
         </section>
         <section className="doc-section" id="cli">
@@ -69,23 +61,69 @@ function Installation() {
           <h2>Add your first component</h2>
           <CodeBlock code={firstComponent} />
           <p>
-            Replace <code>YourApp</code> with your project’s actual directory. The CLI creates a
-            small configuration file, previews the write plan, then copies the source. It does not
-            edit your Xcode project.
+            Run these commands from your app repository. The CLI creates the local package in
+            <code> Hugsy/</code> and prints the remaining integration steps. It does not edit your
+            Xcode project or claim the package has been linked.
           </p>
+          <ol>
+            <li>
+              In Xcode, choose <strong>Add Package Dependencies &gt; Add Local</strong> and select{" "}
+              <code>Hugsy</code>.
+            </li>
+            <li>
+              Attach the <strong>HugsyComponents</strong> library product to your iOS app target.
+            </li>
+            <li>
+              Add <code>import HugsyComponents</code> to consuming Swift files.
+            </li>
+            <li>
+              Use the example from <code>hugsy info expanding-cards</code> and build your app.
+            </li>
+          </ol>
           <CodeBlock label="hugsy.json" code={packageConfig} />
           <p>
-            For a Swift package, choose a directory inside the appropriate source target, such as{" "}
-            <code>Sources/YourApp/Hugsy</code>. For a traditional Xcode app, confirm Target
-            Membership after adding the files.
+            Commit the generated package and configuration to your app repository. Further additions
+            retain earlier selections. SwiftPM discovers new source files without adding each file
+            to the app target manually. The package requires iOS 17+ and Swift 6.
+          </p>
+        </section>
+        <section className="doc-section" id="copy">
+          <h2>Prefer direct source?</h2>
+          <p>
+            Initialize with <code>--distribution source --directory YourApp/Components/Hugsy</code>,
+            or copy the current standalone Swift file from a{" "}
+            <Link to="/components/">component page</Link>. Confirm the files belong to your app
+            target in Xcode. Use the types directly in the same module, without{" "}
+            <code>import Hugsy</code> or <code>import HugsyComponents</code>. Resource-bearing
+            entries require package mode for <code>Bundle.module</code>. Retain the MIT license
+            notice.
+          </p>
+          <p>
+            For an existing Swift package target, source mode can install into
+            <code> Sources/YourApp/Hugsy</code>. Never place a generated local package inside an
+            existing source target.
+          </p>
+        </section>
+        <section className="doc-section" id="remote">
+          <h2>Prefer an upstream package?</h2>
+          <p>
+            Add <code>https://github.com/pulkitxm/hugsy</code> as a package dependency, attach its
+            <strong> Hugsy</strong> product, and use <code>import Hugsy</code>. This includes the
+            whole current catalog rather than a selective, editable copy. Choose a reviewed revision
+            until version tags are published.
           </p>
         </section>
         <section className="doc-section">
           <h2>Your changes stay yours</h2>
           <p>
-            Installing an unchanged component twice is safe. If you customize a file, Hugsy refuses
-            to overwrite it. Run <code>hugsy diff expanding-cards</code> to compare your source
-            before explicitly opting into <code>--force</code>.
+            Installing an unchanged component twice is safe. Original hashes in
+            <code> hugsy.lock.json</code> allow unmodified source to update. If you customize a
+            file, Hugsy refuses to overwrite it. Run <code>hugsy diff expanding-cards</code> to
+            compare your source before explicitly opting into <code>--force</code>.
+          </p>
+          <p>
+            Version 1 configurations are rejected. Review existing files and use a fresh destination
+            before deliberately replacing the configuration with version 2.
           </p>
           <p>
             Paths must be project-relative and use letters, numbers, underscores, hyphens, and
