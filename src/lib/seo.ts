@@ -1,4 +1,4 @@
-export const origin = "https://pulkitxm.github.io/hugsy";
+const origin = "https://pulkitxm.github.io/hugsy";
 
 export function seo(title: string, description: string, path: string) {
   return {
@@ -9,7 +9,10 @@ export function seo(title: string, description: string, path: string) {
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${origin}${path}` },
-      { property: "og:image", content: `${origin}/social.svg` },
+      { property: "og:image", content: `${origin}/social.png` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Hugsy. Native feel. Extraordinary motion." },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: `${title} | hugsy` },
       { name: "twitter:description", content: description },

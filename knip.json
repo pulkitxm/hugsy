@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/routes/**/*.{ts,tsx}", "cli/index.ts", "scripts/*.ts", "tests/**/*.ts"],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "cli/**/*.ts",
+    "registry/**/*.ts",
+    "scripts/**/*.ts",
+    "tests/**/*.ts",
+    "*.ts"
+  ],
+  "ignoreBinaries": ["swift"]
+}

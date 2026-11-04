@@ -25,4 +25,3 @@ export const registrySchema = z.strictObject({
   minimumVersion: z.literal("14.0"),
   components: z.array(componentSchema).min(1),
 });
-export type Component = z.infer<typeof componentSchema>;

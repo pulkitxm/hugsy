@@ -8,6 +8,7 @@ await build({
   entryPoints: ["cli/index.ts"],
   outfile: "dist/cli/index.js",
   bundle: true,
+  packages: "external",
   platform: "node",
   format: "esm",
   target: "node22",
@@ -28,6 +29,11 @@ await writeFile(
     engines: manifest.engines,
     bin: { hugsy: "index.js" },
     files: ["index.js", "LICENSE", "README.md"],
+    dependencies: {
+      "@modelcontextprotocol/server": manifest.dependencies["@modelcontextprotocol/server"],
+      commander: manifest.dependencies.commander,
+      zod: manifest.dependencies.zod,
+    },
   })}\n`,
 );
 await Promise.all(["LICENSE", "README.md"].map((file) => copyFile(file, `dist/cli/${file}`)));

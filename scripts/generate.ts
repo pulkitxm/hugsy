@@ -1,10 +1,13 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { Resvg } from "@resvg/resvg-js";
 import { catalog } from "../registry/catalog";
 import { registrySchema } from "../registry/schema";
 
 await mkdir("generated", { recursive: true });
 await mkdir("public/r", { recursive: true });
+const social = new Resvg(await readFile("public/social.svg", "utf8"));
+await writeFile("public/social.png", social.render().asPng());
 const components = await Promise.all(
   catalog.map(async (item) => {
     const source = await readFile(`registry/swift/${item.filename}`, "utf8");
