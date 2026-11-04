@@ -160,6 +160,45 @@ test("the bridge rejects remote origins and unknown components", async ({ reques
   expect((await request.post("__native/session/not-a-component")).status()).toBe(404);
 });
 
+test("multi-screen live previews start at the selected screen and keep native navigation", async ({
+  page,
+  request,
+}) => {
+  const simulator = process.env["HUGSY_SIMULATOR"];
+  if (!simulator) {
+    throw new Error("Set HUGSY_SIMULATOR to the dedicated Hugsy Preview UUID.");
+  }
+  await page.goto("components/fluid-tabs/", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Following", exact: true }).click();
+  const launched = page.waitForResponse(
+    (response) =>
+      response.url().includes("/__native/session/fluid-tabs?screen=following&") &&
+      response.request().method() === "POST" &&
+      response.ok(),
+  );
+  await page.getByRole("button", { name: "Try live locally" }).click();
+  await launched;
+  await expect(page.getByText("Live SwiftUI", { exact: true })).toBeVisible();
+  const saved = page
+    .locator(".native-touch-surface")
+    .getByRole("button", { name: "Saved", exact: true });
+  await saved.focus();
+  await saved.press("Enter");
+  await expect
+    .poll(async () => {
+      const response = await request.get(`http://127.0.0.1:3200/helper/${simulator}/ax`);
+      expect(response.ok()).toBe(true);
+      return JSON.stringify(await response.json());
+    })
+    .toContain("Keep the good ones.");
+  await page.getByRole("button", { name: "Watch recording", exact: true }).click();
+  await expect(page.locator(".native-stage img")).toHaveAttribute(
+    "src",
+    "/native/fluid-tabs-following.webp",
+  );
+  await expect(page.getByText("Live SwiftUI", { exact: true })).toHaveCount(0);
+});
+
 test("Reduce Motion changes the real simulator setting", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openPreview(page);
