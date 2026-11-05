@@ -1,6 +1,6 @@
 # Hugsy
 
-> Source-owned iOS components and services for iOS 17+ and Swift 6. The current catalog is SwiftUI; distribution also supports UIKit and other Apple frameworks.
+> Source-owned iOS components and services for iOS 17+ and Swift 6. Every component ships a SwiftUI view and a UIKit view controller adapter.
 
 ## Start here
 
