@@ -69,7 +69,7 @@ export const componentParameters: Record<string, Parameter[]> = {
     {
       name: "peek",
       type: "CGFloat",
-      defaultValue: "36",
+      defaultValue: "48",
       description: "How much of each neighbor shows at the edges.",
     },
     {

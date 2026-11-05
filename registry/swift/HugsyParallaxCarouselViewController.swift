@@ -53,7 +53,7 @@
     private let cache = HugsyUIViewCache()
 
     public init(
-      items: [Item], selection: Item.ID? = nil, peek: CGFloat = 36,
+      items: [Item], selection: Item.ID? = nil, peek: CGFloat = 48,
       cardView: @escaping (Item) -> UIView
     ) {
       self.model = HugsyParallaxCarouselModel(items: items, selection: selection)

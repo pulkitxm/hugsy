@@ -10,7 +10,7 @@ public struct HugsyParallaxCarousel<Item: Identifiable, Content: View>: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   public init(
-    items: [Item], selection: Binding<Item.ID?>, spacing: CGFloat = 14, peek: CGFloat = 36,
+    items: [Item], selection: Binding<Item.ID?>, spacing: CGFloat = 14, peek: CGFloat = 48,
     parallax: CGFloat = 48, @ViewBuilder content: @escaping (Item) -> Content
   ) {
     self.items = items
@@ -60,7 +60,7 @@ public struct HugsyParallaxCarousel<Item: Identifiable, Content: View>: View {
     .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
     .scrollTransition(axis: .horizontal) { view, phase in
       view
-        .scaleEffect(phase.isIdentity ? 1 : 0.88)
+        .scaleEffect(phase.isIdentity ? 1 : 0.9)
         .rotation3DEffect(
           .degrees(phase.value * tilt), axis: (x: 0, y: 1, z: 0),
           perspective: 0.5
