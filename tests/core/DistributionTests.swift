@@ -57,16 +57,16 @@ import Testing
     defer { try? FileManager.default.removeItem(at: root) }
     let installer = Installer()
     _ = try installer.initialize(cwd: root.path, directory: "Packages/Hugsy")
-    let dry = try installer.install(cwd: root.path, names: ["fluid-tabs"], dryRun: true)
+    let dry = try installer.install(cwd: root.path, names: ["swipe-deck"], dryRun: true)
     #expect(dry.distribution == .package)
     #expect(dry.instructions.contains { $0.contains("import HugsyComponents") })
     #expect(!FileManager.default.fileExists(atPath: root.appendingPathComponent("Packages").path))
-    _ = try installer.install(cwd: root.path, names: ["fluid-tabs"])
-    let result = try installer.install(cwd: root.path, names: ["toast-stack"])
-    #expect(Set(result.components) == ["fluid-tabs", "toast-stack"])
+    _ = try installer.install(cwd: root.path, names: ["swipe-deck"])
+    let result = try installer.install(cwd: root.path, names: ["morphing-capsule"])
+    #expect(Set(result.components) == ["swipe-deck", "morphing-capsule", "uikit-bridge"])
     #expect(
       result.files.contains {
-        $0.path.hasSuffix("fluid-tabs/HugsyFluidTabs.swift") && $0.status == .unchanged
+        $0.path.hasSuffix("swipe-deck/HugsySwipeDeck.swift") && $0.status == .unchanged
       })
     #expect(
       try Data(contentsOf: root.appendingPathComponent("Packages/Hugsy/LICENSE"))
@@ -76,7 +76,7 @@ import Testing
     #expect(!manifest.contains(".package(url:"))
     #expect(!manifest.contains("resources:"))
     #expect(
-      try installer.plan(cwd: root.path, names: ["toast-stack"]).files.allSatisfy {
+      try installer.plan(cwd: root.path, names: ["morphing-capsule"]).files.allSatisfy {
         $0.status == .unchanged
       })
   }
@@ -180,7 +180,7 @@ import Testing
     try FileManager.default.createSymbolicLink(
       at: root.appendingPathComponent("Hugsy/Sources"), withDestinationURL: outside)
     #expect(throws: HugsyError.self) {
-      try Installer().install(cwd: root.path, names: ["fluid-tabs"])
+      try Installer().install(cwd: root.path, names: ["swipe-deck"])
     }
     #expect(try FileManager.default.contentsOfDirectory(atPath: outside.path).isEmpty)
   }
@@ -265,11 +265,13 @@ import Testing
         }
 
         """)
-    let tabs = try HugsyRegistry().component("fluid-tabs")
+    let deck = try HugsyRegistry().component("swipe-deck")
+    let bridge = try HugsyRegistry().component("uikit-bridge")
     let installer = Installer(
-      registry: try HugsyRegistry(document: RegistryDocument(components: [cache, image, tabs])))
+      registry: try HugsyRegistry(
+        document: RegistryDocument(components: [cache, image, bridge, deck])))
     _ = try installer.initialize(cwd: root.path, directory: "Hugsy")
-    _ = try installer.install(cwd: root.path, names: ["cached-image", "fluid-tabs"])
+    _ = try installer.install(cwd: root.path, names: ["cached-image", "swipe-deck"])
     let consumer = root.appendingPathComponent("Consumer")
     let sources = consumer.appendingPathComponent("Sources/Consumer")
     try FileManager.default.createDirectory(at: sources, withIntermediateDirectories: true)
@@ -294,7 +296,13 @@ import Testing
     @MainActor public func integration() throws -> some View {
       _ = try HugsyFixtureImage.resourceData()
       _ = HugsyFixtureImage(frame: .zero)
-      return HugsyFluidTabs(tabs: ["One", "Two"], selection: .constant("One"))
+      let cards = [Card(id: "one"), Card(id: "two")]
+      _ = HugsySwipeDeckViewController(items: cards) { _ in UIView() }
+      return HugsySwipeDeck(items: .constant(cards)) { card, _ in Text(card.id) }
+    }
+
+    public struct Card: Identifiable, Sendable {
+      public let id: String
     }
 
     """.write(

@@ -54,12 +54,12 @@ describe("native Swift CLI", () => {
       spawnSync(executable, [...args, "--cwd", cwd, "--json"], { encoding: "utf8" });
     try {
       expect(run("init").status).toBe(0);
-      const planned = JSON.parse(run("add", "fluid-tabs", "--dry-run").stdout);
+      const planned = JSON.parse(run("add", "swipe-deck", "--dry-run").stdout);
       expect(planned.distribution).toBe("package");
       expect(planned.instructions.join(" ")).toContain("import HugsyComponents");
       expect(existsSync(join(cwd, "Hugsy"))).toBe(false);
-      expect(run("add", "fluid-tabs").status).toBe(0);
-      expect(run("add", "toast-stack").status).toBe(0);
+      expect(run("add", "swipe-deck").status).toBe(0);
+      expect(run("add", "morphing-capsule").status).toBe(0);
       expect(readFileSync(join(cwd, "Hugsy", "Package.swift"), "utf8")).toContain(
         "HugsyComponents",
       );
@@ -68,14 +68,14 @@ describe("native Swift CLI", () => {
         "Hugsy",
         "Sources",
         "HugsyComponents",
-        "fluid-tabs",
-        "HugsyFluidTabs.swift",
+        "swipe-deck",
+        "HugsySwipeDeck.swift",
       );
       writeFileSync(source, "local edits\n");
       const doctor = JSON.parse(run("doctor").stdout);
-      expect(doctor.conflicts).toContain("Sources/HugsyComponents/fluid-tabs/HugsyFluidTabs.swift");
+      expect(doctor.conflicts).toContain("Sources/HugsyComponents/swipe-deck/HugsySwipeDeck.swift");
       expect(doctor.targetLinkage).toContain("Not inspected");
-      expect(run("add", "fluid-tabs").status).toBe(1);
+      expect(run("add", "swipe-deck").status).toBe(1);
       expect(readFileSync(source, "utf8")).toBe("local edits\n");
     } finally {
       rmSync(cwd, { recursive: true, force: true });
@@ -95,14 +95,14 @@ describe("native Swift CLI", () => {
           cwd,
         ]).status,
       ).toBe(0);
-      const result = spawnSync(executable, ["add", "fluid-tabs", "--cwd", cwd, "--json"], {
+      const result = spawnSync(executable, ["add", "swipe-deck", "--cwd", cwd, "--json"], {
         encoding: "utf8",
       });
       expect(result.status).toBe(0);
       expect(JSON.parse(result.stdout).instructions.join(" ")).toContain(
         "Do not import the directory name",
       );
-      expect(existsSync(join(cwd, "App/UI/HugsyFluidTabs.swift"))).toBe(true);
+      expect(existsSync(join(cwd, "App/UI/HugsySwipeDeck.swift"))).toBe(true);
       expect(existsSync(join(cwd, "App/UI/Package.swift"))).toBe(false);
     } finally {
       rmSync(cwd, { recursive: true, force: true });
@@ -126,7 +126,7 @@ it("negotiates MCP and serves tools, resources, prompts, validation, and errors"
     ]);
     const source = await client.callTool({
       name: "get_component",
-      arguments: { name: "fluid-tabs" },
+      arguments: { name: "swipe-deck" },
     });
     expect(source.isError).not.toBe(true);
     expect(JSON.stringify(source)).toContain("import SwiftUI");
@@ -138,9 +138,9 @@ it("negotiates MCP and serves tools, resources, prompts, validation, and errors"
     ).toBe(true);
     expect(
       JSON.stringify(
-        await client.callTool({ name: "search_components", arguments: { query: "toast" } }),
+        await client.callTool({ name: "search_components", arguments: { query: "morphing" } }),
       ),
-    ).toContain("toast-stack");
+    ).toContain("morphing-capsule");
     expect(
       JSON.stringify(
         await client.callTool({ name: "plan_install", arguments: { names: ["expanding-cards"] } }),
@@ -153,10 +153,10 @@ it("negotiates MCP and serves tools, resources, prompts, validation, and errors"
     ).toContain("import HugsyComponents");
     expect((await client.listResources()).resources).toHaveLength(7);
     expect(
-      JSON.stringify(await client.readResource({ uri: "hugsy://components/fluid-tabs" })),
+      JSON.stringify(await client.readResource({ uri: "hugsy://components/swipe-deck" })),
     ).toContain("import SwiftUI");
     expect(
-      (await client.readResource({ uri: "hugsy://components/fluid-tabs" })).contents[0]?.mimeType,
+      (await client.readResource({ uri: "hugsy://components/swipe-deck" })).contents[0]?.mimeType,
     ).toBe("application/json");
     expect(JSON.stringify(await client.readResource({ uri: "hugsy://registry" }))).toContain(
       "expanding-cards",

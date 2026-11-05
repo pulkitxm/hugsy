@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { catalog } from "../../registry/catalog";
+import { showcase } from "../../registry/catalog";
 import { CodeBlock } from "../components/code-block";
 import { ComponentCard } from "../components/component-card";
-import { IPhone } from "../components/iphone";
 import { seo } from "../lib/seo";
 import { sourceExample } from "../lib/snippets";
 
@@ -54,16 +53,6 @@ function Home() {
             Open source
           </p>
         </div>
-        <div className="hero-device">
-          <IPhone name="expanding-cards" title="Expanding cards" priority />
-          <div className="hero-device-caption">
-            <span>Expanding cards</span>
-            <Link to="/components/$name/" params={{ name: "expanding-cards" }}>
-              Explore
-              <ArrowUpRight size={12} />
-            </Link>
-          </div>
-        </div>
       </section>
       <section className="featured-section container">
         <div className="section-heading">
@@ -77,7 +66,7 @@ function Home() {
           </Link>
         </div>
         <div className="featured-grid">
-          {catalog.slice(0, 3).map((item) => (
+          {showcase.slice(0, 3).map((item) => (
             <ComponentCard key={item.name} {...item} />
           ))}
         </div>

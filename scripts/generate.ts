@@ -2,9 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { Resvg } from "@resvg/resvg-js";
 import { createHighlighter } from "shiki";
-import { catalog } from "../registry/catalog";
+import { catalog, showcase } from "../registry/catalog";
 import { highlightSchema } from "../registry/highlight-schema";
-import { previewDuration } from "../registry/preview";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
 import {
@@ -73,22 +72,8 @@ const paths = [
   "/docs/cli/",
   "/docs/mcp/",
   "/docs/accessibility/",
-  ...components.map((item) => `/components/${item.name}/`),
+  ...showcase.map((item) => `/components/${item.name}/`),
 ];
-await mkdir("public/native", { recursive: true });
-await Promise.all(
-  components.flatMap((item) =>
-    (item.preview?.screens ?? []).map((screen) => {
-      const seconds = Math.ceil(previewDuration(screen) / 1000 + 2)
-        .toString()
-        .padStart(2, "0");
-      return writeFile(
-        `public/native/${screen.asset}.vtt`,
-        `WEBVTT\n\n00:00.000 --> 00:${seconds}.000\n${item.title}: ${screen.label}. ${item.description}\n`,
-      );
-    }),
-  ),
-);
 await writeFile(
   "public/sitemap.xml",
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${origin}${path}</loc></url>`).join("")}</urlset>\n`,
@@ -96,7 +81,7 @@ await writeFile(
 await writeFile("public/robots.txt", `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`);
 await writeFile(
   "public/llms-full.txt",
-  `# Hugsy\n\nSource-owned iOS components and services. iOS 17+, Swift 6. MIT licensed. No third-party runtime dependencies. Current catalog: SwiftUI. Distribution: Apple frameworks including UIKit and Foundation.\n\nInstall the native Swift CLI from ${origin}/docs/. Run hugsy list --json, hugsy info <name> --json, hugsy init, then hugsy add <name> --dry-run --json. The default creates a local Swift package. Add it in Xcode, attach HugsyComponents to the app target, and import HugsyComponents. Source mode requires explicit --distribution source and target membership, without an extra module import. Writing files does not link the app. Never overwrite customized source without permission. MCP: hugsy mcp.\n\n${components.map((item) => `## ${item.title}\n\n${item.description}\n\nFrameworks: ${item.frameworks.join(", ")}\n\n${item.integration}\n\n${item.accessibility}\n\n${item.usage}\n\n${origin}/r/${item.name}.json\n`).join("\n")}`,
+  `# Hugsy\n\nSource-owned iOS components and services. iOS 17+, Swift 6. MIT licensed. No third-party runtime dependencies. Every component ships a SwiftUI view and a UIKit view controller adapter.\n\nInstall the native Swift CLI from ${origin}/docs/. Run hugsy list --json, hugsy info <name> --json, hugsy init, then hugsy add <name> --dry-run --json. The default creates a local Swift package. Add it in Xcode, attach HugsyComponents to the app target, and import HugsyComponents. Source mode requires explicit --distribution source and target membership, without an extra module import. Writing files does not link the app. Never overwrite customized source without permission. MCP: hugsy mcp.\n\n${components.map((item) => `## ${item.title}\n\n${item.description}\n\nFrameworks: ${item.frameworks.join(", ")}\n\n${item.integration}\n\n${item.accessibility}\n\nSwiftUI:\n\n${item.usage}\n\n${item.uikitUsage ? `UIKit:\n\n${item.uikitUsage}\n\n` : ""}${origin}/r/${item.name}.json\n`).join("\n")}`,
 );
 const highlighter = await createHighlighter({
   themes: ["github-light", "github-dark"],
@@ -107,6 +92,7 @@ const samples: CodeSample[] = [
   ...components.flatMap((item): CodeSample[] => [
     { code: item.source, lang: "swift" },
     { code: item.usage, lang: "swift" },
+    { code: item.uikitUsage ?? item.usage, lang: "swift" },
     { code: `hugsy add ${item.name}`, lang: "shellscript" },
   ]),
   ...[

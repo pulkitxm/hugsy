@@ -1,6 +1,122 @@
 type Parameter = { name: string; type: string; defaultValue: string; description: string };
 
 export const componentParameters: Record<string, Parameter[]> = {
+  "swipe-deck": [
+    {
+      name: "items",
+      type: "Binding<[Item: Identifiable]>",
+      defaultValue: "Required",
+      description: "The deck, top card first. Swiped cards are removed from the binding.",
+    },
+    {
+      name: "visibleCount",
+      type: "Int",
+      defaultValue: "3",
+      description: "Cards drawn in the stack, clamped between 1 and 5.",
+    },
+    {
+      name: "threshold",
+      type: "CGFloat",
+      defaultValue: "110",
+      description:
+        "Horizontal travel that commits a swipe, at least 44 points. Fast flicks commit sooner.",
+    },
+    {
+      name: "leftLabel",
+      type: "String",
+      defaultValue: '"Skip"',
+      description: "Label for the left button and accessibility action.",
+    },
+    {
+      name: "rightLabel",
+      type: "String",
+      defaultValue: '"Like"',
+      description: "Label for the right button and accessibility action.",
+    },
+    {
+      name: "onSwipe",
+      type: "(Item, HugsySwipeDirection) -> Void",
+      defaultValue: "No-op",
+      description: "Called after a card has left the deck.",
+    },
+    {
+      name: "content",
+      type: "(Item, Double) -> Content",
+      defaultValue: "Required",
+      description:
+        "Card builder. The Double is drag progress from -1 to 1 for the top card, 0 for others.",
+    },
+  ],
+  "parallax-carousel": [
+    {
+      name: "items",
+      type: "[Item: Identifiable]",
+      defaultValue: "Required",
+      description: "Your models, with stable and unique IDs.",
+    },
+    {
+      name: "selection",
+      type: "Binding<Item.ID?>",
+      defaultValue: "Required",
+      description: "The centered card. Set it to scroll programmatically.",
+    },
+    {
+      name: "spacing",
+      type: "CGFloat",
+      defaultValue: "14",
+      description: "Gap between cards in points.",
+    },
+    {
+      name: "peek",
+      type: "CGFloat",
+      defaultValue: "36",
+      description: "How much of each neighbor shows at the edges.",
+    },
+    {
+      name: "parallax",
+      type: "CGFloat",
+      defaultValue: "48",
+      description: "How far artwork drifts inside its card, clamped between 0 and 120.",
+    },
+    {
+      name: "content",
+      type: "(Item) -> Content",
+      defaultValue: "Required",
+      description: "Card content. It is drawn wider than the card to allow drift.",
+    },
+  ],
+  "morphing-capsule": [
+    {
+      name: "phase",
+      type: "Binding<HugsyCapsulePhase>",
+      defaultValue: "Required",
+      description: "One of .compact, .alert, or .expanded.",
+    },
+    {
+      name: "compactSize",
+      type: "CGSize",
+      defaultValue: "126 × 37",
+      description: "Resting pill size.",
+    },
+    {
+      name: "alertSize",
+      type: "CGSize",
+      defaultValue: "300 × 58",
+      description: "Wide alert size, at least the compact size.",
+    },
+    {
+      name: "expandedSize",
+      type: "CGSize",
+      defaultValue: "360 × 200",
+      description: "Expanded panel size, at least the alert size.",
+    },
+    {
+      name: "content",
+      type: "(HugsyCapsulePhase) -> Content",
+      defaultValue: "Required",
+      description: "Content for each phase, drawn on black in a dark color scheme.",
+    },
+  ],
   "expanding-cards": [
     {
       name: "items",
@@ -33,32 +149,6 @@ export const componentParameters: Record<string, Parameter[]> = {
       description: "A view builder receiving the model and expanded state.",
     },
   ],
-  "morphing-sheet": [
-    {
-      name: "position",
-      type: "Binding<HugsySheetPosition>",
-      defaultValue: "Required",
-      description: "Either .compact or .expanded. Drives the inline surface.",
-    },
-    {
-      name: "compactHeight",
-      type: "CGFloat",
-      defaultValue: "200",
-      description: "Collapsed height, clamped to at least 100 points.",
-    },
-    {
-      name: "expandedHeight",
-      type: "CGFloat",
-      defaultValue: "430",
-      description: "Expanded height, at least 44 points above the compact height.",
-    },
-    {
-      name: "content",
-      type: "(HugsySheetPosition) -> Content",
-      defaultValue: "Required",
-      description: "Content that adapts to the current position.",
-    },
-  ],
   "radial-menu": [
     {
       name: "actions",
@@ -77,63 +167,6 @@ export const componentParameters: Record<string, Parameter[]> = {
       type: "CGFloat",
       defaultValue: "100",
       description: "Arc radius in points, clamped to at least 70. Reserve sufficient layout space.",
-    },
-  ],
-  "toast-stack": [
-    {
-      name: "toasts",
-      type: "HugsyToasts",
-      defaultValue: "Required",
-      description: "Keep this main-actor observable model in @State.",
-    },
-    {
-      name: "show(_:symbol:duration:)",
-      type: "HugsyToasts method",
-      defaultValue: "5 seconds",
-      description:
-        "Adds a toast at the front, keeping at most four. The symbol defaults to checkmark.circle.fill.",
-    },
-    {
-      name: "dismiss(_:)",
-      type: "(UUID) -> Void",
-      defaultValue: "None",
-      description: "Removes the matching notification. Repeated dismissal is safe.",
-    },
-  ],
-  "fluid-tabs": [
-    {
-      name: "tabs",
-      type: "[String]",
-      defaultValue: "Required",
-      description: "Display labels. Duplicates are removed while preserving order.",
-    },
-    {
-      name: "selection",
-      type: "Binding<String>",
-      defaultValue: "Required",
-      description:
-        "Selected label. Invalid selections reset to the first available tab when labels change.",
-    },
-  ],
-  "stretchy-header": [
-    {
-      name: "height",
-      type: "CGFloat",
-      defaultValue: "320",
-      description: "Resting header height in points, clamped to at least 44.",
-    },
-    {
-      name: "header",
-      type: "() -> Header",
-      defaultValue: "Required",
-      description: "The edge-to-edge header view. It is clipped to expanding bounds.",
-    },
-    {
-      name: "content",
-      type: "() -> Content",
-      defaultValue: "Required",
-      description:
-        "The body of the native ScrollView. Avoid wrapping it in another vertical ScrollView.",
     },
   ],
 };

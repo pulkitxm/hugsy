@@ -60,16 +60,17 @@ private struct List: ParsableCommand {
 
 private struct Info: ParsableCommand {
   static let configuration = CommandConfiguration(
-    abstract: "Read Swift source, usage, and accessibility notes.")
+    abstract: "Read Swift source, SwiftUI and UIKit usage, and accessibility notes.")
   @OptionGroup var options: Options
   @Argument var name: String
   func run() throws {
     try options.perform {
       let item = try HugsyRegistry().component(name)
+      let uikit = item.uikitUsage.map { "\n\nUIKit:\n\($0)" } ?? ""
       try options.write(
         item,
         text:
-          "\(item.title)\n\(item.description)\nFrameworks: \(item.frameworks.joined(separator: ", "))\nFiles: \(item.files.map(\.path).joined(separator: ", "))\nDependencies: \(item.dependencies.joined(separator: ", "))\n\n\(item.integration)\n\n\(item.usage)\n\n\(item.accessibility)"
+          "\(item.title)\n\(item.description)\nFrameworks: \(item.frameworks.joined(separator: ", "))\nFiles: \(item.files.map(\.path).joined(separator: ", "))\nDependencies: \(item.dependencies.joined(separator: ", "))\n\n\(item.integration)\n\nSwiftUI:\n\(item.usage)\(uikit)\n\n\(item.accessibility)"
       )
     }
   }

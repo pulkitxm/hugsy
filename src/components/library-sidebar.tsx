@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { catalog } from "../../registry/catalog";
+import { showcase } from "../../registry/catalog";
 
 export function LibrarySidebar() {
   return (
@@ -20,7 +20,7 @@ export function LibrarySidebar() {
           <Link to="/components/" activeOptions={{ exact: true }}>
             All components
           </Link>
-          {catalog.map((item) => (
+          {showcase.map((item) => (
             <Link key={item.name} to="/components/$name/" params={{ name: item.name }}>
               {item.title}
             </Link>

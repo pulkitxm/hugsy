@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { catalog } from "../../registry/catalog";
+import { showcase } from "../../registry/catalog";
 
 const pages = [
   "",
@@ -10,7 +10,7 @@ const pages = [
   "docs/cli/",
   "docs/mcp/",
   "docs/accessibility/",
-  ...catalog.map((item) => `components/${item.name}/`),
+  ...showcase.map((item) => `components/${item.name}/`),
 ];
 
 test("every route is prerendered, directly accessible, and free of overflow or browser errors", async ({
@@ -42,43 +42,28 @@ test("every route is prerendered, directly accessible, and free of overflow or b
   expect(errors).toEqual([]);
 });
 
-test("landing page is separate from collection and links to real iPhone showcases", async ({
-  page,
-}) => {
+test("landing page is separate from collection and links to the showcase", async ({ page }) => {
   await page.goto("");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Native motion.");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Nothing in the way.");
-  await expect(
-    page
-      .getByRole("img", { name: "Expanding cards, rendered by SwiftUI on an iPhone simulator" })
-      .first(),
-  ).toBeVisible();
-  await expect
-    .poll(() =>
-      page
-        .getByRole("img", { name: "Expanding cards, rendered by SwiftUI on an iPhone simulator" })
-        .first()
-        .evaluate((image) => (image instanceof HTMLImageElement ? image.naturalWidth : 0)),
-    )
-    .toBeGreaterThan(0);
   await expect(page.getByRole("searchbox")).toHaveCount(0);
   await page.getByRole("link", { name: "Browse components" }).click();
   await expect(page).toHaveURL(/\/components\/$/);
-  await expect(page.locator("article.collection-card")).toHaveCount(6);
+  await expect(page.locator("article.collection-card")).toHaveCount(5);
 });
 
 test("collection supports search, categories, empty results, and reset", async ({ page }) => {
   await page.goto("components/");
-  await page.getByRole("button", { name: "Navigation", exact: true }).click();
+  await page.getByRole("button", { name: "Gestures", exact: true }).click();
   await expect(page.locator("article.collection-card")).toHaveCount(2);
   await page.getByRole("searchbox", { name: "Search components" }).fill("nothing matches");
   await expect(page.getByRole("heading", { name: "No components found." })).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("article.collection-card")).toHaveCount(6);
+  await expect(page.locator("article.collection-card")).toHaveCount(5);
   await page.getByRole("searchbox", { name: "Search components" }).fill("spring");
-  await expect(page.locator("article.collection-card")).toHaveCount(4);
+  await expect(page.locator("article.collection-card")).toHaveCount(2);
   await page.getByRole("button", { name: "Clear search" }).click();
-  await expect(page.locator("article.collection-card")).toHaveCount(6);
+  await expect(page.locator("article.collection-card")).toHaveCount(5);
 });
 
 test("source is syntax highlighted, copyable, and available as a standalone Swift file", async ({
@@ -88,7 +73,6 @@ test("source is syntax highlighted, copyable, and available as a standalone Swif
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("components/expanding-cards/");
-  await page.getByRole("button", { name: "Source", exact: true }).click();
   await expect(page.locator("pre").first()).toContainText("import SwiftUI");
   expect(await page.locator(".source-preview .syntax-token").count()).toBeGreaterThan(20);
   await page.getByRole("button", { name: "Copy hugsyexpandingcards.swift code" }).click();
@@ -100,37 +84,6 @@ test("source is syntax highlighted, copyable, and available as a standalone Swif
   expect(source.status()).toBe(200);
   expect(await source.text()).toContain("accessibilityReduceMotion");
 });
-
-for (const item of catalog) {
-  test(`native playback loads actual video without downloading before interaction: ${item.name}`, async ({
-    page,
-  }) => {
-    const media: string[] = [];
-    page.on("request", (request) => {
-      if (request.url().endsWith(".mp4")) {
-        media.push(request.url());
-      }
-    });
-    await page.goto(`components/${item.name}/`);
-    await expect(page.getByRole("heading", { name: "API reference" })).toBeVisible();
-    expect(media).toEqual([]);
-    await page.getByRole("button", { name: `Play ${item.title.toLowerCase()} demo` }).click();
-    const video = page.locator("video");
-    await expect(video).toBeVisible();
-    await expect
-      .poll(() =>
-        video.evaluate((element) => {
-          if (!(element instanceof HTMLVideoElement)) {
-            throw new Error("Expected native video element");
-          }
-          return element.videoWidth;
-        }),
-      )
-      .toBeGreaterThan(0);
-    expect(media.length).toBeGreaterThan(0);
-    await expect(page.getByText("Unable to play. Try the native gallery.")).toHaveCount(0);
-  });
-}
 
 test("documentation navigation and installation are native-first", async ({ page }) => {
   await page.goto("docs/");
@@ -202,42 +155,11 @@ test("prerendered controls wait for browser handlers", async ({ browser, baseURL
   }
   const page = await browser.newPage({ javaScriptEnabled: false, baseURL });
   try {
-    await page.goto("components/fluid-tabs/");
-    await expect(page.getByRole("button", { name: "Following", exact: true })).toBeDisabled();
-    await expect(page.locator(".native-stage img")).toBeVisible();
     await page.goto("components/");
-    await expect(page.getByRole("button", { name: "Navigation", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Gestures", exact: true })).toBeDisabled();
     await expect(page.getByRole("searchbox", { name: "Search components" })).toBeDisabled();
-    await expect(page.locator("article.collection-card")).toHaveCount(6);
+    await expect(page.locator("article.collection-card")).toHaveCount(5);
   } finally {
     await page.close();
   }
-});
-
-test("multi-screen previews select real native captures without starting a simulator", async ({
-  page,
-  request,
-}) => {
-  const simulatorRequests: string[] = [];
-  page.on("request", (request) => {
-    if (request.url().includes("/__native/")) {
-      simulatorRequests.push(request.url());
-    }
-  });
-  await page.goto("components/fluid-tabs/");
-  await expect(page.locator(".native-stage")).toHaveAttribute("data-preview-screen", "for-you");
-  await page.getByRole("button", { name: "Following", exact: true }).click();
-  await expect(page.locator(".native-stage")).toHaveAttribute("data-preview-screen", "following");
-  await expect(page.locator(".native-stage img")).toHaveAttribute(
-    "src",
-    "/native/fluid-tabs-following.webp",
-  );
-  expect((await request.get("native/fluid-tabs-following.mp4")).status()).toBe(200);
-  await page.getByRole("button", { name: "Saved", exact: true }).click();
-  await expect(page.locator(".native-stage img")).toHaveAttribute(
-    "src",
-    "/native/fluid-tabs-saved.webp",
-  );
-  expect((await request.get("native/fluid-tabs-saved.mp4")).status()).toBe(200);
-  expect(simulatorRequests).toEqual([]);
 });

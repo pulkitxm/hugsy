@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { catalog } from "../../registry/catalog";
+import { showcase } from "../../registry/catalog";
 import { ComponentCard } from "../components/component-card";
 import { LibrarySidebar } from "../components/library-sidebar";
 import { seo } from "../lib/seo";
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/components/")({
   head: () =>
     seo(
       "Components",
-      "A focused collection of animated SwiftUI components for iOS. Preview real native motion, inspect the Swift source, and adopt only what your app needs.",
+      "A focused collection of animated iOS components for SwiftUI and UIKit. Inspect the Swift source and adopt only what your app needs.",
       "/components/",
     ),
   component: Components,
@@ -21,8 +21,8 @@ function Components() {
   const [category, setCategory] = useState("All");
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
-  const categories = ["All", ...new Set(catalog.map((item) => item.category))];
-  const visible = catalog.filter(
+  const categories = ["All", ...new Set(showcase.map((item) => item.category))];
+  const visible = showcase.filter(
     (item) =>
       (category === "All" || category === item.category) &&
       `${item.title} ${item.description} ${item.technique}`

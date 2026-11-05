@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { previewDefinitionSchema } from "./preview.ts";
 
 const componentName = z
   .string()
@@ -37,7 +36,7 @@ export const componentMetadataSchema = z.strictObject({
   accessibility: z.string().min(1),
   integration: z.string().min(1),
   usage: z.string().min(1),
-  preview: previewDefinitionSchema.optional(),
+  uikitUsage: z.string().min(1).optional(),
 });
 export const componentSchema = componentMetadataSchema.extend({
   files: z

@@ -36,9 +36,9 @@ function Introduction() {
         <section className="doc-section">
           <h2>Start with an interaction</h2>
           <p>
-            Explore a <Link to="/components/">component</Link>, watch its native iPhone demo, then
-            copy the source or add it with the CLI. You own the colors, content, gestures, and
-            animation parameters.
+            Explore a <Link to="/components/">component</Link>, read its source, then copy the
+            source or add it with the CLI. You own the colors, content, gestures, and animation
+            parameters.
           </p>
           <CodeBlock label="SwiftUI" code={sourceExample} />
         </section>
@@ -76,19 +76,7 @@ function Introduction() {
             </Link>
           </div>
         </section>
-        <section className="doc-section">
-          <h2>About the previews</h2>
-          <p>
-            The device previews are recordings and screenshots of the actual SwiftUI example app
-            running in an iOS simulator. They are not React recreations. The sample content is
-            fictional.
-          </p>
-          <p>
-            Preview captures use iOS 27.2 on an iPhone 17 Pro. The source targets iOS 17+. Always
-            verify your app’s content, older deployment targets, Dynamic Type, VoiceOver, and Reduce
-            Motion on the devices you support.
-          </p>
-        </section>
+
         <div className="document-footer">
           <span>Ready when you are.</span>
           <Link to="/docs/installation/">

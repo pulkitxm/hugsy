@@ -38,6 +38,7 @@ public struct HugsyExpandingCards<Item: Identifiable, Content: View>: View {
                 .background(.regularMaterial, in: Circle()).padding(16)
                 .accessibilityFocused($focused, equals: item.id)
             }
+            .scaleEffect(reduceMotion ? 1 : 1 - min(max(0, drag.height), 320) / 1600, anchor: .top)
             .offset(y: max(0, drag.height))
             .gesture(
               DragGesture().updating($drag) { value, state, _ in

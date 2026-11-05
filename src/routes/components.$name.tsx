@@ -1,10 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowUpRight, Smartphone } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { componentParameters } from "../../registry/parameters";
 import { registry } from "../../registry/registry";
 import { CodeBlock } from "../components/code-block";
-import { ComponentPreview } from "../components/component-preview";
 import { LibrarySidebar } from "../components/library-sidebar";
 import { seo } from "../lib/seo";
 
@@ -25,7 +23,6 @@ export const Route = createFileRoute("/components/$name")({
 
 function ComponentPage() {
   const item = Route.useLoaderData();
-  const [view, setView] = useState("Preview");
   return (
     <div className="library-layout container">
       <LibrarySidebar />
@@ -47,45 +44,9 @@ function ComponentPage() {
             </a>
           </div>
         </div>
-        <div className="preview-tabs">
-          {["Preview", "Source"].map((tab) => (
-            <button
-              type="button"
-              key={tab}
-              aria-pressed={view === tab}
-              onClick={() => setView(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-          {item.preview && (
-            <span className="preview-platform">
-              <Smartphone size={13} aria-hidden="true" />
-              iPhone
-            </span>
-          )}
+        <div className="source-preview">
+          <CodeBlock code={item.source} label={item.filename} />
         </div>
-        {view === "Preview" ? (
-          <ComponentPreview
-            key={item.name}
-            name={item.name}
-            title={item.title}
-            definition={item.preview}
-          />
-        ) : (
-          <div className="source-preview">
-            <CodeBlock code={item.source} label={item.filename} />
-          </div>
-        )}
-        <p className="native-note">
-          {item.preview
-            ? "Real native rendering, recorded on an iPhone 17 Pro simulator. "
-            : "Framework-neutral iOS source. "}
-          <a href="https://github.com/pulkitxm/hugsy/tree/main/examples">
-            Run the native gallery
-            <ArrowUpRight size={10} />
-          </a>
-        </p>
         <section className="doc-section" id="installation">
           <h2>Installation</h2>
           <p>
@@ -108,6 +69,7 @@ function ComponentPage() {
         <section className="doc-section" id="usage">
           <h2>Usage</h2>
           <CodeBlock code={item.usage} label="SwiftUI" />
+          {item.uikitUsage && <CodeBlock code={item.uikitUsage} label="UIKit" />}
           <p>{item.integration}</p>
         </section>
         <section className="doc-section" id="api">

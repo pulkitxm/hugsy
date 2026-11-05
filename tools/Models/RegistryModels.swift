@@ -40,13 +40,13 @@ public struct Component: Codable, Sendable {
   public let accessibility: String
   public let integration: String
   public let usage: String
-  public let preview: PreviewDefinition?
+  public let uikitUsage: String?
   public var source: String
   public var sha256: String
 
   private enum CodingKeys: String, CodingKey {
     case name, title, description, category, technique, filename, states
-    case interaction, accessibility, integration, usage, preview, source, sha256, frameworks,
+    case interaction, accessibility, integration, usage, uikitUsage, source, sha256, frameworks,
       dependencies,
       files
   }
@@ -67,8 +67,7 @@ public struct Component: Codable, Sendable {
     accessibility = try values.decode(String.self, forKey: .accessibility)
     integration = try values.decode(String.self, forKey: .integration)
     usage = try values.decode(String.self, forKey: .usage)
-    preview = try values.decodeIfPresent(PreviewDefinition.self, forKey: .preview)
-    try preview?.validate()
+    uikitUsage = try values.decodeIfPresent(String.self, forKey: .uikitUsage)
     source = try values.decodeIfPresent(String.self, forKey: .source) ?? ""
     sha256 = try values.decodeIfPresent(String.self, forKey: .sha256) ?? ""
   }
