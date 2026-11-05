@@ -18,7 +18,7 @@ bun run build
 bun run ci
 bunx playwright install chromium
 bun run test:e2e
-bun run check:lighthouse
+bun run lighthouse
 bun run check:swift
 bun run test:protocol
 sh scripts/build-ios.sh
@@ -53,7 +53,7 @@ Every page has a Markdown version, such as `/docs/cli.md` for `/docs/cli/`, link
 - Native Swift formatting, warnings-as-errors builds, Swift 6 strict concurrency, and native tests.
 - Desktop and mobile interactions, automated WCAG checks on every route, reduced motion, static 404s, and direct links.
 - Prerendered HTML, canonical URLs, local links, registry schemas, CLI package installation, and asset budgets.
-- Lighthouse performance at least 95, accessibility, best practices, and SEO at 100, with a layout-shift limit of 0.05.
+- Lighthouse on every page, on mobile and desktop. `bun run lighthouse` targets 100 in every category and writes reports to `.lighthouse/`. Use `--route /docs/cli/`, `--form-factor mobile`, `--concurrency 2`, or `--production` to narrow a run. CI fails below 95.
 - Workflow validation, workflow security, secrets, high-severity dependency audit, dependency review, CodeQL, and scheduled deeper scans.
 
 Automated accessibility checks are not a VoiceOver certification. Test the native gallery with a keyboard and assistive technology before changing an interaction contract.

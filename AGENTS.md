@@ -12,6 +12,7 @@ Hugsy is an animation-heavy, iOS-first, copy-and-own registry. Every component s
 - New components need source, metadata, interaction states, SwiftUI and UIKit usage, compilation in the native gallery, and an interactive web demo registered in `src/demos/registry.ts`.
 - Device previews are pure CSS frames (`src/components/device.tsx`) hosting lazily loaded web demos. Keep frames faithful to real hardware proportions. Size demo content in `--pt` screen points, respect `--safe-top` and `--safe-bottom`, label previews as interactive web previews, and never ship recorded media or device images.
 - Do not add third-party UI libraries. Icons live in `src/components/icons.tsx` and interactive states in `src/theme.css`. Runtime dependencies stay limited to React and the router.
+- All page metadata comes from `seo()` in `src/lib/seo.ts`, including Open Graph, Twitter, canonical, and structured data. `bun scripts/check-site.ts` enforces title and description lengths.
 - Theme colors are CSS variables using `light-dark()`. Never swap themes from React or read the theme during render. The inline `<head>` script in `src/lib/theme.ts` applies a saved choice before first paint.
 - Every page has a Markdown version at the same path with `.md`, generated from its rendered HTML by `scripts/markdown-pages.ts`. Add new routes to `sitePaths` there.
 - Pages deploys only `dist/client`. Never introduce runtime server functions, secrets, analytics, or external fonts.

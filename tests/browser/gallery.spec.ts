@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { showcase } from "../../registry/catalog";
+import { test } from "./fixtures";
 
 const pages = [
   "",
