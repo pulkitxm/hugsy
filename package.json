@@ -40,7 +40,7 @@
     "check:swift:core": "xcrun swift-format lint --strict --recursive Package.swift registry/swift examples tools tests && swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test --skip HugsyRenderTests",
     "check:swift:render": "swift test --filter HugsyRenderTests",
     "lighthouse": "bun scripts/lighthouse.ts",
-    "check:lighthouse": "bun scripts/lighthouse.ts --min-score 95",
+    "check:lighthouse": "bun scripts/lighthouse.ts --min-score 95 --concurrency 2",
     "ci": "bun run build && bun run lint && bun run typecheck && bun run check:repository && bun run check:dead-code && bun run check:markdown && bun run check:html && bun run check:yaml && bun run test:coverage",
     "prepare": "bun run generate && bun scripts/install-hooks.ts"
   },

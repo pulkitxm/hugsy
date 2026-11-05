@@ -44,6 +44,15 @@ test("every route is prerendered, directly accessible, and free of overflow or b
   expect(errors).toEqual([]);
 });
 
+test("offscreen demos wait until they scroll into view", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("components/");
+  await page.waitForTimeout(3000);
+  await expect(page.locator(".radial-demo")).toHaveCount(0);
+  await page.locator(".showcase-card").last().scrollIntoViewIfNeeded();
+  await expect(page.locator(".radial-demo")).toHaveCount(1);
+});
+
 test("landing page shows every component live on an iPhone", async ({ page }) => {
   await page.goto("");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Animated components for iOS.");

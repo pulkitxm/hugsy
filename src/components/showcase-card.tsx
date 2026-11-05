@@ -31,11 +31,7 @@ export function ShowcaseCard({
       { rootMargin: "200px" },
     );
     observer.observe(element);
-    const idle = setTimeout(() => setVisible(true), 2500);
-    return () => {
-      observer.disconnect();
-      clearTimeout(idle);
-    };
+    return () => observer.disconnect();
   }, []);
   if (!screen) {
     return null;

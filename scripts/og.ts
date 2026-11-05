@@ -303,7 +303,9 @@ try {
     });
     await page.goto(`http://127.0.0.1:${port}${card.path}`);
     await page.locator("html[data-hydrated]").waitFor({ state: "attached" });
-    await page.waitForTimeout(card.path === "/components/" ? 3200 : 900);
+    await page.setViewportSize({ width: 1200, height: 4000 });
+    await page.waitForTimeout(card.path === "/components/" ? 1500 : 900);
+    await page.setViewportSize({ width: 1200, height: 900 });
     await card.prepare?.(page);
     await compose(page, card);
     await page.setViewportSize({ width: 1200, height: 630 });
