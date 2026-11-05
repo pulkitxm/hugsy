@@ -9,10 +9,11 @@ Hugsy is an animation-heavy, iOS-first, copy-and-own registry. Every component s
 - No prose comments in code. Functional compiler, formatter, and accessibility-lint directives are the only exceptions. Explain decisions in documentation and names.
 - Every animation must respect Reduce Motion. Keep native labels, keyboard access, stable IDs, and an alternative to drag-only interactions.
 - Keep the catalog to a small set of animated components. Each needs a SwiftUI view, a UIKit adapter named `<Component>ViewController.swift` guarded by `#if canImport(UIKit)` that depends on `uikit-bridge`, and a demo in the native gallery for both frameworks.
-- New components need source, metadata, interaction states, SwiftUI and UIKit usage, and compilation in the native gallery.
+- New components need source, metadata, interaction states, SwiftUI and UIKit usage, compilation in the native gallery, and an interactive web demo registered in `src/demos/registry.ts`.
+- Device previews are pure CSS frames (`src/components/device.tsx`) hosting lazily loaded web demos. Size everything in `--pt` screen points so demos scale with the frame, label previews as interactive web previews, and never ship recorded media or device images.
 - Pages deploys only `dist/client`. Never introduce runtime server functions, secrets, analytics, or external fonts.
 - Keep website and build automation in TypeScript. Do not introduce Python. Swift is for the native components, example app, CLI, and MCP server.
-- Maintain root-path routing on `https://hugsy.pulkit.page`, unique canonical URLs, prerendered content, and gzip budgets.
+- Maintain root-path routing on `https://hugsy.pulkit.page`, unique canonical URLs, prerendered content, and per-page gzip budgets. Keep runtime validation libraries out of the client; validate at build time and emit typed modules.
 - Use synthetic demo content. Never publish project data or credentials in screenshots or logs.
 - Use Pukbot for supported GitHub writes, checkpoint commits, and squash merges. PR descriptions must be one line.
 
