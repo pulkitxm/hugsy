@@ -3,7 +3,9 @@ import { launch } from "chrome-launcher";
 import lighthouse, { desktopConfig } from "lighthouse";
 import { type AuditJob, isAuditJob, type WorkerReply } from "./lighthouse-types";
 
-const chrome = await launch({ chromeFlags: ["--headless=new", "--no-sandbox"] });
+const chrome = await launch({
+  chromeFlags: ["--headless=new", "--no-sandbox", "--enable-blink-features=WebMCP"],
+});
 
 function reply(message: WorkerReply) {
   process.send?.(message);

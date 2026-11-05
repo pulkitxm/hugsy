@@ -16,6 +16,7 @@ export const Route = createRootRoute({
     links: [
       { rel: "stylesheet", href: stylesheet },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "ai-catalog", href: "/.well-known/ai-catalog.json" },
     ],
     scripts: [{ children: themeScript }],
   }),
