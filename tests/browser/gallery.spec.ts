@@ -42,28 +42,26 @@ test("every route is prerendered, directly accessible, and free of overflow or b
   expect(errors).toEqual([]);
 });
 
-test("landing page is separate from collection and links to the showcase", async ({ page }) => {
+test("landing page shows a live device and links to every component", async ({ page }) => {
   await page.goto("");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Native motion.");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Nothing in the way.");
-  await expect(page.getByRole("searchbox")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Animated iOS components.");
+  await expect(page.getByRole("region", { name: "Swipe deck on iPhone" })).toBeVisible();
+  await expect(page.locator(".component-list li")).toHaveCount(5);
   await page.getByRole("link", { name: "Browse components" }).click();
   await expect(page).toHaveURL(/\/components\/$/);
-  await expect(page.locator("article.collection-card")).toHaveCount(5);
+  await expect(page.locator(".component-list li")).toHaveCount(5);
+  await page.getByRole("link", { name: /^Morphing capsule/ }).click();
+  await expect(page).toHaveURL(/\/components\/morphing-capsule\/$/);
+  await page.getByRole("link", { name: "Expanding cards" }).last().click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Expanding cards");
 });
 
-test("collection supports search, categories, empty results, and reset", async ({ page }) => {
-  await page.goto("components/");
-  await page.getByRole("button", { name: "Gestures", exact: true }).click();
-  await expect(page.locator("article.collection-card")).toHaveCount(2);
-  await page.getByRole("searchbox", { name: "Search components" }).fill("nothing matches");
-  await expect(page.getByRole("heading", { name: "No components found." })).toBeVisible();
-  await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("article.collection-card")).toHaveCount(5);
-  await page.getByRole("searchbox", { name: "Search components" }).fill("spring");
-  await expect(page.locator("article.collection-card")).toHaveCount(2);
-  await page.getByRole("button", { name: "Clear search" }).click();
-  await expect(page.locator("article.collection-card")).toHaveCount(5);
+test("usage switches between SwiftUI and UIKit", async ({ page }) => {
+  await page.goto("components/swipe-deck/");
+  const usage = page.locator("#usage pre");
+  await expect(usage).toContainText("HugsySwipeDeck(items:");
+  await page.getByRole("button", { name: "UIKit", exact: true }).click();
+  await expect(usage).toContainText("HugsySwipeDeckViewController");
 });
 
 test("source is syntax highlighted, copyable, and available as a standalone Swift file", async ({
@@ -73,7 +71,9 @@ test("source is syntax highlighted, copyable, and available as a standalone Swif
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("components/expanding-cards/");
-  await expect(page.locator("pre").first()).toContainText("import SwiftUI");
+  await page.locator(".source-files summary").click();
+  await expect(page.locator(".source-files pre").first()).toContainText("import SwiftUI");
+  await expect(page.locator(".source-files pre").last()).toContainText("canImport(UIKit)");
   expect(await page.locator(".source-preview .syntax-token").count()).toBeGreaterThan(20);
   await page.getByRole("button", { name: "Copy hugsyexpandingcards.swift code" }).click();
   await expect(page.getByText("Copied", { exact: true })).toBeVisible();
@@ -98,7 +98,7 @@ test("documentation navigation and installation are native-first", async ({ page
   expect(body).toContain("import HugsyComponents");
   expect(body).toContain("--distribution source");
   expect(body).toContain("UIKit");
-  expect(body).toContain("Foundation");
+  expect(body).toContain("HugsySwipeDeckViewController");
   expect(body).not.toMatch(/\bnpm\b|\bnpx\b|Node\.js/);
   expect(await page.locator(".syntax-token").count()).toBeGreaterThan(15);
   await page.getByRole("link", { name: "MCP", exact: true }).click();
@@ -109,7 +109,7 @@ test("theme preference persists across navigation and reload", async ({ page }) 
   await page.goto("");
   await page.getByRole("button", { name: "Toggle color theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("link", { name: "Documentation", exact: true }).click();
+  await page.getByRole("link", { name: "Docs", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
@@ -163,10 +163,7 @@ test("prerendered controls wait for browser handlers", async ({ browser, baseURL
     await page.goto("components/swipe-deck/");
     await expect(page.getByRole("button", { name: "iPad", exact: true })).toBeDisabled();
     await expect(page.locator(".device")).toHaveAttribute("data-device", "iphone");
-    await page.goto("components/");
-    await expect(page.getByRole("button", { name: "Gestures", exact: true })).toBeDisabled();
-    await expect(page.getByRole("searchbox", { name: "Search components" })).toBeDisabled();
-    await expect(page.locator("article.collection-card")).toHaveCount(5);
+    await expect(page.getByRole("button", { name: "UIKit", exact: true })).toBeDisabled();
   } finally {
     await page.close();
   }

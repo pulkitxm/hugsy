@@ -2,7 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { CodeBlock } from "../components/code-block";
 import { seo } from "../lib/seo";
-import { firstComponent, installCommand, manualInstall, packageConfig } from "../lib/snippets";
+import {
+  firstComponent,
+  installCommand,
+  manualInstall,
+  packageConfig,
+  uikitExample,
+} from "../lib/snippets";
 
 export const Route = createFileRoute("/docs/installation")({
   head: () =>
@@ -31,9 +37,8 @@ function Installation() {
             third-party runtime packages. You can edit the installed source.
           </p>
           <p>
-            The current catalog uses SwiftUI. The same format supports UIKit, Foundation services
-            such as image caching, and other Apple frameworks. These are distribution capabilities,
-            not additional components already in the catalog.
+            Every component installs a SwiftUI view, a UIKit view controller, and the shared
+            <code> uikit-bridge</code> entry. UIKit files compile only where UIKit is available.
           </p>
         </section>
         <section className="doc-section" id="cli">
@@ -86,6 +91,17 @@ function Installation() {
             retain earlier selections. SwiftPM discovers new source files without adding each file
             to the app target manually. The package requires iOS 17+ and Swift 6.
           </p>
+        </section>
+        <section className="doc-section" id="uikit">
+          <h2>Using UIKit</h2>
+          <p>
+            Each component has a view controller named after it, such as
+            <code> HugsySwipeDeckViewController</code>. Add it as a child view controller, lay out
+            its view, and return a configured <code>UIView</code> for each item. Callbacks such as
+            <code> didSwipe</code> and <code>didSelect</code> report changes, and properties such as
+            <code> items</code> and <code>selection</code> update the component.
+          </p>
+          <CodeBlock label="UIKit" code={uikitExample} />
         </section>
         <section className="doc-section" id="copy">
           <h2>Prefer direct source?</h2>

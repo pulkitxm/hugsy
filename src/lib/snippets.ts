@@ -11,3 +11,5 @@ export const sourceExample =
   "@State private var selected: Story.ID?\n\nHugsyExpandingCards(\n  items: stories,\n  selection: $selected\n) { story, expanded in\n  StoryCard(story, expanded: expanded)\n}";
 export const agentWorkflow =
   "hugsy list --json\nhugsy info expanding-cards --json\nhugsy add expanding-cards --dry-run --json";
+export const uikitExample =
+  "let cards = HugsyExpandingCardsViewController(items: stories) { story, expanded in\n  StoryView(story: story, expanded: expanded)\n}\naddChild(cards)\nview.addSubview(cards.view)\ncards.didMove(toParent: self)";

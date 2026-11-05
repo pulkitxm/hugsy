@@ -26,20 +26,19 @@ export const Route = createRootRoute({
     </>
   ),
   notFoundComponent: () => (
-    <section className="not-found">
-      <span className="eyebrow">A SMALL DETOUR</span>
-      <h1>Nothing here. Yet.</h1>
+    <section className="not-found container">
+      <h1>Page not found.</h1>
       <p>That component might still be an idea.</p>
-      <Link to="/" className="button-primary">
-        Back to the collection
+      <Link to="/" className="button">
+        Back home
       </Link>
     </section>
   ),
   errorComponent: ({ reset }) => (
-    <section className="not-found">
+    <section className="not-found container">
       <h1>Something didn’t settle.</h1>
       <p>Please reload or try again.</p>
-      <button type="button" className="button-primary" onClick={reset}>
+      <button type="button" className="button" onClick={reset}>
         Try again
       </button>
     </section>

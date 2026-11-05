@@ -2,13 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { CodeBlock } from "../components/code-block";
 import { seo } from "../lib/seo";
-import { sourceExample } from "../lib/snippets";
+import { sourceExample, uikitExample } from "../lib/snippets";
 
 export const Route = createFileRoute("/docs/")({
   head: () =>
     seo(
       "Introduction",
-      "Get started with Hugsy, a copy-and-own SwiftUI collection for iOS. Learn how the source, native Swift CLI, and local MCP server fit into your workflow.",
+      "Get started with Hugsy, copy-and-own animated iOS components for SwiftUI and UIKit. Learn how the source, native Swift CLI, and local MCP server fit together.",
       "/docs/",
     ),
   component: Introduction,
@@ -24,14 +24,14 @@ function Introduction() {
       </div>
       <div className="prose">
         <p>
-          Hugsy is a collection of animation-heavy SwiftUI components for iOS. Expanding cards,
-          gesture-driven sheets, spring-reflow notifications, and other interactions that take time
-          to get right.
+          Hugsy is a small collection of animated iOS components: a swipe deck, a parallax carousel,
+          a morphing capsule, expanding cards, and a radial menu. Each is the kind of interaction
+          that takes time to get right.
         </p>
         <p>
-          This is source you adopt, packaged locally by default. The CLI can distribute multiple
-          files, shared dependencies, and resources for UIKit, Foundation services, and other Apple
-          frameworks too. Today’s catalog remains focused on SwiftUI interactions.
+          Every component ships a SwiftUI view and a UIKit view controller. SwiftUI apps use the
+          view directly. UIKit apps add the view controller with standard containment and supply
+          their own UIViews. This is source you adopt, packaged locally by default.
         </p>
         <section className="doc-section">
           <h2>Start with an interaction</h2>
@@ -41,6 +41,7 @@ function Introduction() {
             parameters.
           </p>
           <CodeBlock label="SwiftUI" code={sourceExample} />
+          <CodeBlock label="UIKit" code={uikitExample} />
         </section>
         <section className="doc-section">
           <h2>What you need</h2>

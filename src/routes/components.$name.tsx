@@ -1,10 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import { components } from "../../generated/components";
 import { componentParameters } from "../../registry/parameters";
 import type { ComponentPage as ComponentPageData } from "../../registry/schema";
 import { CodeBlock } from "../components/code-block";
+import { CodeTabs } from "../components/code-tabs";
 import { DevicePreview } from "../components/device-preview";
-import { LibrarySidebar } from "../components/library-sidebar";
 import { HighlightProvider } from "../lib/highlights";
 import { seo } from "../lib/seo";
 
@@ -27,71 +28,59 @@ export const Route = createFileRoute("/components/$name")({
 
 function ComponentPage() {
   const item = Route.useLoaderData();
+  const index = components.findIndex((entry) => entry.name === item.name);
+  const previous = components[index - 1];
+  const next = components[index + 1];
+  const usage = [{ name: "SwiftUI", code: item.usage }];
+  if (item.uikitUsage) {
+    usage.push({ name: "UIKit", code: item.uikitUsage });
+  }
   return (
     <HighlightProvider highlights={item.highlights}>
-      <div className="library-layout container">
-        <LibrarySidebar />
-        <article className="component-document">
-          <div className="page-heading">
-            <Link to="/components/" className="overline">
-              Components / {item.category}
-            </Link>
-            <h1>{item.title}</h1>
-            <p>{item.description}</p>
-            <div className="component-meta">
-              <span>iOS 17+</span>
-              <span>Swift 6</span>
-              <span>{item.frameworks.join(", ")}</span>
-              <span>MIT</span>
-              <a
-                href={`https://github.com/pulkitxm/hugsy/blob/main/registry/swift/${item.filename}`}
-              >
-                View source
-                <ArrowUpRight size={12} />
-              </a>
-            </div>
+      <article className="container">
+        <div className="page-heading doc-column">
+          <Link to="/components/" className="overline">
+            Components
+          </Link>
+          <h1>{item.title}</h1>
+          <p>{item.description}</p>
+          <div className="component-meta">
+            <span>iOS 17+</span>
+            <span>{item.frameworks.join(" + ")}</span>
+            <span>{item.technique}</span>
+            <a href={`https://github.com/pulkitxm/hugsy/blob/main/registry/swift/${item.filename}`}>
+              Source
+              <ArrowUpRight size={12} aria-hidden="true" />
+            </a>
           </div>
-          <DevicePreview name={item.name} title={item.title} />
-          <section className="doc-section source-preview" id="source">
-            <h2>Source</h2>
-            {item.sources.map((file) => (
-              <CodeBlock key={file.path} code={file.code} label={file.path} />
-            ))}
-          </section>
+        </div>
+        <DevicePreview name={item.name} title={item.title} />
+        <div className="doc-column">
           <section className="doc-section" id="installation">
             <h2>Installation</h2>
-            <p>
-              <Link to="/docs/installation/">Install the native Swift CLI</Link>, then add the
-              component to your app.
-            </p>
             <CodeBlock code={`hugsy add ${item.name}`} />
             <p>
-              Run <code>hugsy init</code> first. Add the generated local package in Xcode, attach
-              <code> HugsyComponents</code> to your app target, then use
-              <code> import HugsyComponents</code>. See the installation guide for source and remote
-              package alternatives.
-            </p>
-            <p>
-              Prefer to copy it yourself? Open the{" "}
-              <a href={`/r/${item.name}.swift`}>complete Swift file</a> and add it to your iOS app
-              target in Xcode. No package dependency is required.
+              Run <code>hugsy init</code> once, attach the generated <code>HugsyComponents</code>{" "}
+              package to your app target, and <code>import HugsyComponents</code>. The SwiftUI view
+              is also a <a href={`/r/${item.name}.swift`}>single Swift file</a> you can copy
+              directly. See <Link to="/docs/installation/">installation</Link> for other options.
             </p>
           </section>
           <section className="doc-section" id="usage">
             <h2>Usage</h2>
-            <CodeBlock code={item.usage} label="SwiftUI" />
-            {item.uikitUsage && <CodeBlock code={item.uikitUsage} label="UIKit" />}
+            <CodeTabs label="Framework" tabs={usage} />
             <p>{item.integration}</p>
           </section>
           <section className="doc-section" id="api">
-            <h2>API reference</h2>
-            <div className="api-table component-api">
+            <h2>API</h2>
+            {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users scroll the wide table. */}
+            <section className="api-table" aria-label="Parameters" tabIndex={0}>
               <table>
                 <caption className="sr-only">{item.title} parameters</caption>
                 <thead>
                   <tr>
                     <th>Parameter</th>
-                    <th>Type & behavior</th>
+                    <th>Type</th>
                     <th>Default</th>
                   </tr>
                 </thead>
@@ -112,35 +101,42 @@ function ComponentPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </section>
           </section>
-          <section className="doc-section" id="interaction">
-            <h2>Interaction</h2>
+          <section className="doc-section" id="behavior">
+            <h2>Behavior</h2>
             <p>{item.interaction}</p>
-            <div className="interaction-states">
-              {item.states.map((state) => (
-                <span key={state}>{state}</span>
-              ))}
-            </div>
-          </section>
-          <section className="doc-section" id="accessibility">
-            <h2>Accessibility</h2>
             <p>{item.accessibility}</p>
-            <p>
-              Test with VoiceOver, Dynamic Type, and Reduce Motion on a physical device before
-              shipping. The gallery demonstrates the interaction, not every application-specific
-              content state.
-            </p>
           </section>
-          <div className="document-footer">
-            <Link to="/components/">Back to components</Link>
-            <a href="https://github.com/pulkitxm/hugsy/issues">
-              Suggest an improvement
-              <ArrowUpRight size={12} />
-            </a>
-          </div>
-        </article>
-      </div>
+          <section className="doc-section source-preview" id="source">
+            <h2>Source</h2>
+            <details className="source-files">
+              <summary>
+                {item.sources.length} files: {item.sources.map((file) => file.path).join(", ")}
+              </summary>
+              {item.sources.map((file) => (
+                <CodeBlock key={file.path} code={file.code} label={file.path} />
+              ))}
+            </details>
+          </section>
+          <nav className="document-footer" aria-label="More components">
+            {previous ? (
+              <Link to="/components/$name/" params={{ name: previous.name }}>
+                <ArrowLeft size={14} aria-hidden="true" />
+                {previous.title}
+              </Link>
+            ) : (
+              <Link to="/components/">All components</Link>
+            )}
+            {next && (
+              <Link to="/components/$name/" params={{ name: next.name }}>
+                {next.title}
+                <ArrowRight size={14} aria-hidden="true" />
+              </Link>
+            )}
+          </nav>
+        </div>
+      </article>
     </HighlightProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { LibrarySidebar } from "../components/library-sidebar";
+import { DocsNav } from "../components/docs-nav";
 import { HighlightProvider, loadDocsHighlights } from "../lib/highlights";
 
 export const Route = createFileRoute("/docs")({
@@ -10,8 +10,8 @@ export const Route = createFileRoute("/docs")({
 function Documentation() {
   return (
     <HighlightProvider highlights={Route.useLoaderData()}>
-      <div className="library-layout container">
-        <LibrarySidebar />
+      <div className="docs-layout container">
+        <DocsNav />
         <article className="documentation">
           <Outlet />
         </article>

@@ -14,6 +14,7 @@ import {
   mcpConfig,
   packageConfig,
   sourceExample,
+  uikitExample,
 } from "../src/lib/snippets";
 
 await rm("generated", { recursive: true, force: true });
@@ -170,6 +171,7 @@ await writeFile(
       [mcpConfig, "json"],
       [packageConfig, "json"],
       [sourceExample, "swift"],
+      [uikitExample, "swift"],
     ]),
   ),
 );

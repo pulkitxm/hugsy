@@ -25,26 +25,25 @@ export function Header() {
   }
   return (
     <header className="site-header">
-      <div className="header-inner">
+      <div className="header-inner container">
         <Link to="/" className="wordmark" aria-label="Hugsy home">
-          hugsy<span>.</span>
+          hugsy
         </Link>
         <nav aria-label="Main navigation">
           <Link to="/components/">Components</Link>
-          <Link to="/docs/">Documentation</Link>
+          <Link to="/docs/">Docs</Link>
           <a href="https://github.com/pulkitxm/hugsy" className="github-link">
             GitHub
-            <ArrowUpRight size={13} />
           </a>
         </nav>
         <button
-          className="icon-button theme-toggle"
+          className="icon-button"
           type="button"
           aria-label="Toggle color theme"
           aria-pressed={dark}
           onClick={toggleTheme}
         >
-          {dark ? <Sun size={17} /> : <Moon size={17} />}
+          {dark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
         </button>
       </div>
     </header>
@@ -54,16 +53,14 @@ export function Header() {
 export function Footer() {
   return (
     <footer className="site-footer">
-      <div className="footer-inner">
-        <Link to="/" className="wordmark">
-          hugsy.
-        </Link>
-        <p>SwiftUI components. Yours to make.</p>
-        <div>
-          <a href="https://github.com/pulkitxm/hugsy">GitHub</a>
+      <div className="footer-inner container">
+        <span>Animated iOS components for SwiftUI and UIKit.</span>
+        <nav aria-label="Footer">
+          <a href="https://github.com/pulkitxm/hugsy">
+            GitHub <ArrowUpRight size={12} aria-hidden="true" />
+          </a>
           <a href="https://github.com/pulkitxm/hugsy/blob/main/LICENSE">MIT License</a>
-          <span>© 2026</span>
-        </div>
+        </nav>
       </div>
     </footer>
   );
