@@ -30,6 +30,14 @@ If Command Line Tools is selected, prefix Swift commands with `DEVELOPER_DIR=/Ap
 
 Add the SwiftUI view and its UIKit adapter to `registry/swift/`, list both files in `registry/catalog.json` with `uikit-bridge` as a dependency, document parameters in `registry/parameters.ts`, and add both demos to the native gallery in `examples/`. The installed package test compiles a consumer that uses SwiftUI and UIKit together.
 
+## Interactive previews
+
+Component pages show each component inside a CSS device frame that switches between iPhone, iPad, and Mac. The frame is `src/components/device.tsx` with styles in `src/styles/device.css`. It uses no images or third-party libraries, so switching devices is instant.
+
+Each demo is a lazily loaded React module in `src/demos/`, registered in `src/demos/registry.ts` with one or more screens. A component with several screens gets a screen switcher automatically. Size demo content with the `--pt` custom property, which equals one screen point of the current device, so the same demo scales across frames. Use container queries on `screen` for layouts that change between devices. Drive gestures with pointer events, keep a button or keyboard alternative for every gesture, and use the shared `--spring-*` easing curves.
+
+Highlighted source for a component page is generated per page into `generated/pages/` and loaded by that route, so other pages never download it. `bun scripts/check-site.ts` enforces an initial JavaScript budget for every page and a size limit for lazy chunks.
+
 ## Required checks
 
 - Biome formatting and recommended rules, all accessibility and security rules, strict unused-code rules, and type-aware promise checks.
