@@ -83,7 +83,6 @@ function Phone({ label, children }: { label: string; children: ReactNode }) {
             <span className="device-island" aria-hidden="true" />
             <span className="device-home" aria-hidden="true" />
           </div>
-          <span className="device-glare" aria-hidden="true" />
         </section>
       </div>
     </div>
@@ -104,7 +103,6 @@ function Tablet({ label, children }: { label: string; children: ReactNode }) {
             <StatusBar kind="ipad" />
             <span className="device-home" aria-hidden="true" />
           </div>
-          <span className="device-glare" aria-hidden="true" />
         </section>
       </div>
     </div>
@@ -150,7 +148,6 @@ function Laptop({ label, children }: { label: string; children: ReactNode }) {
               ))}
             </div>
             <span className="mac-notch" aria-hidden="true" />
-            <span className="device-glare" aria-hidden="true" />
           </section>
         </div>
       </div>

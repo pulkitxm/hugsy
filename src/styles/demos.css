@@ -84,12 +84,6 @@
     0 0 0 1px color-mix(in srgb, currentColor 8%, transparent),
     0 calc(8 * var(--pt)) calc(20 * var(--pt)) rgb(0 0 0 / 10%);
   backdrop-filter: blur(20px);
-  transition:
-    scale 0.4s var(--spring-bouncy),
-    opacity 0.2s;
-}
-.demo-round:active {
-  scale: 0.9;
 }
 .demo-round:disabled {
   opacity: 0.4;
@@ -552,18 +546,13 @@
   overflow: hidden;
   border-radius: var(--card-radius);
   box-shadow: 0 calc(10 * var(--pt)) calc(24 * var(--pt)) rgb(0 0 0 / 12%);
-  transition:
-    opacity 0.3s,
-    scale 0.4s var(--spring-bouncy);
-}
-.expanding-card:active {
-  scale: 0.97;
+  transition: opacity 0.3s;
 }
 .cards-stage[data-open="true"] .expanding-card {
   opacity: 0;
   pointer-events: none;
 }
-.cards-stage[data-open="true"] .expanding-card[data-selected="true"] {
+.expanding-card[data-selected="true"] {
   visibility: hidden;
   transition: none;
 }
@@ -594,18 +583,12 @@
 .expanded-caption strong {
   font-size: calc(40 * var(--pt));
 }
-.expanded-caption > span {
+.expanded-detail {
   max-width: calc(340 * var(--pt));
   margin-top: calc(10 * var(--pt));
+  overflow: hidden;
   font-size: calc(16 * var(--pt));
   line-height: 1.45;
-  animation: caption-in 0.5s 0.25s both;
-}
-@keyframes caption-in {
-  from {
-    opacity: 0;
-    translate: 0 calc(12 * var(--pt));
-  }
 }
 
 .radial-notes {

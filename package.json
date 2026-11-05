@@ -33,7 +33,7 @@
     "test:protocol": "vitest run --config vitest.protocol.config.ts",
     "check:repository": "bun scripts/check-repository.ts",
     "check:dead-code": "knip --max-issues 0 --treat-config-hints-as-errors",
-    "check:markdown": "markdownlint-cli2 '**/*.md' '!node_modules' '!dist'",
+    "check:markdown": "markdownlint-cli2 '**/*.md' '!node_modules' '!dist' '!.lighthouse'",
     "check:html": "html-validate 'dist/client/**/*.html'",
     "check:yaml": "bun scripts/check-yaml.ts",
     "check:swift": "xcrun swift-format lint --strict --recursive Package.swift registry/swift examples tools tests && swift build -Xswiftc -warnings-as-errors -Xswiftc -strict-concurrency=complete && swift test",

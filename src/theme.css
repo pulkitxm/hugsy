@@ -145,10 +145,6 @@
   .button:hover {
     background: var(--primary-hover);
   }
-  .button:active,
-  .icon-button:active:not(:disabled) {
-    translate: 0 1px;
-  }
   .text-link {
     display: inline-flex;
     gap: 6px;

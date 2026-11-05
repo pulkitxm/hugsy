@@ -91,6 +91,7 @@
   aspect-ratio: var(--screen-width) / var(--screen-height);
   overflow: hidden;
   border-radius: calc(var(--screen-radius) * var(--unit));
+  clip-path: inset(0 round calc(var(--screen-radius) * var(--unit)));
   background: var(--screen-background);
   color: var(--screen-foreground);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
@@ -108,19 +109,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-radius: inherit;
   background: var(--screen-background);
-}
-.device-glare {
-  position: absolute;
-  z-index: 10;
-  inset: 0;
-  background: linear-gradient(
-    118deg,
-    rgb(255 255 255 / 9%) 0%,
-    rgb(255 255 255 / 3%) 34%,
-    transparent 34.5%
-  );
-  pointer-events: none;
 }
 .device-button {
   position: absolute;
@@ -266,9 +256,11 @@
   border-end-end-radius: calc(2 * var(--unit));
 }
 .device[data-device="mac"] .device-screen {
-  --dpt: calc(100cqw / var(--screen-width));
   border-end-start-radius: 0;
   border-end-end-radius: 0;
+  clip-path: inset(
+    0 round calc(var(--screen-radius) * var(--unit)) calc(var(--screen-radius) * var(--unit)) 0 0
+  );
   background: #1c2742;
 }
 .mac-wallpaper {
