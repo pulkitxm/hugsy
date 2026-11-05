@@ -318,6 +318,40 @@ test("code stays highlighted after client navigation in both themes", async ({ p
   expect(dark).not.toBe(light);
 });
 
+test("agents can discover and use the site", async ({ page, request }) => {
+  await page.addInitScript(() => {
+    const tools: unknown[] = [];
+    Object.defineProperty(window, "registeredTools", { value: tools });
+    Object.defineProperty(document, "modelContext", {
+      value: { registerTool: (tool: unknown) => tools.push(tool) },
+    });
+  });
+  await page.goto("");
+  await expect(page.locator('link[rel="ai-catalog"]')).toHaveAttribute(
+    "href",
+    "/.well-known/ai-catalog.json",
+  );
+  await expect
+    .poll(() => page.evaluate(() => Reflect.get(window, "registeredTools").length))
+    .toBe(3);
+  const markdown = await page.evaluate(async () => {
+    const [, read] = Reflect.get(window, "registeredTools");
+    const result = await read.execute({ name: "swipe-deck" });
+    return result.content[0].text;
+  });
+  expect(markdown).toContain("HugsySwipeDeckViewController");
+  const llms = await (await request.get("llms.txt")).text();
+  expect(llms).toMatch(/^# Hugsy\n\n> /);
+  for (const item of showcase) {
+    expect(llms).toContain(`/components/${item.name}.md`);
+  }
+  const catalog = await (await request.get(".well-known/ai-catalog.json")).json();
+  for (const entry of catalog.entries) {
+    const resource = await request.get(new URL(entry.url).pathname.slice(1));
+    expect(resource.status()).toBe(200);
+  }
+});
+
 test("theme switching changes every element instantly", async ({ page }) => {
   await page.goto("docs/");
   const button = page.getByRole("button", { name: "Toggle color theme" });
@@ -379,7 +413,7 @@ test("every page links to its Markdown version", async ({ page, request }) => {
   for (const path of pages) {
     const expected = path === "" ? "index.md" : `${path.replace(/\/$/, "")}.md`;
     await page.goto(path);
-    await expect(page.getByRole("link", { name: "View this page as Markdown" })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: ".md version of this page" })).toHaveAttribute(
       "href",
       `/${expected}`,
     );
