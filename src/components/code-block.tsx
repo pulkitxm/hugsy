@@ -1,6 +1,6 @@
-import { Check, Copy } from "lucide-react";
 import { type CSSProperties, useState } from "react";
 import { useHighlight } from "../lib/highlights";
+import { Check, Copy } from "./icons";
 
 function language(label: string) {
   if (label === "Terminal") {

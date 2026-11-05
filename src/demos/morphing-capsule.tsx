@@ -1,3 +1,4 @@
+import { type PointerEvent, type ReactNode, useRef, useState } from "react";
 import {
   CircleCheck,
   Package,
@@ -7,8 +8,7 @@ import {
   SkipForward,
   Store,
   Truck,
-} from "lucide-react";
-import { type PointerEvent, type ReactNode, useRef, useState } from "react";
+} from "../components/icons";
 import type { DemoProps } from "./registry";
 import { Artwork, type CSSVariables, stories } from "./shared";
 

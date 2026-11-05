@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { showcase } from "../../registry/catalog";
@@ -50,7 +51,8 @@ test("landing page shows every component live on an iPhone", async ({ page }) =>
   await expect(page.locator(".showcase-card .swipe-card").first()).toBeVisible();
   await page.getByRole("link", { name: "Browse components" }).click();
   await expect(page).toHaveURL(/\/components\/$/);
-  await expect(page.locator(".component-list li")).toHaveCount(5);
+  await expect(page.locator(".component-gallery .showcase-card")).toHaveCount(5);
+  await expect(page.locator(".showcase-description").first()).toContainText("fling away");
   await page.getByRole("link", { name: /^Morphing capsule/ }).click();
   await expect(page).toHaveURL(/\/components\/morphing-capsule\/$/);
   await page.getByRole("link", { name: "Expanding cards" }).last().click();
@@ -275,6 +277,34 @@ test("device switching keeps the page steady and shows device hardware", async (
   await page.getByRole("button", { name: "iPad", exact: true }).click();
   await expect(page.locator(".device-camera")).toBeVisible();
   await expect(page.locator(".mac-notch")).toHaveCount(0);
+});
+
+test("theme switching changes every element instantly", async ({ page }) => {
+  await page.goto("docs/");
+  const button = page.getByRole("button", { name: "Toggle color theme" });
+  const transitionsDuringSwitch = await button.evaluate((element) => {
+    const running: string[] = [];
+    document.addEventListener("transitionrun", (event) => running.push(event.propertyName));
+    if (element instanceof HTMLElement) {
+      element.click();
+    }
+    return new Promise<string[]>((resolve) => {
+      setTimeout(() => resolve(running), 300);
+    });
+  });
+  expect(transitionsDuringSwitch).toEqual([]);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme-switching", "");
+});
+
+test("the website ships no third-party UI library", async () => {
+  const { dependencies } = JSON.parse(readFileSync("package.json", "utf8"));
+  expect(Object.keys(dependencies).sort()).toEqual([
+    "@tanstack/react-router",
+    "@tanstack/react-start",
+    "react",
+    "react-dom",
+  ]);
 });
 
 test("theme is correct on first paint without waiting for hydration", async ({

@@ -1,11 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { components } from "../../generated/components";
 import { componentParameters } from "../../registry/parameters";
 import type { ComponentPage as ComponentPageData } from "../../registry/schema";
 import { CodeBlock } from "../components/code-block";
 import { CodeTabs } from "../components/code-tabs";
 import { DevicePreview } from "../components/device-preview";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "../components/icons";
 import { LibraryNav } from "../components/library-nav";
 import { HighlightProvider } from "../lib/highlights";
 import { seo } from "../lib/seo";

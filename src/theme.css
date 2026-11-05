@@ -50,6 +50,8 @@
     --border: light-dark(#ebebeb, #262628);
     --soft: light-dark(#f6f6f6, #161618);
     --code-bg: light-dark(#fff, #121214);
+    --accent: light-dark(#f0f0f1, #1d1d20);
+    --primary-hover: light-dark(#2e2e31, #d4d4d6);
     --radius: 12px;
     --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
@@ -81,9 +83,16 @@
     line-height: 1.15;
   }
   :focus-visible {
-    outline: 2px solid var(--foreground);
-    outline-offset: 3px;
-    border-radius: 4px;
+    outline: 2px solid color-mix(in srgb, var(--foreground) 45%, transparent);
+    outline-offset: 2px;
+  }
+  a,
+  button,
+  summary {
+    transition:
+      background-color 0.15s,
+      border-color 0.15s,
+      color 0.15s;
   }
   code {
     font-family: var(--mono);
@@ -131,20 +140,26 @@
     color: var(--background);
     font-size: 14px;
     font-weight: 500;
-    transition: opacity 0.2s;
   }
   .button:hover {
-    opacity: 0.85;
+    background: var(--primary-hover);
+  }
+  .button:active,
+  .icon-button:active:not(:disabled) {
+    translate: 0 1px;
   }
   .text-link {
     display: inline-flex;
     gap: 6px;
     align-items: center;
+    padding: 6px 10px;
+    margin-inline: -10px;
+    border-radius: 8px;
     color: var(--secondary);
     font-size: 14px;
-    transition: color 0.2s;
   }
   .text-link:hover {
+    background: var(--accent);
     color: var(--foreground);
   }
   .icon-button {
@@ -154,12 +169,9 @@
     height: 34px;
     border-radius: 8px;
     color: var(--secondary);
-    transition:
-      background 0.2s,
-      color 0.2s;
   }
   .icon-button:hover:not(:disabled) {
-    background: var(--soft);
+    background: var(--accent);
     color: var(--foreground);
   }
   .icon-button svg {
@@ -194,17 +206,21 @@
     color: var(--secondary);
     font-size: 13px;
     font-weight: 500;
-    transition:
-      background 0.2s,
-      color 0.2s;
   }
   .segmented button svg {
     width: 14px;
     height: 14px;
   }
-  .segmented button[aria-pressed="true"] {
+  .segmented button:hover:not([aria-pressed="true"]) {
     background: var(--soft);
     color: var(--foreground);
+  }
+  .segmented button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--foreground);
+  }
+  .segmented:disabled button {
+    background: transparent;
   }
   .segmented:disabled button {
     cursor: default;
@@ -248,15 +264,20 @@
   }
   .site-header nav {
     display: flex;
-    gap: 22px;
+    gap: 2px;
     margin-right: auto;
+    margin-left: -10px;
     font-size: 14px;
   }
   .site-header nav a {
+    padding: 6px 10px;
+    border-radius: 8px;
     color: var(--secondary);
-    transition: color 0.2s;
   }
-  .site-header nav a:hover,
+  .site-header nav a:hover {
+    background: var(--accent);
+    color: var(--foreground);
+  }
   .site-header nav a[data-status="active"] {
     color: var(--foreground);
   }
@@ -282,6 +303,9 @@
   .footer-inner nav {
     display: flex;
     gap: 18px;
+  }
+  .markdown-link:hover {
+    background: var(--accent);
   }
   .markdown-link {
     padding: 1px 7px;
@@ -312,10 +336,9 @@
     border-radius: 999px;
     background: var(--surface);
     font-size: 13px;
-    transition: border-color 0.2s;
   }
   .hero-badge:hover {
-    border-color: color-mix(in srgb, var(--foreground) 25%, transparent);
+    background: var(--accent);
   }
   .hero-badge span {
     padding: 2px 8px;
@@ -353,6 +376,9 @@
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--foreground);
+  }
+  .button-soft:hover {
+    background: var(--accent);
   }
   .hero-install {
     width: min(100%, 460px);
@@ -403,7 +429,7 @@
     color: var(--secondary);
   }
   .preview-bar > a:hover {
-    background: var(--soft);
+    background: var(--accent);
     color: var(--foreground);
   }
   .preview-bar > a svg {
@@ -486,31 +512,56 @@
   .cta .code-block {
     margin: 0;
   }
-  .component-list {
-    padding: 0;
-    border-top: 1px solid var(--border);
-    list-style: none;
+  .gallery-page {
+    grid-column: span 2;
+    min-width: 0;
   }
-  .component-list li {
-    border-bottom: 1px solid var(--border);
-  }
-  .component-list a {
+  .component-gallery {
     display: grid;
-    grid-template-columns: 200px minmax(0, 1fr) auto;
-    gap: 24px;
-    align-items: baseline;
-    padding: 18px 4px;
-    transition: background 0.2s;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px;
   }
-  .component-list a:hover {
-    background: var(--soft);
+  .component-gallery .showcase-stage {
+    padding-block: 28px;
   }
-  .component-list span,
-  .component-list small {
+  .showcase-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .showcase-stage {
+    flex: 1;
+  }
+  .showcase-description {
+    min-height: 108px;
+    padding: 14px 18px 16px;
+    border-top: 1px solid var(--border);
     color: var(--secondary);
-  }
-  .component-list small {
     font-size: 13px;
+    line-height: 1.5;
+  }
+  .gallery-suggest {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: flex-end;
+    min-height: 200px;
+    padding: 22px;
+  }
+  .gallery-suggest:hover {
+    background: var(--accent);
+  }
+  .gallery-suggest span {
+    color: var(--secondary);
+    font-size: 14px;
+  }
+  .gallery-suggest svg {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 18px;
+    height: 18px;
+    color: var(--secondary);
   }
   .library-layout {
     display: grid;
@@ -549,10 +600,11 @@
     color: color-mix(in srgb, var(--foreground) 78%, transparent);
   }
   .library-nav a:hover {
+    background: var(--soft);
     color: var(--foreground);
   }
   .library-nav a[data-status="active"] {
-    background: var(--soft);
+    background: var(--accent);
     color: var(--foreground);
     font-weight: 500;
   }
@@ -658,9 +710,6 @@
     color: var(--secondary);
     font-size: 14px;
     font-weight: 500;
-    transition:
-      color 0.2s,
-      border-color 0.2s;
   }
   .tabs button[aria-pressed="true"] {
     border-color: var(--foreground);
@@ -707,7 +756,7 @@
     border-radius: 6px;
   }
   .code-heading > button:hover {
-    background: var(--soft);
+    background: var(--accent);
     color: var(--foreground);
   }
   .code-heading svg {
@@ -790,8 +839,12 @@
     display: inline-flex;
     gap: 6px;
     align-items: center;
+    padding: 6px 10px;
+    margin-inline: -10px;
+    border-radius: 8px;
   }
   .document-footer a:hover {
+    background: var(--accent);
     color: var(--foreground);
   }
   .prose > p {
@@ -857,10 +910,9 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     text-decoration: none;
-    transition: background 0.2s;
   }
   .doc-link-grid a:hover {
-    background: var(--soft);
+    background: var(--accent);
   }
   .doc-link-grid span {
     grid-column: 1;
@@ -893,7 +945,8 @@
     .page-toc {
       display: none;
     }
-    .documentation {
+    .documentation,
+    .gallery-page {
       grid-column: auto;
     }
   }
@@ -932,17 +985,6 @@
       gap: 28px;
       padding-top: 72px;
     }
-    .component-list a {
-      grid-template-columns: 1fr auto;
-      gap: 4px 16px;
-    }
-    .component-list a span {
-      grid-row: 2;
-    }
-    .component-list a small {
-      grid-row: 1;
-      grid-column: 2;
-    }
     .page-heading h1 {
       font-size: 30px;
     }
@@ -980,4 +1022,10 @@
     transition: none;
     animation: none;
   }
+}
+
+:root[data-theme-switching] *,
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+  transition: none;
 }

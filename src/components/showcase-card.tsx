@@ -1,10 +1,18 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { demos } from "../demos/registry";
 import { Device } from "./device";
+import { ArrowRight } from "./icons";
 
-export function ShowcaseCard({ name, title }: { name: string; title: string }) {
+export function ShowcaseCard({
+  name,
+  title,
+  description,
+}: {
+  name: string;
+  title: string;
+  description?: string;
+}) {
   const screen = demos[name]?.[0];
   const stage = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -37,7 +45,7 @@ export function ShowcaseCard({ name, title }: { name: string; title: string }) {
     <article className="preview-frame showcase-card">
       <div className="preview-bar">
         <h2>{title}</h2>
-        <span className="preview-hint">{screen.hint}</span>
+        {!description && <span className="preview-hint">{screen.hint}</span>}
         <Link to="/components/$name/" params={{ name }} aria-label={`Open ${title}`}>
           Open
           <ArrowRight aria-hidden="true" />
@@ -54,6 +62,7 @@ export function ShowcaseCard({ name, title }: { name: string; title: string }) {
           )}
         </Device>
       </div>
+      {description && <p className="showcase-description">{description}</p>}
     </article>
   );
 }

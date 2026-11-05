@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
 import { type PointerEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { X } from "../components/icons";
 import { Artwork, type Story, stories, useReducedMotion } from "./shared";
 
 const items = stories.slice(0, 3);

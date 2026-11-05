@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import { CodeBlock } from "../components/code-block";
+import { ArrowRight } from "../components/icons";
 import { seo } from "../lib/seo";
 import { mcpConfig } from "../lib/snippets";
 

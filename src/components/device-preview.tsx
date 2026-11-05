@@ -1,7 +1,7 @@
-import { Laptop, RotateCcw, Smartphone, Tablet } from "lucide-react";
 import { Suspense, startTransition, useEffect, useState } from "react";
 import { demos } from "../demos/registry";
 import { Device, type DeviceKind, deviceKinds } from "./device";
+import { Laptop, RotateCcw, Smartphone, Tablet } from "./icons";
 
 const icons = { iphone: Smartphone, ipad: Tablet, mac: Laptop };
 

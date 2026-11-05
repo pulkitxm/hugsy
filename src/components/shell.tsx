@@ -1,12 +1,15 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { ArrowUpRight, Moon, Sun } from "lucide-react";
 import { themeStorageKey } from "../lib/theme";
+import { ArrowUpRight, Moon, Sun } from "./icons";
 
 export function Header() {
   function toggleTheme() {
     const root = document.documentElement;
     const next = root.dataset["theme"] === "dark" ? "light" : "dark";
+    root.dataset["themeSwitching"] = "";
     root.dataset["theme"] = next;
+    getComputedStyle(root).getPropertyValue("color");
+    delete root.dataset["themeSwitching"];
     try {
       localStorage.setItem(themeStorageKey, next);
     } catch {

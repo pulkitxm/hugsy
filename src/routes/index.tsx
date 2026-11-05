@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Boxes, Layers, TerminalSquare } from "lucide-react";
 import { components } from "../../generated/components";
 import { CodeBlock } from "../components/code-block";
 import { CodeTabs } from "../components/code-tabs";
+import { ArrowRight, Boxes, Layers, TerminalSquare } from "../components/icons";
 import { ShowcaseCard } from "../components/showcase-card";
 import { HighlightProvider, loadDocsHighlights } from "../lib/highlights";
 import { seo } from "../lib/seo";
