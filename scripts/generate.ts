@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { Resvg } from "@resvg/resvg-js";
 import { createHighlighter } from "shiki";
 import { catalog, showcase } from "../registry/catalog";
 import type { Highlights } from "../registry/highlight";
@@ -22,8 +21,6 @@ await rm("generated", { recursive: true, force: true });
 await mkdir("generated/pages", { recursive: true });
 await rm("public/r", { recursive: true, force: true });
 await mkdir("public/r", { recursive: true });
-const social = new Resvg(await readFile("public/social.svg", "utf8"));
-await writeFile("public/social.png", social.render().asPng());
 const components = await Promise.all(
   catalog.map(async (item) => {
     const source = await readFile(`registry/swift/${item.filename}`, "utf8");

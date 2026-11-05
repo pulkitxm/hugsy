@@ -38,6 +38,10 @@ Each demo is a lazily loaded React module in `src/demos/`, registered in `src/de
 
 Highlighted source for a component page is generated per page into `generated/pages/` and loaded by that route, so other pages never download it. `bun scripts/check-site.ts` enforces an initial JavaScript budget for every page and a size limit for lazy chunks.
 
+## Open Graph images
+
+Each page has its own 2400 by 1260 image in `public/og/`. Run `bun run build`, then `bun scripts/og.ts` to rerender them from the real site. They are committed because they depend on system fonts and a local Chrome. Add new pages to the list in `scripts/og.ts`. Keep the bottom-left corner clear, since X overlays the page title there.
+
 ## Theme and Markdown pages
 
 Colors are CSS variables built with `light-dark()`, so the first paint follows the visitor's system preference without JavaScript. A saved choice is applied by a small script in the prerendered `<head>`, before the body paints. The site is static, so a per-visitor theme cannot be part of the HTML itself.

@@ -4,7 +4,7 @@ import { gzipSync } from "node:zlib";
 import { type DefaultTreeAdapterTypes, parse } from "parse5";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
-import { markdownUrl } from "../src/lib/seo";
+import { markdownUrl, openGraphImage } from "../src/lib/seo";
 import { sitePaths as paths } from "./markdown-pages";
 
 const root = "dist/client";
@@ -16,6 +16,7 @@ function attribute(node: DefaultTreeAdapterTypes.Element, name: string) {
   return node.attrs.find((entry) => entry.name === name)?.value;
 }
 const titles = new Set<string>();
+const images = new Set<string>();
 for (const path of paths) {
   const html = readFileSync(join(root, path, "index.html"), "utf8");
   const nodes = elements(parse(html));
@@ -45,6 +46,25 @@ for (const path of paths) {
     if (!nodes.some((node) => node.tagName === "meta" && attribute(node, "property") === tag)) {
       throw new Error(`Missing ${tag}: ${path}`);
     }
+  }
+  const imageFile = openGraphImage(path);
+  if (!existsSync(join(root, imageFile))) {
+    throw new Error(`Missing Open Graph image: ${imageFile}`);
+  }
+  if (images.has(imageFile)) {
+    throw new Error(`Open Graph images must be unique: ${imageFile}`);
+  }
+  images.add(imageFile);
+  const metaContent = (key: string, name: string) => {
+    const tag = nodes.find((node) => node.tagName === "meta" && attribute(node, key) === name);
+    return tag && attribute(tag, "content");
+  };
+  const expectedImage = `${origin}${imageFile}`;
+  if (
+    metaContent("property", "og:image") !== expectedImage ||
+    metaContent("name", "twitter:image") !== expectedImage
+  ) {
+    throw new Error(`Unexpected share image: ${path}`);
   }
   const card = nodes.find(
     (node) => node.tagName === "meta" && attribute(node, "name") === "twitter:card",
@@ -93,7 +113,6 @@ for (const file of [
   "llms.txt",
   "llms-full.txt",
   ".nojekyll",
-  "social.png",
   "404.html",
   "CNAME",
 ]) {

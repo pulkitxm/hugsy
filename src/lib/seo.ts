@@ -64,7 +64,7 @@ function structuredData(title: string, description: string, path: string) {
 export function seo(title: string, description: string, path: string) {
   const fullTitle = `${title} | ${siteName}`;
   const url = `${origin}${path}`;
-  const image = `${origin}/social.png`;
+  const image = `${origin}${openGraphImage(path)}`;
   const imageAlt = `${title}. Animated iOS components for SwiftUI and UIKit.`;
   return {
     meta: [
@@ -78,9 +78,9 @@ export function seo(title: string, description: string, path: string) {
       { property: "og:type", content: path === "/" ? "website" : "article" },
       { property: "og:url", content: url },
       { property: "og:image", content: image },
-      { property: "og:image:type", content: "image/png" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "2400" },
+      { property: "og:image:height", content: "1260" },
       { property: "og:image:alt", content: imageAlt },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: fullTitle },
@@ -94,6 +94,12 @@ export function seo(title: string, description: string, path: string) {
     ],
     scripts: [{ type: "application/ld+json", children: structuredData(title, description, path) }],
   };
+}
+
+export function openGraphImage(path: string) {
+  const parts = path.split("/").filter(Boolean);
+  const slug = parts[0] === "components" ? parts.at(-1) : parts.join("-");
+  return `/og/${slug || "home"}.jpg`;
 }
 
 export function markdownUrl(path: string) {
