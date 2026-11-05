@@ -7,6 +7,7 @@ import { ArrowUpRight, Moon, Sun } from "./icons";
 export function Header() {
   useEffect(() => {
     document.documentElement.dataset["hydrated"] = "";
+    void import("../lib/webmcp").then(({ registerWebTools }) => registerWebTools());
   }, []);
   function toggleTheme() {
     const root = document.documentElement;
@@ -65,7 +66,7 @@ export function Footer() {
           <a
             href={markdownUrl(pathname)}
             className="markdown-link"
-            aria-label="View this page as Markdown"
+            aria-label=".md version of this page"
           >
             .md
           </a>
