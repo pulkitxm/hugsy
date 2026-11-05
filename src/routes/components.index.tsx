@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { catalog } from "../../registry/catalog";
 import { ComponentCard } from "../components/component-card";
 import { LibrarySidebar } from "../components/library-sidebar";
@@ -19,6 +19,8 @@ export const Route = createFileRoute("/components/")({
 function Components() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   const categories = ["All", ...new Set(catalog.map((item) => item.category))];
   const visible = catalog.filter(
     (item) =>
@@ -44,6 +46,7 @@ function Components() {
               aria-label="Search components"
               placeholder="Search components…"
               value={query}
+              disabled={!ready}
               onChange={(event) => setQuery(event.target.value)}
             />
             {query && (
@@ -52,7 +55,7 @@ function Components() {
               </button>
             )}
           </label>
-          <fieldset className="collection-filters">
+          <fieldset className="collection-filters" disabled={!ready}>
             <legend className="sr-only">Filter by category</legend>
             {categories.map((name) => (
               <button

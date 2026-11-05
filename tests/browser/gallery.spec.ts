@@ -196,7 +196,7 @@ test("unknown routes return a real static 404", async ({ request }) => {
   expect((await request.get("components/not-a-component/")).status()).toBe(404);
 });
 
-test("prerendered screen controls wait for browser handlers", async ({ browser, baseURL }) => {
+test("prerendered controls wait for browser handlers", async ({ browser, baseURL }) => {
   if (!baseURL) {
     throw new Error("Configure the website origin before testing preview controls.");
   }
@@ -205,6 +205,10 @@ test("prerendered screen controls wait for browser handlers", async ({ browser, 
     await page.goto("components/fluid-tabs/");
     await expect(page.getByRole("button", { name: "Following", exact: true })).toBeDisabled();
     await expect(page.locator(".native-stage img")).toBeVisible();
+    await page.goto("components/");
+    await expect(page.getByRole("button", { name: "Navigation", exact: true })).toBeDisabled();
+    await expect(page.getByRole("searchbox", { name: "Search components" })).toBeDisabled();
+    await expect(page.locator("article.collection-card")).toHaveCount(6);
   } finally {
     await page.close();
   }
