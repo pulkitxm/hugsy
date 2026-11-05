@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Highlights } from "./highlight.ts";
 
 const componentName = z
   .string()
@@ -55,16 +56,6 @@ const registryHeaderSchema = z.strictObject({
   platform: z.literal("ios"),
   minimumVersion: z.literal("17.0"),
 });
-export const websiteRegistrySchema = registryHeaderSchema.extend({
-  components: z
-    .array(
-      componentMetadataSchema.extend({
-        source: z.string().min(1),
-        sha256: z.string().regex(/^[a-f0-9]{64}$/),
-      }),
-    )
-    .min(1),
-});
 export const registrySchema = registryHeaderSchema
   .extend({
     components: z.array(componentSchema).min(1),
@@ -112,3 +103,8 @@ export const registrySchema = registryHeaderSchema
       visit(name);
     }
   });
+
+export type ComponentPage = z.infer<typeof componentMetadataSchema> & {
+  sources: { path: string; code: string }[];
+  highlights: Highlights;
+};

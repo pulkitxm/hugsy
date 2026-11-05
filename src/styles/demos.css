@@ -1,0 +1,715 @@
+.demo {
+  --card-radius: calc(28 * var(--pt));
+  --open-radius: calc(36 * var(--pt));
+  --accent: #ff6a3d;
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: calc(8 * var(--pt)) calc(20 * var(--pt)) calc(30 * var(--pt));
+  font-size: calc(15 * var(--pt));
+}
+.demo button {
+  min-width: 24px;
+  min-height: 24px;
+  -webkit-tap-highlight-color: transparent;
+}
+.demo svg {
+  width: calc(22 * var(--pt));
+  height: calc(22 * var(--pt));
+}
+.demo-title {
+  margin-bottom: calc(14 * var(--pt));
+  font-size: calc(34 * var(--pt));
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.demo-hint {
+  color: color-mix(in srgb, currentColor 72%, transparent);
+  font-size: calc(15 * var(--pt));
+}
+.artwork {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 78% 18%,
+      hsl(calc(var(--hue) + 30) 90% 88% / 80%) 0 9%,
+      transparent 9.5%
+    ),
+    radial-gradient(ellipse 120% 70% at 20% 110%, hsl(var(--hue) 55% 30% / 85%), transparent 60%),
+    repeating-radial-gradient(
+      ellipse 140% 90% at 110% 120%,
+      transparent 0 calc(18 * var(--pt)),
+      hsl(0 0% 100% / 10%) calc(18 * var(--pt)) calc(19 * var(--pt))
+    ),
+    linear-gradient(150deg, hsl(var(--hue) 70% 72%), hsl(calc(var(--hue) + 24) 52% 44%));
+}
+.card-caption {
+  position: absolute;
+  right: calc(22 * var(--pt));
+  bottom: calc(22 * var(--pt));
+  left: calc(22 * var(--pt));
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--pt));
+  margin: 0;
+  color: #fff;
+  text-align: left;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 18%);
+}
+.card-caption small {
+  font-size: calc(11 * var(--pt));
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+.card-caption strong {
+  font-size: calc(28 * var(--pt));
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.demo-round {
+  display: grid;
+  place-items: center;
+  width: calc(60 * var(--pt));
+  height: calc(60 * var(--pt));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--screen-background, #fff) 80%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, currentColor 8%, transparent),
+    0 calc(8 * var(--pt)) calc(20 * var(--pt)) rgb(0 0 0 / 10%);
+  backdrop-filter: blur(20px);
+  transition:
+    scale 0.4s var(--spring-bouncy),
+    opacity 0.2s;
+}
+.demo-round:active {
+  scale: 0.9;
+}
+.demo-round:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.demo-pill {
+  display: inline-flex;
+  gap: calc(8 * var(--pt));
+  align-items: center;
+  padding: calc(12 * var(--pt)) calc(20 * var(--pt));
+  border-radius: 999px;
+  background: currentColor;
+  font-size: calc(15 * var(--pt));
+  font-weight: 600;
+}
+.demo-pill,
+.demo-pill svg {
+  color: var(--screen-background, #fff);
+}
+.demo-pill svg {
+  width: calc(16 * var(--pt));
+  height: calc(16 * var(--pt));
+}
+.demo-segmented {
+  display: flex;
+  gap: calc(2 * var(--pt));
+  padding: calc(2 * var(--pt));
+  margin: auto auto 0;
+  border: 0;
+  border-radius: calc(9 * var(--pt));
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.demo-segmented button {
+  padding: calc(7 * var(--pt)) calc(16 * var(--pt));
+  border-radius: calc(7 * var(--pt));
+  font-size: calc(13 * var(--pt));
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.demo-segmented button[aria-pressed="true"] {
+  background: var(--screen-background, #fff);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 14%);
+}
+
+.swipe-demo {
+  --dx: 0px;
+  --dy: 0px;
+  --rotation: 0deg;
+  --progress: 0;
+  --depth-progress: 0;
+}
+.swipe-deck {
+  position: relative;
+  flex: 1;
+  width: min(100%, calc(420 * var(--pt)));
+  margin-inline: auto;
+  touch-action: none;
+}
+.swipe-card {
+  --depth: max(0, calc(var(--index) - var(--depth-progress)));
+  position: absolute;
+  inset: 0 0 calc(20 * var(--pt));
+  overflow: hidden;
+  border-radius: var(--card-radius);
+  box-shadow: 0 calc(14 * var(--pt)) calc(30 * var(--pt)) rgb(0 0 0 / 16%);
+  transform: translateY(calc(var(--depth) * 16 * var(--pt))) scale(calc(1 - var(--depth) * 0.05));
+  transition: transform 0.5s var(--spring-smooth);
+  cursor: grab;
+}
+.swipe-card[data-top] {
+  transform: translate(var(--dx), var(--dy)) rotate(var(--rotation));
+  transform-origin: 50% 120%;
+}
+.swipe-demo[data-mode="drag"] .swipe-card,
+.swipe-demo[data-mode="reset"] .swipe-card {
+  transition: none;
+}
+.swipe-demo[data-mode="drag"] .swipe-card[data-top] {
+  cursor: grabbing;
+}
+.swipe-stamp {
+  position: absolute;
+  top: calc(28 * var(--pt));
+  padding: calc(6 * var(--pt)) calc(12 * var(--pt));
+  border: calc(3 * var(--pt)) solid;
+  border-radius: calc(10 * var(--pt));
+  color: #fff;
+  font-size: calc(24 * var(--pt));
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  text-transform: uppercase;
+}
+.swipe-stamp-like {
+  left: calc(24 * var(--pt));
+  rotate: -12deg;
+}
+.swipe-stamp-skip {
+  right: calc(24 * var(--pt));
+  rotate: 12deg;
+}
+.swipe-card[data-top] .swipe-stamp-like {
+  opacity: clamp(0, var(--progress), 1);
+}
+.swipe-card[data-top] .swipe-stamp-skip {
+  opacity: clamp(0, calc(var(--progress) * -1), 1);
+}
+.swipe-empty {
+  display: flex;
+  flex-direction: column;
+  gap: calc(16 * var(--pt));
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: color-mix(in srgb, currentColor 72%, transparent);
+}
+.swipe-controls {
+  display: flex;
+  gap: calc(28 * var(--pt));
+  justify-content: center;
+  padding-top: calc(4 * var(--pt));
+}
+.swipe-skip svg {
+  color: #ff4d5e;
+}
+.swipe-like svg {
+  color: #2ecc71;
+  fill: currentColor;
+}
+.swipe-controls .swipe-skip {
+  scale: calc(1 + clamp(0, calc(var(--progress) * -1), 1) * 0.18);
+}
+.swipe-controls .swipe-like {
+  scale: calc(1 + clamp(0, var(--progress), 1) * 0.18);
+}
+
+.carousel-demo {
+  padding-inline: 0;
+}
+.carousel-demo .demo-title {
+  padding-inline: calc(20 * var(--pt));
+}
+.carousel-track {
+  --card-width: min(calc(100cqw - 96 * var(--pt)), calc(560 * var(--pt)));
+  display: flex;
+  flex: 1;
+  gap: calc(14 * var(--pt));
+  padding-block: calc(10 * var(--pt)) calc(18 * var(--pt));
+  padding-inline: calc((100cqw - var(--card-width)) / 2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+.carousel-track[data-grabbing] {
+  scroll-snap-type: none;
+  cursor: grabbing;
+}
+.carousel-card {
+  --offset: 0;
+  --distance: 0;
+  position: relative;
+  flex: 0 0 var(--card-width);
+  margin: 0;
+  overflow: hidden;
+  border-radius: calc(30 * var(--pt));
+  box-shadow: 0 calc(16 * var(--pt)) calc(34 * var(--pt)) rgb(0 0 0 / 16%);
+  opacity: calc(1 - var(--distance) * 0.28);
+  transform: perspective(calc(900 * var(--pt))) rotateY(calc(var(--offset) * -16deg))
+    scale(calc(1 - var(--distance) * 0.1));
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.carousel-art {
+  inset: 0 calc(-48 * var(--pt));
+  transform: translateX(calc(var(--offset) * -48 * var(--pt)));
+}
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+}
+.carousel-indicators button {
+  display: grid;
+  place-items: center;
+  width: max(28px, calc(30 * var(--pt)));
+  height: calc(44 * var(--pt));
+}
+.carousel-indicators span {
+  width: calc(8 * var(--pt));
+  height: calc(8 * var(--pt));
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+  transition:
+    width 0.45s var(--spring-bouncy),
+    background 0.3s;
+}
+.carousel-indicators [aria-pressed="true"] span {
+  width: calc(22 * var(--pt));
+  background: currentColor;
+}
+
+.capsule-demo {
+  padding-top: 0;
+}
+.capsule {
+  --width: calc(126 * var(--pt));
+  --height: calc(37 * var(--pt));
+  --stretch: 0px;
+  position: absolute;
+  z-index: 2;
+  top: calc(-43 * var(--pt));
+  left: 50%;
+  width: var(--width);
+  height: max(calc(var(--height) * 0.85), calc(var(--height) + var(--stretch)));
+  overflow: hidden;
+  border-radius: calc(var(--height) / 2);
+  background: #000;
+  color: #fff;
+  translate: -50% 0;
+  transition:
+    width 0.7s var(--spring-bouncy),
+    height 0.7s var(--spring-bouncy),
+    border-radius 0.7s var(--spring-bouncy);
+}
+.device:not([data-device="iphone"]) .capsule {
+  top: calc(10 * var(--pt));
+}
+.capsule[data-phase="alert"] {
+  --width: calc(300 * var(--pt));
+  --height: calc(58 * var(--pt));
+}
+.capsule[data-phase="expanded"] {
+  --width: min(calc(100% - 24 * var(--pt)), calc(360 * var(--pt)));
+  --height: calc(200 * var(--pt));
+  border-radius: calc(44 * var(--pt));
+}
+.capsule[data-dragging="true"] {
+  transition-duration: 0.12s;
+}
+.capsule-surface {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  touch-action: none;
+}
+.capsule-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  filter: blur(calc(8 * var(--pt)));
+  scale: 0.9;
+  pointer-events: none;
+  transition:
+    opacity 0.3s,
+    filter 0.35s,
+    scale 0.5s var(--spring-smooth);
+}
+.capsule-layer[data-active="true"] {
+  opacity: 1;
+  filter: none;
+  scale: 1;
+  transition-delay: 0.08s;
+}
+.capsule-layer button {
+  pointer-events: auto;
+}
+.capsule-row {
+  display: flex;
+  gap: calc(10 * var(--pt));
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-inline: calc(14 * var(--pt));
+  font-size: calc(14 * var(--pt));
+  font-weight: 600;
+}
+.capsule-alert {
+  justify-content: flex-start;
+  padding-inline: calc(16 * var(--pt));
+  font-size: calc(15 * var(--pt));
+}
+.capsule-time {
+  font-variant-numeric: tabular-nums;
+}
+.capsule-success {
+  color: #30d158;
+}
+.capsule-accent {
+  color: #ff9f0a;
+}
+.capsule-wave {
+  display: flex;
+  gap: calc(2 * var(--pt));
+  align-items: center;
+  height: calc(16 * var(--pt));
+}
+.capsule-wave span {
+  width: calc(3 * var(--pt));
+  height: 100%;
+  border-radius: 99px;
+  background: #ff9f0a;
+  animation: capsule-wave 0.9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.capsule-wave[data-playing="true"] span {
+  animation-play-state: running;
+}
+.capsule-wave span:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.capsule-wave span:nth-child(3) {
+  animation-delay: -0.6s;
+}
+.capsule-wave span:nth-child(4) {
+  animation-delay: -0.15s;
+}
+@keyframes capsule-wave {
+  from {
+    scale: 1 0.3;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+.capsule-panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(14 * var(--pt));
+  width: 100%;
+  padding: calc(22 * var(--pt)) calc(24 * var(--pt));
+}
+.capsule-media {
+  display: flex;
+  gap: calc(12 * var(--pt));
+  align-items: center;
+}
+.capsule-media > span:nth-child(2) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: calc(16 * var(--pt));
+}
+.capsule-media small {
+  color: rgb(255 255 255 / 60%);
+  font-size: calc(13 * var(--pt));
+}
+.capsule-cover,
+.capsule-badge {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: calc(52 * var(--pt));
+  height: calc(52 * var(--pt));
+  border-radius: calc(12 * var(--pt));
+  background: linear-gradient(135deg, #ffb340, #ff5e3a);
+}
+.capsule-progress,
+.capsule-steps {
+  display: flex;
+  height: calc(5 * var(--pt));
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 22%);
+}
+.capsule-progress span {
+  width: 38%;
+  background: #fff;
+}
+.capsule-steps {
+  gap: calc(4 * var(--pt));
+  background: none;
+}
+.capsule-steps span {
+  flex: 1;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 22%);
+}
+.capsule-steps [data-done] {
+  background: #ff9f0a;
+}
+.capsule-step-labels {
+  display: flex;
+  justify-content: space-between;
+  color: rgb(255 255 255 / 60%);
+  font-size: calc(12 * var(--pt));
+}
+.capsule-controls {
+  display: flex;
+  gap: calc(40 * var(--pt));
+  justify-content: center;
+}
+.capsule-controls svg {
+  fill: currentColor;
+}
+.capsule-play svg {
+  width: calc(32 * var(--pt));
+  height: calc(32 * var(--pt));
+}
+.capsule-stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-top: calc(56 * var(--pt));
+}
+.capsule-list {
+  display: grid;
+  gap: calc(12 * var(--pt));
+  padding: 0;
+  margin: calc(20 * var(--pt)) 0 0;
+  list-style: none;
+}
+.capsule-list li {
+  display: flex;
+  gap: calc(12 * var(--pt));
+  align-items: center;
+}
+.capsule-list .artwork {
+  position: relative;
+  flex: none;
+  width: calc(52 * var(--pt));
+  height: calc(52 * var(--pt));
+  border-radius: calc(10 * var(--pt));
+}
+.capsule-list span {
+  display: flex;
+  flex-direction: column;
+}
+.capsule-list small {
+  color: color-mix(in srgb, currentColor 72%, transparent);
+  font-size: calc(13 * var(--pt));
+}
+
+.cards-demo {
+  padding-bottom: calc(24 * var(--pt));
+}
+.cards-stage {
+  position: relative;
+  flex: 1;
+}
+.cards-list {
+  display: grid;
+  gap: calc(16 * var(--pt));
+  grid-auto-rows: calc(180 * var(--pt));
+}
+@container screen (aspect-ratio > 0.6) {
+  .cards-list {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: calc(260 * var(--pt));
+  }
+}
+.expanding-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--card-radius);
+  box-shadow: 0 calc(10 * var(--pt)) calc(24 * var(--pt)) rgb(0 0 0 / 12%);
+  transition:
+    opacity 0.3s,
+    scale 0.4s var(--spring-bouncy);
+}
+.expanding-card:active {
+  scale: 0.97;
+}
+.cards-stage[data-open="true"] .expanding-card {
+  opacity: 0;
+  pointer-events: none;
+}
+.cards-stage[data-open="true"] .expanding-card[data-selected="true"] {
+  visibility: hidden;
+  transition: none;
+}
+.expanded-card {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--open-radius);
+  box-shadow: 0 calc(20 * var(--pt)) calc(50 * var(--pt)) rgb(0 0 0 / 22%);
+  touch-action: none;
+  transform-origin: 50% 0;
+  transition: transform 0.45s var(--spring-smooth);
+}
+.expanded-card[data-dragging] {
+  transition: none;
+}
+.expanded-close {
+  position: absolute;
+  top: calc(16 * var(--pt));
+  right: calc(16 * var(--pt));
+  width: calc(44 * var(--pt));
+  height: calc(44 * var(--pt));
+}
+.expanded-caption {
+  top: auto;
+}
+.expanded-caption strong {
+  font-size: calc(40 * var(--pt));
+}
+.expanded-caption > span {
+  max-width: calc(340 * var(--pt));
+  margin-top: calc(10 * var(--pt));
+  font-size: calc(16 * var(--pt));
+  line-height: 1.45;
+  animation: caption-in 0.5s 0.25s both;
+}
+@keyframes caption-in {
+  from {
+    opacity: 0;
+    translate: 0 calc(12 * var(--pt));
+  }
+}
+
+.radial-notes {
+  display: grid;
+  gap: calc(10 * var(--pt));
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.radial-notes li {
+  display: flex;
+  flex-direction: column;
+  padding: calc(14 * var(--pt)) calc(16 * var(--pt));
+  border-radius: calc(16 * var(--pt));
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+.radial-notes li[data-fresh="true"] {
+  animation: note-in 0.6s var(--spring-bouncy);
+}
+@keyframes note-in {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}
+.radial-notes small {
+  color: color-mix(in srgb, currentColor 72%, transparent);
+  font-size: calc(13 * var(--pt));
+}
+.radial-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--screen-background, #fff) 55%, transparent);
+  opacity: 0;
+  backdrop-filter: blur(6px);
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.radial-demo[data-expanded="true"] .radial-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+.radial-menu {
+  position: absolute;
+  bottom: calc(40 * var(--pt));
+  left: 50%;
+  width: calc(64 * var(--pt));
+  height: calc(64 * var(--pt));
+  translate: -50% 0;
+}
+.radial-trigger,
+.radial-action {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.radial-trigger {
+  inset: 0;
+  background: var(--accent);
+  box-shadow: 0 calc(10 * var(--pt)) calc(24 * var(--pt)) rgb(255 106 61 / 40%);
+  color: #fff;
+}
+.radial-trigger svg {
+  width: calc(26 * var(--pt));
+  height: calc(26 * var(--pt));
+  transition: rotate 0.45s var(--spring-bouncy);
+}
+.radial-demo[data-expanded="true"] .radial-trigger svg {
+  rotate: 45deg;
+}
+.radial-action {
+  inset: calc(4 * var(--pt));
+  background: color-mix(in srgb, var(--screen-background, #fff) 85%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, currentColor 8%, transparent),
+    0 calc(8 * var(--pt)) calc(18 * var(--pt)) rgb(0 0 0 / 12%);
+  opacity: 0;
+  scale: 0.55;
+  transition:
+    translate 0.55s var(--spring-bouncy) var(--delay),
+    scale 0.55s var(--spring-bouncy) var(--delay),
+    opacity 0.25s var(--delay);
+}
+.radial-demo[data-expanded="true"] .radial-action {
+  opacity: 1;
+  scale: 1;
+  translate: calc(var(--x) * var(--pt)) calc(var(--y) * var(--pt));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe-card[data-top] {
+    transform: translate(var(--dx), var(--dy));
+  }
+  .carousel-card {
+    transform: scale(calc(1 - var(--distance) * 0.1));
+  }
+  .carousel-art {
+    transform: none;
+  }
+  .device,
+  .device-screen *,
+  .device-screen *::before,
+  .device-screen *::after {
+    transition: none;
+    animation: none;
+  }
+}

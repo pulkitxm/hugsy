@@ -1,0 +1,266 @@
+:root {
+  --spring-bouncy: linear(
+    0,
+    0.057,
+    0.191,
+    0.357,
+    0.523,
+    0.673,
+    0.796,
+    0.891,
+    0.96,
+    1.004,
+    1.031,
+    1.043,
+    1.046,
+    1.043,
+    1.036,
+    1.029,
+    1.021,
+    1.014,
+    1.009,
+    1.005,
+    1.002,
+    1,
+    0.998,
+    0.998,
+    1
+  );
+  --spring-smooth: linear(
+    0,
+    0.038,
+    0.129,
+    0.244,
+    0.366,
+    0.483,
+    0.589,
+    0.681,
+    0.759,
+    0.822,
+    0.872,
+    0.911,
+    0.94,
+    0.962,
+    0.977,
+    0.988,
+    0.996,
+    1,
+    1.003,
+    1.004,
+    1.005,
+    1.005,
+    1.005,
+    1.004,
+    1
+  );
+  --spring-snappy: linear(
+    0,
+    0.044,
+    0.148,
+    0.279,
+    0.415,
+    0.544,
+    0.658,
+    0.753,
+    0.83,
+    0.89,
+    0.934,
+    0.966,
+    0.988,
+    1.002,
+    1.01,
+    1.014,
+    1.015,
+    1.015,
+    1.013,
+    1.011,
+    1.009,
+    1.007,
+    1.005,
+    1.004,
+    1
+  );
+}
+
+.device {
+  --screen-width: 402;
+  --screen-height: 874;
+  --frame-width: 426;
+  --bezel: 12;
+  --outer-radius: 66;
+  --screen-radius: 54;
+  container-type: inline-size;
+  width: min(100%, 300px);
+  margin-inline: auto;
+  transition: width 0.5s var(--spring-smooth);
+}
+.device[data-device="ipad"] {
+  --screen-width: 820;
+  --screen-height: 1180;
+  --frame-width: 864;
+  --bezel: 22;
+  --outer-radius: 44;
+  --screen-radius: 22;
+  width: min(100%, 440px);
+}
+.device[data-device="mac"] {
+  --screen-width: 1280;
+  --screen-height: 800;
+  --frame-width: 1312;
+  --bezel: 16;
+  --outer-radius: 26;
+  --screen-radius: 8;
+  width: min(100%, 680px);
+}
+.device-body {
+  --unit: calc(100cqw / var(--frame-width));
+  position: relative;
+  padding: calc(var(--bezel) * var(--unit));
+  border-radius: calc(var(--outer-radius) * var(--unit));
+  background: #0b0b0c;
+  box-shadow:
+    inset 0 0 0 calc(2 * var(--unit)) #2b2b2e,
+    0 0 0 calc(1.5 * var(--unit)) #8d8d92,
+    0 calc(28 * var(--unit)) calc(60 * var(--unit)) calc(-24 * var(--unit)) rgb(0 0 0 / 35%);
+}
+.device[data-device="mac"] .device-body {
+  padding-bottom: calc(26 * var(--unit));
+  border-end-start-radius: calc(6 * var(--unit));
+  border-end-end-radius: calc(6 * var(--unit));
+}
+.device-button {
+  position: absolute;
+  left: calc(-3 * var(--unit));
+  width: calc(3 * var(--unit));
+  border-radius: calc(2 * var(--unit)) 0 0 calc(2 * var(--unit));
+  background: #6f6f74;
+}
+.device-button-action {
+  top: 21%;
+  height: 4%;
+}
+.device-button-volume {
+  top: 28%;
+  height: 12%;
+  box-shadow: 0 calc(-1 * var(--unit)) 0 #555;
+}
+.device-button-power {
+  top: 30%;
+  right: calc(-3 * var(--unit));
+  left: auto;
+  height: 11%;
+  border-radius: 0 calc(2 * var(--unit)) calc(2 * var(--unit)) 0;
+}
+.device-screen {
+  --pt: calc(100cqw / var(--screen-width));
+  container: screen / size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: var(--screen-width) / var(--screen-height);
+  overflow: hidden;
+  border-radius: calc(var(--screen-radius) * var(--unit));
+  background: var(--screen-background, #f6f5f2);
+  color: var(--screen-foreground, #111);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  line-height: 1.3;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+:root[data-theme="dark"] .device-screen {
+  --screen-background: #0d0d0e;
+  --screen-foreground: #f2f2f3;
+}
+.device-status {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(54 * var(--pt));
+  padding: calc(4 * var(--pt)) calc(34 * var(--pt)) 0;
+  font-size: calc(17 * var(--pt));
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: pre;
+}
+.device[data-device="ipad"] .device-status {
+  height: calc(28 * var(--pt));
+  padding: 0 calc(22 * var(--pt));
+  font-size: calc(13 * var(--pt));
+}
+.status-icons {
+  display: flex;
+  gap: calc(6 * var(--pt));
+  align-items: center;
+}
+.status-icons svg {
+  width: auto;
+  height: calc(12 * var(--pt));
+  fill: currentColor;
+}
+.menu-bar {
+  height: calc(26 * var(--pt));
+  padding: 0 calc(14 * var(--pt));
+  background: color-mix(in srgb, var(--screen-background, #f6f5f2) 70%, #888);
+  font-size: calc(13 * var(--pt));
+  font-weight: 500;
+}
+.menu-items {
+  display: flex;
+  gap: calc(18 * var(--pt));
+}
+.device-content {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.device-island {
+  position: absolute;
+  z-index: 1;
+  top: calc(11 * var(--pt));
+  left: 50%;
+  width: calc(126 * var(--pt));
+  height: calc(37 * var(--pt));
+  border-radius: calc(19 * var(--pt));
+  background: #000;
+  translate: -50% 0;
+}
+.device-home {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(8 * var(--pt));
+  left: 50%;
+  width: calc(140 * var(--pt));
+  height: calc(5 * var(--pt));
+  border-radius: calc(3 * var(--pt));
+  background: currentColor;
+  opacity: 0.85;
+  translate: -50% 0;
+  pointer-events: none;
+}
+.device[data-device="ipad"] .device-home {
+  width: calc(300 * var(--pt));
+}
+.device-base {
+  display: block;
+  width: 116%;
+  height: calc(20 * 100cqw / var(--frame-width));
+  margin-inline: -8%;
+  border-radius: 0 0 calc(18 * 100cqw / var(--frame-width)) calc(18 * 100cqw / var(--frame-width));
+  background: linear-gradient(#c9c9ce, #8e8e94);
+  box-shadow: 0 calc(12 * 100cqw / var(--frame-width)) calc(24 * 100cqw / var(--frame-width))
+    calc(-12 * 100cqw / var(--frame-width)) rgb(0 0 0 / 35%);
+}
+.device-base::before {
+  display: block;
+  width: 16%;
+  height: 40%;
+  margin-inline: auto;
+  border-radius: 0 0 calc(10 * 100cqw / var(--frame-width)) calc(10 * 100cqw / var(--frame-width));
+  background: #7d7d83;
+  content: "";
+}

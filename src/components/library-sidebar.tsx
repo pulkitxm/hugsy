@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { showcase } from "../../registry/catalog";
+import { components } from "../../generated/components";
 
 export function LibrarySidebar() {
   return (
@@ -20,7 +20,7 @@ export function LibrarySidebar() {
           <Link to="/components/" activeOptions={{ exact: true }}>
             All components
           </Link>
-          {showcase.map((item) => (
+          {components.map((item) => (
             <Link key={item.name} to="/components/$name/" params={{ name: item.name }}>
               {item.title}
             </Link>

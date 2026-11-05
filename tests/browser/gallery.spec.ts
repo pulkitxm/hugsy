@@ -128,7 +128,12 @@ for (const path of pages) {
   test(`automated WCAG 2.2 AA: ${path || "landing"}`, async ({ page }) => {
     await page.goto(path);
     await page.evaluate(() =>
-      Promise.all(document.getAnimations().map((animation) => animation.finished)),
+      Promise.allSettled(
+        document
+          .getAnimations()
+          .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+          .map((animation) => animation.finished),
+      ),
     );
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
@@ -155,6 +160,9 @@ test("prerendered controls wait for browser handlers", async ({ browser, baseURL
   }
   const page = await browser.newPage({ javaScriptEnabled: false, baseURL });
   try {
+    await page.goto("components/swipe-deck/");
+    await expect(page.getByRole("button", { name: "iPad", exact: true })).toBeDisabled();
+    await expect(page.locator(".device")).toHaveAttribute("data-device", "iphone");
     await page.goto("components/");
     await expect(page.getByRole("button", { name: "Gestures", exact: true })).toBeDisabled();
     await expect(page.getByRole("searchbox", { name: "Search components" })).toBeDisabled();
@@ -162,4 +170,87 @@ test("prerendered controls wait for browser handlers", async ({ browser, baseURL
   } finally {
     await page.close();
   }
+});
+
+test("component previews switch between iPhone, iPad, and Mac frames", async ({ page }) => {
+  await page.goto("components/expanding-cards/");
+  const device = page.locator(".device");
+  await expect(device).toHaveAttribute("data-device", "iphone");
+  await expect(page.getByRole("region", { name: "Expanding cards on iPhone" })).toBeVisible();
+  for (const { label, kind } of [
+    { label: "iPad", kind: "ipad" },
+    { label: "Mac", kind: "mac" },
+    { label: "iPhone", kind: "iphone" },
+  ]) {
+    await page.getByRole("button", { name: label, exact: true }).click();
+    await expect(device).toHaveAttribute("data-device", kind);
+    await expect(page.getByRole("button", { name: label, exact: true })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(page.getByRole("button", { name: "Open Quiet dunes" })).toBeVisible();
+  }
+});
+
+test("multi-screen previews switch screens inside the same device", async ({ page }) => {
+  await page.goto("components/morphing-capsule/");
+  await expect(page.locator(".capsule-demo")).toHaveAttribute("data-variant", "player");
+  await page.getByRole("button", { name: "Delivery", exact: true }).click();
+  await expect(page.locator(".capsule-demo")).toHaveAttribute("data-variant", "delivery");
+  await page.getByRole("button", { name: "iPad", exact: true }).click();
+  await expect(page.locator(".capsule-demo")).toHaveAttribute("data-variant", "delivery");
+});
+
+test("swipe deck responds to dragging and to button alternatives", async ({ page }) => {
+  await page.goto("components/swipe-deck/");
+  const top = page.locator(".swipe-card[data-top] strong");
+  await expect(top).toHaveText("Quiet dunes");
+  await page.locator(".swipe-deck").scrollIntoViewIfNeeded();
+  const box = await page.locator(".swipe-card[data-top]").boundingBox();
+  if (!box) {
+    throw new Error("Expected the top card to be visible.");
+  }
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  for (let step = 1; step <= 12; step += 1) {
+    await page.mouse.move(x + step * 16, y + step * 2);
+  }
+  await page.mouse.up();
+  await expect(top).toHaveText("Blue harbor");
+  await expect(page.locator(".swipe-demo [aria-live]")).toHaveText("Liked Quiet dunes");
+  await page.getByRole("button", { name: "Skip", exact: true }).click();
+  await expect(top).toHaveText("Olive grove");
+});
+
+test("interactive previews support taps, keyboard dismissal, and reset", async ({ page }) => {
+  await page.goto("components/morphing-capsule/");
+  const capsule = page.locator(".capsule");
+  await page.getByRole("button", { name: "Expand capsule" }).click();
+  await expect(capsule).toHaveAttribute("data-phase", "expanded");
+  await page.getByRole("button", { name: "Pause" }).click();
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Reset preview" }).click();
+  await expect(capsule).toHaveAttribute("data-phase", "compact");
+
+  await page.goto("components/expanding-cards/");
+  await page.getByRole("button", { name: "Open Blue harbor" }).click();
+  await expect(page.getByRole("dialog", { name: "Blue harbor" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Close details" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Open Blue harbor" })).toBeFocused();
+
+  await page.goto("components/radial-menu/");
+  await page.getByRole("button", { name: "Open actions" }).click();
+  await page.getByRole("button", { name: "New note" }).click();
+  await expect(page.locator(".radial-notes li strong").first()).toHaveText("New note");
+
+  await page.goto("components/parallax-carousel/");
+  await page.getByRole("button", { name: /Show City at dusk/ }).click();
+  await expect(page.getByRole("button", { name: /Show City at dusk/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });

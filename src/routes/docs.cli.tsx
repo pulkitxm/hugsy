@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { CodeBlock } from "../components/code-block";
 import { seo } from "../lib/seo";
+import { agentWorkflow } from "../lib/snippets";
 
 export const Route = createFileRoute("/docs/cli")({
   head: () =>
@@ -79,7 +80,7 @@ function CLI() {
             preflights the entire batch and refuses conflicts before copying anything. Only use{" "}
             <code>--force</code> after inspecting the local changes.
           </p>
-          <CodeBlock code="hugsy list --json\nhugsy info expanding-cards --json\nhugsy add expanding-cards --dry-run --json" />
+          <CodeBlock code={agentWorkflow} />
         </section>
         <section className="doc-section">
           <h2>Automation</h2>

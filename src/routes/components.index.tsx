@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { showcase } from "../../registry/catalog";
+import { components } from "../../generated/components";
 import { ComponentCard } from "../components/component-card";
 import { LibrarySidebar } from "../components/library-sidebar";
 import { seo } from "../lib/seo";
@@ -21,8 +21,8 @@ function Components() {
   const [category, setCategory] = useState("All");
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
-  const categories = ["All", ...new Set(showcase.map((item) => item.category))];
-  const visible = showcase.filter(
+  const categories = ["All", ...new Set(components.map((item) => item.category))];
+  const visible = components.filter(
     (item) =>
       (category === "All" || category === item.category) &&
       `${item.title} ${item.description} ${item.technique}`

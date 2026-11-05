@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { components as website } from "../generated/components";
 import data from "../generated/registry.json";
 import { catalog, showcase } from "../registry/catalog";
-import { registry as website } from "../registry/registry";
 import { componentSchema, registrySchema } from "../registry/schema";
+import { demos } from "../src/demos/registry";
 
 const registry = registrySchema.parse(data);
 
@@ -42,12 +43,25 @@ describe("iOS registry", () => {
       expect(readFileSync(`registry/swift/${adapter}`, "utf8")).toMatch(/^#if canImport\(UIKit\)/);
     }
   });
-  it("does not ship binary payloads in the website registry", () => {
-    expect(website.components.map((item) => item.name)).toEqual(
-      registry.components.map((item) => item.name),
-    );
-    for (const item of website.components) {
-      expect(item.files.every((file) => !("data" in file))).toBe(true);
+  it("ships only showcase summaries to every page and full source to each component page", async () => {
+    expect(website.map((item) => item.name)).toEqual(showcase.map((item) => item.name));
+    for (const item of website) {
+      expect(Object.keys(item)).not.toContain("files");
+      const { page } = await import(`../generated/pages/${item.name}.ts`);
+      const entry = registry.components.find((candidate) => candidate.name === item.name);
+      expect(page.sources.map((file: { path: string }) => file.path)).toEqual(
+        entry?.files.map((file) => file.path),
+      );
+      expect(Object.keys(page.highlights)).toContain(page.usage);
+      expect(Object.keys(page.highlights)).toContain(page.uikitUsage);
+      expect(JSON.stringify(page)).not.toContain("sha256");
+    }
+  });
+  it("registers an interactive device demo for every showcase component", () => {
+    expect(Object.keys(demos)).toEqual(showcase.map((item) => item.name));
+    for (const screens of Object.values(demos)) {
+      expect(screens.length).toBeGreaterThan(0);
+      expect(new Set(screens.map((screen) => screen.id)).size).toBe(screens.length);
     }
   });
   it("rejects malformed, unknown, and unsafe registry fields", () => {

@@ -88,20 +88,39 @@ for (const file of [
 if (readFileSync(join(root, "CNAME"), "utf8").trim() !== new URL(origin).hostname) {
   throw new Error("Pages domain does not match canonical origin");
 }
-let javascript = 0;
-let css = 0;
-for (const file of readdirSync(join(root, "assets"))) {
-  const size = gzipSync(readFileSync(join(root, "assets", file))).byteLength;
-  if (file.endsWith(".js")) {
-    javascript += size;
+const budget = { page: 125000, chunk: 30000, css: 12000 };
+const gzipped = new Map(
+  readdirSync(join(root, "assets")).map((file) => [
+    file,
+    gzipSync(readFileSync(join(root, "assets", file))).byteLength,
+  ]),
+);
+const css = [...gzipped].reduce(
+  (total, [file, size]) => total + (file.endsWith(".css") ? size : 0),
+  0,
+);
+let heaviestPage = 0;
+const initial = new Set<string>();
+for (const path of paths) {
+  const html = readFileSync(join(root, path, "index.html"), "utf8");
+  const scripts = new Set(html.match(/assets\/[\w.-]+\.js/g) ?? []);
+  const size = [...scripts].reduce((total, script) => {
+    initial.add(script.slice("assets/".length));
+    return total + (gzipped.get(script.slice("assets/".length)) ?? 0);
+  }, 0);
+  if (size > budget.page) {
+    throw new Error(`Initial JavaScript budget exceeded on ${path}: ${size}`);
   }
-  if (file.endsWith(".css")) {
-    css += size;
+  heaviestPage = Math.max(heaviestPage, size);
+}
+for (const [file, size] of gzipped) {
+  if (file.endsWith(".js") && !initial.has(file) && size > budget.chunk) {
+    throw new Error(`Lazy chunk budget exceeded: ${file} ${size}`);
   }
 }
-if (javascript > 200000 || css > 12000) {
-  throw new Error(`Asset budget exceeded: JS ${javascript}, CSS ${css}`);
+if (css > budget.css) {
+  throw new Error(`CSS budget exceeded: ${css}`);
 }
 process.stdout.write(
-  `${paths.length} prerendered pages verified. Gzip budgets: JS ${javascript}/200000, CSS ${css}/12000 bytes.\n`,
+  `${paths.length} prerendered pages verified. Gzip budgets: initial JS ${heaviestPage}/${budget.page} on the heaviest page, lazy chunks under ${budget.chunk}, CSS ${css}/${budget.css} bytes.\n`,
 );
