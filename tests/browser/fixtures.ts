@@ -6,6 +6,9 @@ export const test = base.extend({
     page.goto = async (...options) => {
       const response = await goto(...options);
       await page.locator("html[data-hydrated]").waitFor({ state: "attached" });
+      if ((await page.locator(".device-preview").count()) > 0) {
+        await page.locator("html[data-demo-ready]").waitFor({ state: "attached" });
+      }
       return response;
     };
     await use(page);

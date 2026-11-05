@@ -5,6 +5,13 @@ import { Laptop, RotateCcw, Smartphone, Tablet } from "./icons";
 
 const icons = { iphone: Smartphone, ipad: Tablet, mac: Laptop };
 
+function DemoReady() {
+  useEffect(() => {
+    document.documentElement.dataset["demoReady"] = "";
+  }, []);
+  return null;
+}
+
 const PreviewStage = memo(function PreviewStage({
   name,
   screenID,
@@ -30,6 +37,7 @@ const PreviewStage = memo(function PreviewStage({
       <Device key={kind} kind={kind} label={label} animate={animate}>
         <Suspense fallback={<div className="demo" />}>
           <Demo key={`${screen.id}-${session}`} variant={screen.id} />
+          <DemoReady />
         </Suspense>
       </Device>
     </div>
