@@ -1,9 +1,6 @@
 import { Check, Copy } from "lucide-react";
 import { type CSSProperties, useState } from "react";
-import rawHighlights from "../../generated/highlights.json";
-import { highlightSchema } from "../../registry/highlight-schema";
-
-const highlights = highlightSchema.parse(rawHighlights);
+import { useHighlight } from "../lib/highlights";
 
 export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: string }) {
   const [status, setStatus] = useState("Copy");
@@ -15,7 +12,7 @@ export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: 
       setStatus("Select code to copy");
     }
   }
-  const lines = highlights[code];
+  const lines = useHighlight(code);
   return (
     <div className="code-block">
       <div className="code-heading">

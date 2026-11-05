@@ -9,3 +9,5 @@ export const manualInstall =
   'git clone https://github.com/pulkitxm/hugsy.git\ncd hugsy\nswift build -c release --product hugsy\nmkdir -p "$HOME/.local/bin"\ninstall -m 755 .build/release/hugsy "$HOME/.local/bin/hugsy"';
 export const sourceExample =
   "@State private var selected: Story.ID?\n\nHugsyExpandingCards(\n  items: stories,\n  selection: $selected\n) { story, expanded in\n  StoryCard(story, expanded: expanded)\n}";
+export const agentWorkflow =
+  "hugsy list --json\nhugsy info expanding-cards --json\nhugsy add expanding-cards --dry-run --json";
