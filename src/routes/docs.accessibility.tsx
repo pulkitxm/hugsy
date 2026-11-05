@@ -36,9 +36,10 @@ function Accessibility() {
         <section className="doc-section">
           <h2>VoiceOver and focus</h2>
           <p>
-            Actions use native buttons with labels. Selected tabs announce their state, collapsed
-            radial actions are hidden from accessibility, and expanded card content hides the
-            underlying card list. The sheet handle supports an adjustable action.
+            Actions use native buttons with labels. The swipe deck exposes named actions for both
+            directions, carousel indicators announce their position, collapsed radial actions are
+            hidden from accessibility, and expanded card content hides the underlying card list.
+            UIKit adapters host the same SwiftUI views, so they keep this behavior.
           </p>
           <p>
             Custom inline surfaces are not system modal presentations. If an interaction must
@@ -49,9 +50,10 @@ function Accessibility() {
         <section className="doc-section">
           <h2>Alternatives to gestures</h2>
           <p>
-            Expanding cards include a close button. The morphing sheet handle can be tapped, or
-            adjusted with VoiceOver. The radial menu exposes individual actions as ordinary buttons.
-            Do not make dragging the only path through an important workflow.
+            The swipe deck has Skip and Like buttons. Carousel indicators jump to any card. The
+            morphing capsule expands with a tap and collapses with Escape. Expanding cards include a
+            close button, and the radial menu exposes individual actions as ordinary buttons. Do not
+            make dragging the only path through an important workflow.
           </p>
         </section>
         <section className="doc-section">
@@ -59,10 +61,6 @@ function Accessibility() {
           <ul>
             <li>Test larger Dynamic Type sizes, long translations, and right-to-left layouts.</li>
             <li>Check color contrast after replacing the sample colors and images.</li>
-            <li>
-              Keep essential errors and confirmations in persistent screen content, not only timed
-              toasts.
-            </li>
             <li>
               Use stable, unique IDs so animation and accessibility focus follow the intended item.
             </li>
