@@ -113,6 +113,20 @@ function MCP() {
             <a href="/r/index.json">JSON registry</a>. GitHub Pages does not host an MCP process.
           </p>
         </section>
+        <section className="doc-section" id="agents">
+          <h2>For AI agents on the web</h2>
+          <p>
+            Agents that browse the site can read <a href="/llms.txt">llms.txt</a>, open any page as
+            Markdown by replacing the trailing slash with <code>.md</code>, and discover the MCP
+            server and an installation skill through the{" "}
+            <a href="/.well-known/ai-catalog.json">agent catalog</a>.
+          </p>
+          <p>
+            In browsers with WebMCP, pages also register three read-only tools:{" "}
+            <code>list_components</code>, <code>read_component</code>, and{" "}
+            <code>read_documentation</code>.
+          </p>
+        </section>
         <div className="document-footer">
           <Link to="/docs/cli/">CLI</Link>
           <Link to="/docs/accessibility/">

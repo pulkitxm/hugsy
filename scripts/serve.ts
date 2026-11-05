@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import sirv from "sirv";
 
-const assets = sirv("dist/client", { dev: true, gzip: true, brotli: true });
+const assets = sirv("dist/client", { dev: true, dotfiles: true, gzip: true, brotli: true });
 const server = createServer((request, response) => {
   assets(request, response, () => {
     response.writeHead(404).end("Not found");

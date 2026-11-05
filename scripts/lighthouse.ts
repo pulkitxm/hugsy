@@ -17,7 +17,7 @@ const { values } = parseArgs({
   },
 });
 
-const categories = ["performance", "accessibility", "best-practices", "seo"];
+const categories = ["performance", "accessibility", "best-practices", "seo", "agentic-browsing"];
 const metrics = [
   ["first-contentful-paint", "FCP"],
   ["largest-contentful-paint", "LCP"],

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { ConformanceTester } from "lighthouse/third-party/ard/ard.js";
 import { describe, expect, it } from "vitest";
 import { components as website } from "../generated/components";
 import data from "../generated/registry.json";
@@ -63,6 +64,16 @@ describe("iOS registry", () => {
       expect(screens.length).toBeGreaterThan(0);
       expect(new Set(screens.map((screen) => screen.id)).size).toBe(screens.length);
     }
+  });
+  it("publishes an agent catalog that passes the Lighthouse validator", () => {
+    const tester = new ConformanceTester();
+    const valid = tester.validate_manifest(
+      readFileSync("public/.well-known/ai-catalog.json", "utf8"),
+      "ai-catalog.json",
+    );
+    expect(tester.errors).toEqual([]);
+    expect(tester.warnings).toEqual([]);
+    expect(valid).toBe(true);
   });
   it("rejects malformed, unknown, and unsafe registry fields", () => {
     expect(() => registrySchema.parse({ ...registry, version: 1 })).toThrow();

@@ -38,6 +38,10 @@ Each demo is a lazily loaded React module in `src/demos/`, registered in `src/de
 
 Highlighted source for a component page is generated per page into `generated/pages/` and loaded by that route, so other pages never download it. `bun scripts/check-site.ts` enforces an initial JavaScript budget for every page and a size limit for lazy chunks.
 
+## Agent integration
+
+`scripts/generate.ts` writes `llms.txt`, `.well-known/ai-catalog.json`, the MCP server card, and the agent skill from the catalog, so they cannot go stale. A test validates the catalog with the validator Lighthouse uses. WebMCP tools are registered from `src/lib/webmcp.ts` and read the published Markdown pages. Current Chrome exposes the API on `document.modelContext` behind `--enable-blink-features=WebMCP`.
+
 ## Open Graph images
 
 Each page has its own 2400 by 1260 image in `public/og/`. Run `bun run build`, then `bun scripts/og.ts` to rerender them from the real site. They are committed because they depend on system fonts and a local Chrome. Add new pages to the list in `scripts/og.ts`. Keep the bottom-left corner clear, since X overlays the page title there.
@@ -57,7 +61,7 @@ Every page has a Markdown version, such as `/docs/cli.md` for `/docs/cli/`, link
 - Native Swift formatting, warnings-as-errors builds, Swift 6 strict concurrency, and native tests.
 - Desktop and mobile interactions, automated WCAG checks on every route, reduced motion, static 404s, and direct links.
 - Prerendered HTML, canonical URLs, local links, registry schemas, CLI package installation, and asset budgets.
-- Lighthouse on every page, on mobile and desktop. `bun run lighthouse` targets 100 in every category and writes reports to `.lighthouse/`. Use `--route /docs/cli/`, `--form-factor mobile`, `--concurrency 2`, or `--production` to narrow a run. CI fails below 95.
+- Lighthouse on every page, on mobile and desktop. `bun run lighthouse` targets 100 in every category, including Agentic Browsing, and writes reports to `.lighthouse/`. Workers enable WebMCP so tools are audited rather than skipped. Use `--route /docs/cli/`, `--form-factor mobile`, `--concurrency 2`, or `--production` to narrow a run. CI fails below 95.
 - Workflow validation, workflow security, secrets, high-severity dependency audit, dependency review, CodeQL, and scheduled deeper scans.
 
 Automated accessibility checks are not a VoiceOver certification. Test the native gallery with a keyboard and assistive technology before changing an interaction contract.

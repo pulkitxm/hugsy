@@ -30,9 +30,22 @@ export function deferHydration(html: string) {
   return html.replace(preloadPattern, "").replace(entryPattern, loader);
 }
 
+const stylesheetPattern = /<link rel="stylesheet" href="([^"]+)"([^>]*)\/>/;
+
+export function inlineStylesheet(html: string, read: (path: string) => string) {
+  const stylesheet = html.match(stylesheetPattern);
+  if (!stylesheet?.[1]) {
+    throw new Error("Expected a stylesheet to inline.");
+  }
+  const deferred = `<style>${read(stylesheet[1])}</style><link rel="stylesheet" href="${stylesheet[1]}"${stylesheet[2]} media="print" onload="this.media='all'"/>`;
+  return html.replace(stylesheetPattern, () => deferred);
+}
+
 if (import.meta.main) {
+  const root = "dist/client";
+  const read = (path: string) => readFileSync(join(root, path), "utf8");
   for (const path of sitePaths) {
-    const file = join("dist/client", path, "index.html");
-    writeFileSync(file, deferHydration(readFileSync(file, "utf8")));
+    const file = join(root, path, "index.html");
+    writeFileSync(file, inlineStylesheet(deferHydration(readFileSync(file, "utf8")), read));
   }
 }

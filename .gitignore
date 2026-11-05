@@ -7,7 +7,9 @@ playwright-report/
 test-results/
 generated/
 public/r/
+public/llms.txt
 public/llms-full.txt
+public/.well-known/
 public/sitemap.xml
 public/robots.txt
 src/routeTree.gen.ts
