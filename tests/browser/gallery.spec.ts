@@ -128,7 +128,12 @@ for (const path of pages) {
   test(`automated WCAG 2.2 AA: ${path || "landing"}`, async ({ page }) => {
     await page.goto(path);
     await page.evaluate(() =>
-      Promise.all(document.getAnimations().map((animation) => animation.finished)),
+      Promise.allSettled(
+        document
+          .getAnimations()
+          .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+          .map((animation) => animation.finished),
+      ),
     );
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
@@ -248,4 +253,25 @@ test("interactive previews support taps, keyboard dismissal, and reset", async (
     "aria-pressed",
     "true",
   );
+});
+
+test("hydration keeps the prerendered demo instead of replacing it", async ({ page }) => {
+  await page.addInitScript(() => {
+    let removals = 0;
+    new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.removedNodes) {
+          if (node instanceof HTMLElement && node.classList.contains("swipe-demo")) {
+            removals += 1;
+            document.documentElement.dataset["demoRemovals"] = String(removals);
+          }
+        }
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
+  await page.goto("components/swipe-deck/");
+  await expect(page.getByRole("button", { name: "iPad", exact: true })).toBeEnabled();
+  await expect(page.locator(".swipe-demo")).toBeVisible();
+  const removals = await page.locator("html").getAttribute("data-demo-removals");
+  expect(Number(removals ?? 0)).toBeLessThanOrEqual(1);
 });

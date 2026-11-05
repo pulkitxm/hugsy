@@ -1,5 +1,5 @@
 import { Laptop, RotateCcw, Smartphone, Tablet } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, startTransition, useEffect, useState } from "react";
 import { demos } from "../demos/registry";
 import { Device, type DeviceKind, deviceKinds } from "./device";
 
@@ -11,7 +11,7 @@ export function DevicePreview({ name, title }: { name: string; title: string }) 
   const [screenID, setScreenID] = useState(screens[0]?.id);
   const [session, setSession] = useState(0);
   const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
+  useEffect(() => startTransition(() => setReady(true)), []);
   const screen = screens.find((item) => item.id === screenID) ?? screens[0];
   if (!screen) {
     return null;
