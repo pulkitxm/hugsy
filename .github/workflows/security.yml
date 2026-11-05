@@ -78,7 +78,7 @@ jobs:
           tool: trivy@0.76.1,syft@1.56.0
       - run: trivy fs --exit-code 1 --severity HIGH,CRITICAL --scanners vuln,secret,misconfig --skip-dirs .build,node_modules .
       - run: syft scan dir:. --output cyclonedx-json=sbom.cdx.json
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: sbom
           path: sbom.cdx.json
