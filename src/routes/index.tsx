@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { showcase } from "../../registry/catalog";
+import { components } from "../../generated/components";
 import { CodeBlock } from "../components/code-block";
 import { ComponentCard } from "../components/component-card";
+import { HighlightProvider, loadDocsHighlights } from "../lib/highlights";
 import { seo } from "../lib/seo";
 import { sourceExample } from "../lib/snippets";
 
@@ -13,12 +14,13 @@ export const Route = createFileRoute("/")({
       "Expressive, source-owned SwiftUI components for iOS. Explore native iPhone demos, copy the Swift source, and make the details your own.",
       "/",
     ),
+  loader: loadDocsHighlights,
   component: Home,
 });
 
 function Home() {
   return (
-    <>
+    <HighlightProvider highlights={Route.useLoaderData()}>
       <section className="landing-hero container">
         <div className="hero-copy">
           <p className="overline">A considered collection for iOS.</p>
@@ -66,7 +68,7 @@ function Home() {
           </Link>
         </div>
         <div className="featured-grid">
-          {showcase.slice(0, 3).map((item) => (
+          {components.slice(0, 3).map((item) => (
             <ComponentCard key={item.name} {...item} />
           ))}
         </div>
@@ -113,6 +115,6 @@ function Home() {
           </p>
         </div>
       </section>
-    </>
+    </HighlightProvider>
   );
 }
