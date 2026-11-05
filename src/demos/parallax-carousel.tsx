@@ -11,7 +11,7 @@ type Grab = {
 };
 
 export default function ParallaxCarousel() {
-  const track = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLElement>(null);
   const grab = useRef<Grab | null>(null);
   const frame = useRef(0);
   const [selected, setSelected] = useState(0);
@@ -74,7 +74,7 @@ export default function ParallaxCarousel() {
     });
   }
 
-  function begin(event: PointerEvent<HTMLDivElement>) {
+  function begin(event: PointerEvent<HTMLElement>) {
     if (event.pointerType !== "mouse" || event.button !== 0 || !track.current) {
       return;
     }
@@ -90,7 +90,7 @@ export default function ParallaxCarousel() {
     track.current.dataset["grabbing"] = "";
   }
 
-  function move(event: PointerEvent<HTMLDivElement>) {
+  function move(event: PointerEvent<HTMLElement>) {
     const current = grab.current;
     if (!current || current.pointer !== event.pointerId || !track.current) {
       return;
@@ -102,7 +102,7 @@ export default function ParallaxCarousel() {
     track.current.scrollLeft = current.scroll - (event.clientX - current.x);
   }
 
-  function end(event: PointerEvent<HTMLDivElement>) {
+  function end(event: PointerEvent<HTMLElement>) {
     const current = grab.current;
     if (!current || current.pointer !== event.pointerId || !track.current) {
       return;
@@ -116,9 +116,12 @@ export default function ParallaxCarousel() {
   return (
     <div className="demo carousel-demo">
       <p className="demo-title">Places</p>
-      <div
+      <section
         className="carousel-track"
         ref={track}
+        aria-label="Places"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users scroll the carousel with arrow keys.
+        tabIndex={0}
         onScroll={schedule}
         onPointerDown={begin}
         onPointerMove={move}
@@ -138,7 +141,7 @@ export default function ParallaxCarousel() {
             </figcaption>
           </figure>
         ))}
-      </div>
+      </section>
       <div className="carousel-indicators">
         {stories.map((story, index) => (
           <button
