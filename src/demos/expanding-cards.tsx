@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
 import { type PointerEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { X } from "../components/icons";
 import { Artwork, type Story, stories, useReducedMotion } from "./shared";
 
 const items = stories.slice(0, 3);
@@ -26,12 +26,48 @@ function frame(box: Box, radius: string) {
   };
 }
 
-function easing(element: Element, name: string) {
-  return getComputedStyle(element).getPropertyValue(name).trim() || "ease-out";
+function morph(element: HTMLElement, card: HTMLElement, stage: Element, opening: boolean) {
+  const collapsed = frame(boxOf(card, stage), getComputedStyle(card).borderRadius);
+  const expanded = frame(boxOf(element, stage), getComputedStyle(element).borderRadius);
+  const easing = getComputedStyle(element).getPropertyValue("--spring-smooth").trim() || "ease-out";
+  const timing: KeyframeAnimationOptions = {
+    duration: 560,
+    easing,
+    fill: opening ? "none" : "forwards",
+  };
+  const ordered = <Value,>(small: Value, large: Value) =>
+    opening ? [small, large] : [large, small];
+  const title = element.querySelector("strong");
+  const cardTitle = card.querySelector("strong");
+  if (title && cardTitle) {
+    title.animate(
+      ordered(
+        { fontSize: getComputedStyle(cardTitle).fontSize },
+        { fontSize: getComputedStyle(title).fontSize },
+      ),
+      timing,
+    );
+  }
+  const detail = element.querySelector<HTMLElement>(".expanded-detail");
+  if (detail) {
+    detail.animate(
+      ordered(
+        { opacity: 0, maxHeight: "0px", marginTop: "0px" },
+        {
+          opacity: 1,
+          maxHeight: `${detail.offsetHeight}px`,
+          marginTop: getComputedStyle(detail).marginTop,
+        },
+      ),
+      timing,
+    );
+  }
+  return element.animate(ordered(collapsed, expanded), timing);
 }
 
 export default function ExpandingCards() {
   const [open, setOpen] = useState<Story | null>(null);
+  const [closingCard, setClosingCard] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
   const close = useRef<HTMLButtonElement>(null);
@@ -51,15 +87,7 @@ export default function ExpandingCards() {
     if (reduced) {
       return;
     }
-    const from = boxOf(card, stage.current);
-    const to = boxOf(element, stage.current);
-    element.animate(
-      [
-        frame(from, getComputedStyle(card).borderRadius),
-        frame(to, getComputedStyle(element).borderRadius),
-      ],
-      { duration: 700, easing: easing(element, "--spring-bouncy") },
-    );
+    morph(element, card, stage.current, true);
   }, [open, reduced]);
 
   useEffect(() => {
@@ -76,25 +104,19 @@ export default function ExpandingCards() {
       return;
     }
     closing.current = true;
+    setClosingCard(true);
     const restore = () => {
       closing.current = false;
       returnFocus.current = open.id;
+      setClosingCard(false);
       setOpen(null);
     };
     if (reduced) {
       restore();
       return;
     }
-    const from = boxOf(element, stage.current);
-    const to = boxOf(card, stage.current);
+    const animation = morph(element, card, stage.current, false);
     element.style.transform = "";
-    const animation = element.animate(
-      [
-        frame(from, getComputedStyle(element).borderRadius),
-        frame(to, getComputedStyle(card).borderRadius),
-      ],
-      { duration: 560, easing: easing(element, "--spring-smooth"), fill: "forwards" },
-    );
     animation.onfinish = restore;
   }
 
@@ -134,7 +156,7 @@ export default function ExpandingCards() {
   return (
     <div className="demo cards-demo">
       <p className="demo-title">Stories</p>
-      <div className="cards-stage" ref={stage} data-open={open !== null}>
+      <div className="cards-stage" ref={stage} data-open={open !== null && !closingCard}>
         <div className="cards-list">
           {items.map((story) => (
             <button
@@ -191,7 +213,7 @@ export default function ExpandingCards() {
             <span className="card-caption expanded-caption">
               <small>{open.subtitle}</small>
               <strong>{open.title}</strong>
-              <span>
+              <span className="expanded-detail">
                 Some things are better with a little more space. Drag down or close to return to the
                 list.
               </span>

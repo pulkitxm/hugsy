@@ -1,6 +1,13 @@
-import { Check, Copy } from "lucide-react";
-import { type CSSProperties, useState } from "react";
+import { useState } from "react";
 import { useHighlight } from "../lib/highlights";
+import { Check, Copy } from "./icons";
+
+function language(label: string) {
+  if (label === "Terminal") {
+    return "sh";
+  }
+  return label.endsWith("json") || label.includes("MCP") ? "json" : "swift";
+}
 
 export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: string }) {
   const [status, setStatus] = useState("Copy");
@@ -12,7 +19,7 @@ export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: 
       setStatus("Select code to copy");
     }
   }
-  const lines = useHighlight(code);
+  const html = useHighlight(code);
   return (
     <div className="code-block">
       <div className="code-heading">
@@ -30,26 +37,15 @@ export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: 
       </div>
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Scrollable source requires keyboard access. */}
       <pre tabIndex={0}>
-        <code>
-          {lines
-            ? lines.map((line) => (
-                <span className="code-line" key={line.start}>
-                  {line.tokens.map(([text, light, dark, offset]) => {
-                    const colors: CSSProperties & Record<"--code-light" | "--code-dark", string> = {
-                      "--code-light": light,
-                      "--code-dark": dark,
-                    };
-                    return (
-                      <span className="syntax-token" style={colors} key={offset}>
-                        {text}
-                      </span>
-                    );
-                  })}
-                  {"\n"}
-                </span>
-              ))
-            : code}
-        </code>
+        {html === undefined ? (
+          <code className={`language-${language(label)}`}>{code}</code>
+        ) : (
+          <code
+            className={`language-${language(label)}`}
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: This markup is generated and escaped at build time from repository source.
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        )}
       </pre>
     </div>
   );

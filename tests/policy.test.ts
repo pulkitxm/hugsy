@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { deferHydration } from "../scripts/defer-hydration";
 import { checkPolicy } from "../scripts/policy";
 
 describe("repository policy", () => {
@@ -50,5 +51,16 @@ describe("repository policy", () => {
     expect(checkPolicy("text.md", "windows\r\n")).toContain("Expected LF line endings");
     expect(checkPolicy("text.md", `${"x".repeat(512001)}\n`)).toContain("File exceeds 500 KB");
     expect(checkPolicy("empty", "")).toEqual([]);
+  });
+});
+
+describe("deferred hydration", () => {
+  it("cannot be broken out of by a hostile asset path", () => {
+    const attack = "/assets/a.js?</script><img src=x onerror=alert(1)>";
+    const html = `<head><link rel="modulepreload" href="${attack}"/><script type="module" src="${attack}"></script></head>`;
+    const output = deferHydration(html);
+    expect(output).not.toContain("</script><img");
+    expect(output.match(/<\/script>/g)).toHaveLength(1);
+    expect(output).toContain("\\u003C/script\\u003E");
   });
 });

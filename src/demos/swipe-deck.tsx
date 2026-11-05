@@ -1,5 +1,5 @@
-import { Heart, RotateCcw, X } from "lucide-react";
 import { type PointerEvent, useRef, useState } from "react";
+import { Heart, RotateCcw, X } from "../components/icons";
 import { Artwork, type CSSVariables, stories, useReducedMotion } from "./shared";
 
 type Direction = "left" | "right";

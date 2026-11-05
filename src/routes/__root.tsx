@@ -1,6 +1,7 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Footer, Header } from "../components/shell";
+import { themeScript } from "../lib/theme";
 import stylesheet from "../theme.css?url";
 
 export const Route = createRootRoute({
@@ -8,12 +9,15 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#ffffff" },
+      { name: "color-scheme", content: "light dark" },
+      { name: "theme-color", media: "(prefers-color-scheme: light)", content: "#fafafa" },
+      { name: "theme-color", media: "(prefers-color-scheme: dark)", content: "#09090a" },
     ],
     links: [
       { rel: "stylesheet", href: stylesheet },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
     ],
+    scripts: [{ children: themeScript }],
   }),
   shellComponent: Shell,
   component: () => (
@@ -47,7 +51,7 @@ export const Route = createRootRoute({
 
 function Shell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

@@ -18,7 +18,7 @@ bun run build
 bun run ci
 bunx playwright install chromium
 bun run test:e2e
-bun run check:lighthouse
+bun run lighthouse
 bun run check:swift
 bun run test:protocol
 sh scripts/build-ios.sh
@@ -32,11 +32,21 @@ Add the SwiftUI view and its UIKit adapter to `registry/swift/`, list both files
 
 ## Interactive previews
 
-Component pages show each component inside a CSS device frame that switches between iPhone, iPad, and Mac. The frame is `src/components/device.tsx` with styles in `src/styles/device.css`. It uses no images or third-party libraries, so switching devices is instant.
+Component pages show each component inside a CSS device frame that switches between an iPhone 17 Pro, an 11-inch iPad Pro, and a 14-inch MacBook Pro. The frame is `src/components/device.tsx` with styles in `src/styles/device.css`. It follows real hardware proportions and uses no images or third-party libraries.
 
-Each demo is a lazily loaded React module in `src/demos/`, registered in `src/demos/registry.ts` with one or more screens. A component with several screens gets a screen switcher automatically. Size demo content with the `--pt` custom property, which equals one screen point of the current device, so the same demo scales across frames. Use container queries on `screen` for layouts that change between devices. Drive gestures with pointer events, keep a button or keyboard alternative for every gesture, and use the shared `--spring-*` easing curves.
+Each demo is a lazily loaded React module in `src/demos/`, registered in `src/demos/registry.ts` with one or more screens. A component with several screens gets a screen switcher automatically. Size demo content with the `--pt` custom property, which equals one screen point of the current device, so the same demo scales across frames. Apps draw under the status bar as they do on iOS, so offset content with `--safe-top` and `--safe-bottom`. On Mac, demos run inside a desktop window. Use container queries on `screen` for layouts that change between devices. Drive gestures with pointer events, keep a button or keyboard alternative for every gesture, and use the shared `--spring-*` easing curves.
 
 Highlighted source for a component page is generated per page into `generated/pages/` and loaded by that route, so other pages never download it. `bun scripts/check-site.ts` enforces an initial JavaScript budget for every page and a size limit for lazy chunks.
+
+## Open Graph images
+
+Each page has its own 2400 by 1260 image in `public/og/`. Run `bun run build`, then `bun scripts/og.ts` to rerender them from the real site. They are committed because they depend on system fonts and a local Chrome. Add new pages to the list in `scripts/og.ts`. Keep the bottom-left corner clear, since X overlays the page title there.
+
+## Theme and Markdown pages
+
+Colors are CSS variables built with `light-dark()`, so the first paint follows the visitor's system preference without JavaScript. A saved choice is applied by a small script in the prerendered `<head>`, before the body paints. The site is static, so a per-visitor theme cannot be part of the HTML itself.
+
+Every page has a Markdown version, such as `/docs/cli.md` for `/docs/cli/`, linked from the footer. `scripts/markdown-pages.ts` converts the rendered HTML, so the two never drift. It writes static files after the build and serves the same output from the development server.
 
 ## Required checks
 
@@ -47,7 +57,7 @@ Highlighted source for a component page is generated per page into `generated/pa
 - Native Swift formatting, warnings-as-errors builds, Swift 6 strict concurrency, and native tests.
 - Desktop and mobile interactions, automated WCAG checks on every route, reduced motion, static 404s, and direct links.
 - Prerendered HTML, canonical URLs, local links, registry schemas, CLI package installation, and asset budgets.
-- Lighthouse performance at least 95, accessibility, best practices, and SEO at 100, with a layout-shift limit of 0.05.
+- Lighthouse on every page, on mobile and desktop. `bun run lighthouse` targets 100 in every category and writes reports to `.lighthouse/`. Use `--route /docs/cli/`, `--form-factor mobile`, `--concurrency 2`, or `--production` to narrow a run. CI fails below 95.
 - Workflow validation, workflow security, secrets, high-severity dependency audit, dependency review, CodeQL, and scheduled deeper scans.
 
 Automated accessibility checks are not a VoiceOver certification. Test the native gallery with a keyboard and assistive technology before changing an interaction contract.

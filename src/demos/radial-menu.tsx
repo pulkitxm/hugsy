@@ -1,11 +1,11 @@
-import { Camera, Link, Plus, SquarePen } from "lucide-react";
 import { type KeyboardEvent, useState } from "react";
+import { Camera, LinkIcon, Plus, SquarePen } from "../components/icons";
 import type { CSSVariables } from "./shared";
 
 const actions = [
   { id: "photo", title: "Add photo", Icon: Camera },
   { id: "note", title: "New note", Icon: SquarePen },
-  { id: "link", title: "Save link", Icon: Link },
+  { id: "link", title: "Save link", Icon: LinkIcon },
 ];
 const radius = 100;
 

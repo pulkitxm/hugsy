@@ -5,15 +5,14 @@ dist/
 coverage/
 playwright-report/
 test-results/
-.lighthouseci/
 generated/
 public/r/
 public/llms-full.txt
 public/sitemap.xml
 public/robots.txt
-public/social.png
 src/routeTree.gen.ts
 .DS_Store
 *.tgz
 .env*
 !.env.example
+.lighthouse/

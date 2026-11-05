@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import { CodeBlock } from "../components/code-block";
+import { ArrowRight } from "../components/icons";
 import { seo } from "../lib/seo";
 import { mcpConfig } from "../lib/snippets";
 
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/docs/mcp")({
   head: () =>
     seo(
       "MCP",
-      "Connect the native Hugsy MCP server to discover SwiftUI and UIKit components, inspect complete Swift source, and plan safe iOS integrations without filesystem access.",
+      "Connect the native Hugsy MCP server to discover SwiftUI and UIKit components, read Swift source, and plan safe iOS integrations without filesystem access.",
       "/docs/mcp/",
     ),
   component: MCP,

@@ -11,14 +11,10 @@ export function CodeTabs({
   const [selected, setSelected] = useState(0);
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
-  const tab = tabs[selected] ?? tabs[0];
-  if (!tab) {
-    return null;
-  }
   return (
     <div className="code-tabs">
       {tabs.length > 1 && (
-        <fieldset className="segmented" disabled={!ready}>
+        <fieldset className="tabs" disabled={!ready}>
           <legend className="sr-only">{label}</legend>
           {tabs.map((item, index) => (
             <button
@@ -32,7 +28,11 @@ export function CodeTabs({
           ))}
         </fieldset>
       )}
-      <CodeBlock code={tab.code} label={tab.name} />
+      {tabs.map((item, index) => (
+        <div key={item.name} data-selected={index === selected}>
+          <CodeBlock code={item.code} label={item.name} />
+        </div>
+      ))}
     </div>
   );
 }
