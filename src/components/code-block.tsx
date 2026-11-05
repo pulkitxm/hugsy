@@ -2,6 +2,13 @@ import { Check, Copy } from "lucide-react";
 import { type CSSProperties, useState } from "react";
 import { useHighlight } from "../lib/highlights";
 
+function language(label: string) {
+  if (label === "Terminal") {
+    return "sh";
+  }
+  return label.endsWith("json") || label.includes("MCP") ? "json" : "swift";
+}
+
 export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: string }) {
   const [status, setStatus] = useState("Copy");
   async function copy() {
@@ -30,7 +37,7 @@ export function CodeBlock({ code, label = "Terminal" }: { code: string; label?: 
       </div>
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Scrollable source requires keyboard access. */}
       <pre tabIndex={0}>
-        <code>
+        <code className={`language-${language(label)}`}>
           {lines
             ? lines.map((line) => (
                 <span className="code-line" key={line.start}>

@@ -2,21 +2,11 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { type DefaultTreeAdapterTypes, parse } from "parse5";
-import { showcase } from "../registry/catalog";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
+import { markdownPath, sitePaths as paths } from "./markdown-pages";
 
 const root = "dist/client";
-const paths = [
-  "/",
-  "/components/",
-  "/docs/",
-  "/docs/installation/",
-  "/docs/cli/",
-  "/docs/mcp/",
-  "/docs/accessibility/",
-  ...showcase.map((item) => `/components/${item.name}/`),
-];
 function elements(node: DefaultTreeAdapterTypes.Node): DefaultTreeAdapterTypes.Element[] {
   const own = "tagName" in node ? [node] : [];
   return "childNodes" in node ? own.concat(node.childNodes.flatMap(elements)) : own;
@@ -34,6 +24,9 @@ for (const path of paths) {
     throw new Error(`Missing or duplicate title: ${path}`);
   }
   titles.add(text);
+  if (!readFileSync(join(root, markdownPath(path)), "utf8").startsWith("#")) {
+    throw new Error(`Missing Markdown page: ${path}`);
+  }
   if (nodes.filter((node) => node.tagName === "h1").length !== 1) {
     throw new Error(`Expected one server-rendered H1: ${path}`);
   }

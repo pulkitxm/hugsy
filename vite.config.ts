@@ -2,10 +2,12 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { showcase } from "./registry/catalog.ts";
+import { markdownPages } from "./scripts/markdown-pages.ts";
 
 export default defineConfig({
   base: "/",
   plugins: [
+    markdownPages(),
     tanstackStart({
       router: { basepath: "/", routeTreeFileHeader: [] },
       prerender: {

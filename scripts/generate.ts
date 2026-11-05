@@ -16,6 +16,7 @@ import {
   sourceExample,
   uikitExample,
 } from "../src/lib/snippets";
+import { sitePaths } from "./markdown-pages";
 
 await rm("generated", { recursive: true, force: true });
 await mkdir("generated/pages", { recursive: true });
@@ -53,19 +54,9 @@ await Promise.all(
     writeFile(`public/r/${item.name}.swift`, item.source),
   ]),
 );
-const paths = [
-  "/",
-  "/components/",
-  "/docs/",
-  "/docs/installation/",
-  "/docs/cli/",
-  "/docs/mcp/",
-  "/docs/accessibility/",
-  ...showcase.map((item) => `/components/${item.name}/`),
-];
 await writeFile(
   "public/sitemap.xml",
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${origin}${path}</loc></url>`).join("")}</urlset>\n`,
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitePaths.map((path) => `<url><loc>${origin}${path}</loc></url>`).join("")}</urlset>\n`,
 );
 await writeFile("public/robots.txt", `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`);
 await writeFile(
