@@ -2,8 +2,8 @@
 
 ## Decision
 
-Use one native CLI and one registry for iOS components and services. SwiftUI is
-the current catalog, not a limitation of the distribution format. UIKit,
+Use one native CLI and one registry for iOS components and services. Every
+current component ships a SwiftUI view and a UIKit adapter. UIKit,
 Foundation, MapKit, WebKit, AVKit, SpriteKit, SceneKit, RealityKit, ARKit, Metal,
 Core Image, Core ML, and other system frameworks can use the same pipeline.
 Framework metadata describes requirements; it does not imply catalog coverage.

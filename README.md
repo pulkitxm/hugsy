@@ -4,7 +4,7 @@ Source-owned iOS components and services, distributed with one native Swift CLI.
 
 [Website](https://hugsy.pulkit.page/) · [Components](https://hugsy.pulkit.page/components/) · [Documentation](https://hugsy.pulkit.page/docs/)
 
-The current catalog focuses on difficult SwiftUI interactions. The distribution format also supports UIKit, Foundation services, and other Apple frameworks through multi-file entries, shared dependencies, and binary resources. Framework support is not a claim that those components already exist. Adopting apps gain no third-party runtime dependency.
+Five animated components: swipe deck, parallax carousel, morphing capsule, expanding cards, and radial menu. Each ships a SwiftUI view and a UIKit view controller, so SwiftUI and UIKit apps adopt the same source. The distribution format also supports Foundation services and other Apple frameworks through multi-file entries, shared dependencies, and binary resources. Adopting apps gain no third-party runtime dependency.
 
 ## Use a component
 
@@ -46,15 +46,30 @@ Version 1 configurations are rejected. Review existing copied files, choose a fr
 
 `hugsy mcp` exposes read-only search, full Swift source, installation planning, resources, and an integration prompt over stdio. Get host configuration with `hugsy mcp-config`. MCP does not inspect or write your project.
 
-## Native previews
+## UIKit
 
-The iPhone previews are real SwiftUI captures from a dedicated simulator using fictional content. The sample app is in `examples/`.
+Every component installs a view controller next to its SwiftUI view. Add it with standard view controller containment and supply your own `UIView` for each item:
+
+```swift
+let deck = HugsySwipeDeckViewController(items: cards) { card in
+  CardView(card: card)
+}
+deck.didSwipe = { card, direction in print(card.id, direction) }
+addChild(deck)
+view.addSubview(deck.view)
+deck.didMove(toParent: self)
+```
+
+The adapters share the `uikit-bridge` entry, which the CLI installs automatically. Adapter files compile only where UIKit is available.
+
+## Native gallery
+
+The sample app in `examples/` shows every component in SwiftUI and in UIKit with synthetic content.
 
 ```sh
 sh scripts/build-ios.sh
+swift run HugsyGallery
 ```
-
-The same views can be exercised on macOS with `swift run HugsyGallery`. Capture automation is TypeScript in `scripts/capture-native.ts`. It only accepts a dedicated simulator named `Hugsy Preview`.
 
 ## Website development
 

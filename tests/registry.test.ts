@@ -2,29 +2,44 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import data from "../generated/registry.json";
-import { catalog } from "../registry/catalog";
+import { catalog, showcase } from "../registry/catalog";
 import { registry as website } from "../registry/registry";
 import { componentSchema, registrySchema } from "../registry/schema";
 
 const registry = registrySchema.parse(data);
 
 describe("iOS registry", () => {
-  it("has six source-owned iOS components with accurate checksums", () => {
+  it("has five animated components with UIKit adapters and accurate checksums", () => {
     expect(registry.platform).toBe("ios");
     expect(registry.minimumVersion).toBe("17.0");
-    expect(catalog).toHaveLength(6);
+    expect(showcase.map((item) => item.name)).toEqual([
+      "swipe-deck",
+      "parallax-carousel",
+      "morphing-capsule",
+      "expanding-cards",
+      "radial-menu",
+    ]);
+    expect(catalog.filter((item) => item.category === "Infrastructure")).toHaveLength(1);
     for (const item of registry.components) {
       const source = readFileSync(`registry/swift/${item.filename}`, "utf8");
       expect(item.source).toBe(source);
-      expect(item.frameworks).toEqual(["SwiftUI"]);
+      expect(item.frameworks).toEqual(["SwiftUI", "UIKit"]);
       for (const file of item.files) {
         const data = readFileSync(`registry/swift/${file.path}`);
         expect(file.data).toBe(data.toString("base64"));
         expect(file.sha256).toBe(createHash("sha256").update(data).digest("hex"));
       }
       expect(createHash("sha256").update(source).digest("hex")).toBe(item.sha256);
+    }
+    for (const item of showcase) {
+      const source = readFileSync(`registry/swift/${item.filename}`, "utf8");
       expect(source).toContain("accessibilityReduceMotion");
       expect(item.states.length).toBeGreaterThan(2);
+      expect(item.dependencies).toEqual(["uikit-bridge"]);
+      expect(item.uikitUsage).toContain("ViewController");
+      const adapter = item.filename.replace(".swift", "ViewController.swift");
+      expect(item.files.map((file) => file.path)).toEqual([item.filename, adapter]);
+      expect(readFileSync(`registry/swift/${adapter}`, "utf8")).toMatch(/^#if canImport\(UIKit\)/);
     }
   });
   it("does not ship binary payloads in the website registry", () => {

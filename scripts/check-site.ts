@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { type DefaultTreeAdapterTypes, parse } from "parse5";
-import { catalog } from "../registry/catalog";
+import { showcase } from "../registry/catalog";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
 
@@ -15,7 +15,7 @@ const paths = [
   "/docs/cli/",
   "/docs/mcp/",
   "/docs/accessibility/",
-  ...catalog.map((item) => `/components/${item.name}/`),
+  ...showcase.map((item) => `/components/${item.name}/`),
 ];
 function elements(node: DefaultTreeAdapterTypes.Node): DefaultTreeAdapterTypes.Element[] {
   const own = "tagName" in node ? [node] : [];
@@ -71,21 +71,6 @@ for (const path of paths) {
   }
 }
 registrySchema.parse(JSON.parse(readFileSync(join(root, "r/index.json"), "utf8")));
-const previewAssets = catalog.flatMap(
-  (item) => item.preview?.screens.map((screen) => screen.asset) ?? [],
-);
-if (new Set(previewAssets).size !== previewAssets.length) {
-  throw new Error("Native preview assets must be unique across the catalog.");
-}
-for (const asset of previewAssets) {
-  for (const extension of ["webp", "mp4", "vtt"]) {
-    if (!existsSync(join(root, "native", `${asset}.${extension}`))) {
-      throw new Error(
-        `Missing native preview asset: ${asset}.${extension}. Run the native capture task.`,
-      );
-    }
-  }
-}
 for (const file of [
   "robots.txt",
   "sitemap.xml",
@@ -108,10 +93,6 @@ let css = 0;
 for (const file of readdirSync(join(root, "assets"))) {
   const size = gzipSync(readFileSync(join(root, "assets", file))).byteLength;
   if (file.endsWith(".js")) {
-    const source = readFileSync(join(root, "assets", file), "utf8");
-    if (source.includes("/__native/") || source.includes("127.0.0.1:3200")) {
-      throw new Error(`Local simulator transport leaked into the static site: ${file}`);
-    }
     javascript += size;
   }
   if (file.endsWith(".css")) {

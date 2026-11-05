@@ -1,74 +1,107 @@
 [
   {
+    "name": "swipe-deck",
+    "title": "Swipe deck",
+    "description": "A stack of cards you fling away with a flick. Cards tilt with your finger, the next one rises to meet you, and the deck settles with spring physics.",
+    "category": "Gestures",
+    "technique": "Fling physics",
+    "filename": "HugsySwipeDeck.swift",
+    "frameworks": ["SwiftUI", "UIKit"],
+    "dependencies": ["uikit-bridge"],
+    "files": [
+      {
+        "path": "HugsySwipeDeck.swift",
+        "kind": "source"
+      },
+      {
+        "path": "HugsySwipeDeckViewController.swift",
+        "kind": "source"
+      }
+    ],
+    "states": ["Resting", "Dragging", "Flinging", "Returning", "Empty"],
+    "interaction": "Drag the top card sideways and release past the threshold, or flick it, to send it away. Release early and it springs back. The two round buttons swipe without dragging.",
+    "accessibility": "The top card exposes named accessibility actions for both directions, and the buttons below are labeled native buttons. Cards beneath the top card are hidden from VoiceOver. Reduce Motion removes the tilt and fling travel.",
+    "integration": "Bind an array of Identifiable items. The first item is the top card. The deck removes a card from the binding after it leaves, then calls onSwipe with its direction. Insert items at the front to undo. Give the deck a frame with enough height for cards and controls.",
+    "usage": "@State private var cards = Card.samples\n\nHugsySwipeDeck(items: $cards) { card, progress in\n  CardView(card)\n    .overlay { Stamp(progress: progress) }\n}\n.frame(height: 520)",
+    "uikitUsage": "let deck = HugsySwipeDeckViewController(items: cards) { card in\n  CardView(card: card)\n}\ndeck.didSwipe = { card, direction in\n  print(card.id, direction)\n}\naddChild(deck)\nview.addSubview(deck.view)\ndeck.didMove(toParent: self)"
+  },
+  {
+    "name": "parallax-carousel",
+    "title": "Parallax carousel",
+    "description": "A paging carousel where cards tilt in 3D, scale into focus, and slide their artwork at a different speed than the card itself.",
+    "category": "Scroll",
+    "technique": "Scroll transitions",
+    "filename": "HugsyParallaxCarousel.swift",
+    "frameworks": ["SwiftUI", "UIKit"],
+    "dependencies": ["uikit-bridge"],
+    "files": [
+      {
+        "path": "HugsyParallaxCarousel.swift",
+        "kind": "source"
+      },
+      {
+        "path": "HugsyParallaxCarouselViewController.swift",
+        "kind": "source"
+      }
+    ],
+    "states": ["Resting", "Scrolling", "Snapping", "Selected"],
+    "interaction": "Swipe horizontally. Cards snap into place, neighbors peek from both edges, and the artwork inside each card drifts against the scroll. Tap an indicator to jump to a card.",
+    "accessibility": "Uses a native ScrollView, so VoiceOver and keyboard scrolling work normally. Each indicator is a labeled button that announces its position. Reduce Motion removes the 3D tilt and parallax drift while keeping paging.",
+    "integration": "Supply Identifiable items, a selection binding, and a content builder. Content is drawn slightly wider than the card so it has room to drift, so avoid placing text near the side edges. Give the carousel a fixed height.",
+    "usage": "@State private var selection: Place.ID?\n\nHugsyParallaxCarousel(items: places, selection: $selection) { place in\n  Image(place.photo)\n    .resizable()\n    .scaledToFill()\n}\n.frame(height: 460)",
+    "uikitUsage": "let carousel = HugsyParallaxCarouselViewController(items: places) { place in\n  UIImageView(image: UIImage(named: place.photo))\n}\ncarousel.didSelect = { id in\n  print(\"Selected\", id as Any)\n}\naddChild(carousel)\nview.addSubview(carousel.view)\ncarousel.didMove(toParent: self)"
+  },
+  {
+    "name": "morphing-capsule",
+    "title": "Morphing capsule",
+    "description": "A floating black capsule that stretches between a compact pill, a wide alert, and an expanded panel, blurring its content between shapes.",
+    "category": "Overlay",
+    "technique": "Shape morphing",
+    "filename": "HugsyMorphingCapsule.swift",
+    "frameworks": ["SwiftUI", "UIKit"],
+    "dependencies": ["uikit-bridge"],
+    "files": [
+      {
+        "path": "HugsyMorphingCapsule.swift",
+        "kind": "source"
+      },
+      {
+        "path": "HugsyMorphingCapsuleViewController.swift",
+        "kind": "source"
+      }
+    ],
+    "states": ["Compact", "Alert", "Expanded", "Stretching"],
+    "interaction": "Tap the capsule to expand it and tap again to collapse. Pull it downward to expand and push it upward to collapse. It rubber-bands as you drag.",
+    "accessibility": "The capsule announces its phase and acts as a button while collapsed. The Escape gesture collapses it. Content cross-fades instead of blurring when Reduce Motion is on, and the shape changes without spring travel.",
+    "integration": "Bind a HugsyCapsulePhase and return content for each phase. Content is rendered on black with a dark color scheme. Place it at the top of your screen, below the status bar. Adjust the three sizes to fit your content.",
+    "usage": "@State private var phase = HugsyCapsulePhase.compact\n\nHugsyMorphingCapsule(phase: $phase) { phase in\n  switch phase {\n  case .compact: CompactTimer()\n  case .alert: Label(\"Saved\", systemImage: \"checkmark\")\n  case .expanded: PlayerControls()\n  }\n}",
+    "uikitUsage": "let capsule = HugsyMorphingCapsuleViewController { phase in\n  PhaseView(phase: phase)\n}\ncapsule.didChangePhase = { phase in\n  print(phase)\n}\ncapsule.phase = .alert"
+  },
+  {
     "name": "expanding-cards",
     "title": "Expanding cards",
     "description": "Cards that open into an immersive detail view, with shared geometry and a drag-to-dismiss gesture.",
     "category": "Gestures",
     "technique": "Matched geometry",
     "filename": "HugsyExpandingCards.swift",
-    "frameworks": ["SwiftUI"],
-    "dependencies": [],
-    "files": [{ "path": "HugsyExpandingCards.swift", "kind": "source" }],
-    "preview": {
-      "headline": "Stay curious.\nGo a little deeper.",
-      "initialScreen": "cards",
-      "screens": [
-        {
-          "id": "cards",
-          "label": "Cards",
-          "asset": "expanding-cards",
-          "initialState": "collapsed",
-          "states": ["collapsed", "first-open", "second-open"],
-          "timeline": [
-            { "screen": "cards", "state": "collapsed", "durationMilliseconds": 1000 },
-            { "screen": "cards", "state": "first-open", "durationMilliseconds": 1800 },
-            { "screen": "cards", "state": "collapsed", "durationMilliseconds": 1000 },
-            { "screen": "cards", "state": "second-open", "durationMilliseconds": 1800 },
-            { "screen": "cards", "state": "collapsed", "durationMilliseconds": 1000 }
-          ]
-        }
-      ]
-    },
+    "frameworks": ["SwiftUI", "UIKit"],
+    "dependencies": ["uikit-bridge"],
+    "files": [
+      {
+        "path": "HugsyExpandingCards.swift",
+        "kind": "source"
+      },
+      {
+        "path": "HugsyExpandingCardsViewController.swift",
+        "kind": "source"
+      }
+    ],
     "states": ["Resting", "Expanding", "Open", "Dragging", "Closing"],
     "interaction": "Tap a card to open its details. Drag downward to dismiss, or use the close button.",
     "accessibility": "Native buttons expose card actions. Expanded content hides the underlying cards from VoiceOver. A labeled close button and Escape accessibility action provide alternatives to dragging. Reduce Motion removes spring interpolation.",
     "integration": "Supply Identifiable items and one content builder. The builder receives the item and its expanded state. Keep card IDs stable and unique. Place the component in a container with enough vertical room for the expanded content. It is an inline expanding surface, not a system modal sheet.",
-    "usage": "@State private var selected: Story.ID?\n\nHugsyExpandingCards(items: stories, selection: $selected) { story, expanded in\n  VStack(alignment: .leading, spacing: 16) {\n    Text(story.title).font(.largeTitle.bold())\n    if expanded { Text(story.description) }\n  }\n  .padding(28)\n  .frame(maxWidth: .infinity, maxHeight: .infinity)\n  .background(story.color.gradient)\n}"
-  },
-  {
-    "name": "morphing-sheet",
-    "title": "Morphing sheet",
-    "description": "A draggable surface that interpolates its height and corner radius, then settles into a compact or expanded state.",
-    "category": "Overlay",
-    "technique": "Gesture-driven spring",
-    "filename": "HugsyMorphingSheet.swift",
-    "frameworks": ["SwiftUI"],
-    "dependencies": [],
-    "files": [{ "path": "HugsyMorphingSheet.swift", "kind": "source" }],
-    "preview": {
-      "headline": "Let the moment\nopen up.",
-      "initialScreen": "player",
-      "screens": [
-        {
-          "id": "player",
-          "label": "Player",
-          "asset": "morphing-sheet",
-          "initialState": "expanded",
-          "states": ["compact", "expanded"],
-          "timeline": [
-            { "screen": "player", "state": "compact", "durationMilliseconds": 1000 },
-            { "screen": "player", "state": "expanded", "durationMilliseconds": 1800 },
-            { "screen": "player", "state": "compact", "durationMilliseconds": 1000 },
-            { "screen": "player", "state": "expanded", "durationMilliseconds": 1800 }
-          ]
-        }
-      ]
-    },
-    "states": ["Compact", "Dragging", "Expanded", "Settling"],
-    "interaction": "Drag the handle upward to expand the surface. Tap the handle to toggle without dragging.",
-    "accessibility": "The handle is a labeled native button. VoiceOver users can also adjust the surface with increment and decrement actions. Reduce Motion disables spring interpolation. This is an inline surface, not a replacement for the focus containment of a system sheet.",
-    "integration": "Bind HugsySheetPosition to your screen state. Supply compact and expanded heights and content that adapts to the current position. Dragging is limited to the handle so content can keep its own gestures. Use native .sheet presentation if your app requires a modal barrier.",
-    "usage": "@State private var position: HugsySheetPosition = .compact\n\nHugsyMorphingSheet(position: $position) { state in\n  VStack(spacing: 20) {\n    Text(\"Now playing\").font(.headline)\n    if state == .expanded { PlayerDetails() }\n  }\n  .padding(.horizontal, 24)\n}"
+    "usage": "@State private var selected: Story.ID?\n\nHugsyExpandingCards(items: stories, selection: $selected) { story, expanded in\n  VStack(alignment: .leading, spacing: 16) {\n    Text(story.title).font(.largeTitle.bold())\n    if expanded { Text(story.description) }\n  }\n  .padding(28)\n  .frame(maxWidth: .infinity, maxHeight: .infinity)\n  .background(story.color.gradient)\n}",
+    "uikitUsage": "let cards = HugsyExpandingCardsViewController(items: stories) { story, expanded in\n  StoryView(story: story, expanded: expanded)\n}\ncards.didSelect = { id in\n  print(\"Open\", id as Any)\n}\naddChild(cards)\nview.addSubview(cards.view)\ncards.didMove(toParent: self)"
   },
   {
     "name": "radial-menu",
@@ -77,165 +110,44 @@
     "category": "Navigation",
     "technique": "Staggered springs",
     "filename": "HugsyRadialMenu.swift",
-    "frameworks": ["SwiftUI"],
-    "dependencies": [],
-    "files": [{ "path": "HugsyRadialMenu.swift", "kind": "source" }],
-    "preview": {
-      "headline": "A little space\nfor possibility.",
-      "initialScreen": "actions",
-      "screens": [
-        {
-          "id": "actions",
-          "label": "Actions",
-          "asset": "radial-menu",
-          "initialState": "expanded",
-          "states": ["collapsed", "expanded", "photo-selected", "note-selected", "link-selected"],
-          "timeline": [
-            { "screen": "actions", "state": "expanded", "durationMilliseconds": 1200 },
-            { "screen": "actions", "state": "collapsed", "durationMilliseconds": 1000 },
-            { "screen": "actions", "state": "expanded", "durationMilliseconds": 1200 },
-            { "screen": "actions", "state": "note-selected", "durationMilliseconds": 1600 },
-            { "screen": "actions", "state": "expanded", "durationMilliseconds": 1200 }
-          ]
-        }
-      ]
-    },
+    "frameworks": ["SwiftUI", "UIKit"],
+    "dependencies": ["uikit-bridge"],
+    "files": [
+      {
+        "path": "HugsyRadialMenu.swift",
+        "kind": "source"
+      },
+      {
+        "path": "HugsyRadialMenuViewController.swift",
+        "kind": "source"
+      }
+    ],
     "states": ["Collapsed", "Opening", "Expanded", "Selected", "Closing"],
     "interaction": "Open the action menu, then choose an action. The actions spring outward in sequence and collapse after selection.",
     "accessibility": "Every action is a labeled native button. Collapsed actions are removed from hit testing and accessibility. The trigger announces expanded or collapsed state. Reduce Motion removes travel interpolation and trigger rotation.",
     "integration": "Supply stable, unique action IDs and main-actor closures. Use three or four actions to keep targets separated. Reserve the component's full width and height in the layout. Actions close the menu before running their closures.",
-    "usage": "@State private var expanded = false\n\nHugsyRadialMenu(actions: [\n  .init(id: \"photo\", title: \"Add photo\", symbol: \"camera\") { addPhoto() },\n  .init(id: \"note\", title: \"New note\", symbol: \"square.and.pencil\") { newNote() },\n  .init(id: \"link\", title: \"Save link\", symbol: \"link\") { saveLink() }\n], isExpanded: $expanded)"
+    "usage": "@State private var expanded = false\n\nHugsyRadialMenu(actions: [\n  .init(id: \"photo\", title: \"Add photo\", symbol: \"camera\") { addPhoto() },\n  .init(id: \"note\", title: \"New note\", symbol: \"square.and.pencil\") { newNote() },\n  .init(id: \"link\", title: \"Save link\", symbol: \"link\") { saveLink() }\n], isExpanded: $expanded)",
+    "uikitUsage": "let menu = HugsyRadialMenuViewController(actions: [\n  .init(id: \"photo\", title: \"Add photo\", symbol: \"camera\") { addPhoto() },\n  .init(id: \"note\", title: \"New note\", symbol: \"square.and.pencil\") { newNote() }\n])\nmenu.didChangeExpansion = { expanded in\n  print(expanded)\n}\naddChild(menu)\nview.addSubview(menu.view)\nmenu.didMove(toParent: self)"
   },
   {
-    "name": "toast-stack",
-    "title": "Toast stack",
-    "description": "Notifications that enter with a spring, reflow around a dismissal, and cancel their lifetime tasks when removed.",
-    "category": "Feedback",
-    "technique": "Spring reflow",
-    "filename": "HugsyToastStack.swift",
-    "frameworks": ["SwiftUI"],
+    "name": "uikit-bridge",
+    "title": "UIKit bridge",
+    "description": "Shared helpers that host Hugsy components inside UIKit view controllers and display your own UIViews inside them.",
+    "category": "Infrastructure",
+    "technique": "View controller containment",
+    "filename": "HugsyUIKitBridge.swift",
+    "frameworks": ["SwiftUI", "UIKit"],
     "dependencies": [],
-    "files": [{ "path": "HugsyToastStack.swift", "kind": "source" }],
-    "preview": {
-      "headline": "Good things,\nright on time.",
-      "initialScreen": "notifications",
-      "screens": [
-        {
-          "id": "notifications",
-          "label": "Notifications",
-          "asset": "toast-stack",
-          "initialState": "stacked",
-          "states": ["empty", "single", "stacked"],
-          "timeline": [
-            { "screen": "notifications", "state": "empty", "durationMilliseconds": 1000 },
-            { "screen": "notifications", "state": "single", "durationMilliseconds": 1400 },
-            { "screen": "notifications", "state": "stacked", "durationMilliseconds": 1800 },
-            { "screen": "notifications", "state": "empty", "durationMilliseconds": 1200 }
-          ]
-        }
-      ]
-    },
-    "states": ["Empty", "Entering", "Stacked", "Dismissing", "Expired"],
-    "interaction": "Add a notification, then dismiss one from the stack. New notifications expire independently.",
-    "accessibility": "Each notification has a labeled dismiss button. Reduce Motion uses opacity rather than sliding transitions. Keep important errors in persistent screen content instead of relying on a timed toast.",
-    "integration": "Keep a HugsyToasts instance in @State and overlay HugsyToastStack inside your safe area. At most four notifications remain visible. Each mounted row owns its timeout task, which is cancelled when that row disappears.",
-    "usage": "@State private var toasts = HugsyToasts()\n\nHugsyToastStack(toasts: toasts)\n\nButton(\"Save\") {\n  toasts.show(\"Changes saved\", duration: .seconds(5))\n}"
-  },
-  {
-    "name": "fluid-tabs",
-    "title": "Fluid tabs",
-    "description": "A shared selection pill that travels between variable-width labels with an interruptible spring.",
-    "category": "Navigation",
-    "technique": "Shared geometry",
-    "filename": "HugsyFluidTabs.swift",
-    "frameworks": ["SwiftUI"],
-    "dependencies": [],
-    "files": [{ "path": "HugsyFluidTabs.swift", "kind": "source" }],
-    "preview": {
-      "headline": "Find your\npoint of view.",
-      "initialScreen": "for-you",
-      "screens": [
-        {
-          "id": "for-you",
-          "label": "For you",
-          "asset": "fluid-tabs",
-          "initialState": "selected",
-          "states": ["selected"],
-          "timeline": [
-            { "screen": "for-you", "state": "selected", "durationMilliseconds": 1200 },
-            { "screen": "following", "state": "selected", "durationMilliseconds": 1600 },
-            { "screen": "saved", "state": "selected", "durationMilliseconds": 1600 },
-            { "screen": "for-you", "state": "selected", "durationMilliseconds": 1200 }
-          ]
-        },
-        {
-          "id": "following",
-          "label": "Following",
-          "asset": "fluid-tabs-following",
-          "initialState": "selected",
-          "states": ["selected"],
-          "timeline": [
-            { "screen": "following", "state": "selected", "durationMilliseconds": 1200 },
-            { "screen": "for-you", "state": "selected", "durationMilliseconds": 1600 },
-            { "screen": "saved", "state": "selected", "durationMilliseconds": 1600 },
-            { "screen": "following", "state": "selected", "durationMilliseconds": 1200 }
-          ]
-        },
-        {
-          "id": "saved",
-          "label": "Saved",
-          "asset": "fluid-tabs-saved",
-          "initialState": "selected",
-          "states": ["selected"],
-          "timeline": [
-            { "screen": "saved", "state": "selected", "durationMilliseconds": 1200 },
-            { "screen": "following", "state": "selected", "durationMilliseconds": 1600 },
-            { "screen": "for-you", "state": "selected", "durationMilliseconds": 1600 },
-            { "screen": "saved", "state": "selected", "durationMilliseconds": 1200 }
-          ]
-        }
-      ]
-    },
-    "states": ["Selected", "Transitioning", "Overflow", "Empty"],
-    "interaction": "Switch between labels. The selection pill follows your finger and settles into the next tab.",
-    "accessibility": "Native buttons announce their selected state and maintain a minimum height of 44 points. Labels can scroll horizontally. Reduce Motion disables selection interpolation.",
-    "integration": "Bind the selected label to your own content state. Duplicate labels are removed while preserving order. If the current selection no longer exists, the component selects the first available label. Keep labels concise and localize them in your app.",
-    "usage": "@State private var tab = \"For you\"\n\nHugsyFluidTabs(\n  tabs: [\"For you\", \"Following\", \"Saved\"],\n  selection: $tab\n)"
-  },
-  {
-    "name": "stretchy-header",
-    "title": "Stretchy header",
-    "description": "An overscroll-aware header that expands with a pull, stays edge-to-edge, and returns with native scroll physics.",
-    "category": "Scroll",
-    "technique": "Scroll-driven geometry",
-    "filename": "HugsyStretchyHeader.swift",
-    "frameworks": ["SwiftUI"],
-    "dependencies": [],
-    "files": [{ "path": "HugsyStretchyHeader.swift", "kind": "source" }],
-    "preview": {
-      "headline": "Take the\nscenic route.",
-      "initialScreen": "story",
-      "screens": [
-        {
-          "id": "story",
-          "label": "Story",
-          "asset": "stretchy-header",
-          "initialState": "resting",
-          "states": ["resting", "pulled"],
-          "timeline": [
-            { "screen": "story", "state": "resting", "durationMilliseconds": 1200 },
-            { "screen": "story", "state": "pulled", "durationMilliseconds": 1600 },
-            { "screen": "story", "state": "resting", "durationMilliseconds": 1200 },
-            { "screen": "story", "state": "pulled", "durationMilliseconds": 1600 },
-            { "screen": "story", "state": "resting", "durationMilliseconds": 1200 }
-          ]
-        }
-      ]
-    },
-    "states": ["Resting", "Pulling", "Stretched", "Returning", "Scrolled"],
-    "interaction": "Pull downward at the top of the scroll view. The header stretches with the gesture and returns with the scroll view.",
-    "accessibility": "Uses a native ScrollView with normal content order. Reduce Motion disables the extra stretching effect without disabling scrolling. Keep important header text readable rather than scaling it into an image.",
-    "integration": "Provide a header and content builder. The component owns its ScrollView and named coordinate space, so do not wrap it in another vertical ScrollView. The header is clipped to its expanding bounds. Apply your own safe-area policy at the screen level.",
-    "usage": "HugsyStretchyHeader(height: 320) {\n  Image(\"cover\")\n    .resizable()\n    .scaledToFill()\n} content: {\n  StoryDetails()\n    .padding(24)\n}"
+    "files": [
+      {
+        "path": "HugsyUIKitBridge.swift",
+        "kind": "source"
+      }
+    ],
+    "states": ["Hosted"],
+    "interaction": "Not interactive on its own. Each component's view controller uses it to embed SwiftUI and to wrap your UIViews.",
+    "accessibility": "Hosted SwiftUI keeps its native accessibility tree. UIViews you supply keep their own accessibility configuration.",
+    "integration": "Installed automatically with any component's UIKit adapter. HugsyUIViewBox wraps a UIView for use in SwiftUI. Views passed to adapters are cached per item, so return a fresh view for each item and configure it fully.",
+    "usage": "HugsyUIViewBox(myUIView)\n  .frame(height: 200)"
   }
 ]

@@ -6,7 +6,6 @@ let package = Package(
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "Hugsy", targets: ["Hugsy"]),
-    .library(name: "HugsyPreviewKit", targets: ["HugsyPreviewKit"]),
     .executable(name: "HugsyGallery", targets: ["HugsyGallery"]),
     .executable(name: "hugsy", targets: ["HugsyCLI"]),
   ],
@@ -17,14 +16,7 @@ let package = Package(
   targets: [
     .target(name: "Hugsy", path: "registry/swift"),
     .executableTarget(
-      name: "HugsyGallery", dependencies: ["Hugsy", "HugsyPreviewKit"], path: "examples",
-      exclude: ["Info.plist"]),
-    .target(
-      name: "HugsyPreviewKit", dependencies: ["RegistryModels"], path: "tools/PreviewKit",
-      plugins: ["RegistryPlugin"]),
-    .testTarget(
-      name: "HugsyPreviewKitTests", dependencies: ["HugsyPreviewKit", "RegistryModels"],
-      path: "tests/preview"),
+      name: "HugsyGallery", dependencies: ["Hugsy"], path: "examples", exclude: ["Info.plist"]),
     .testTarget(name: "HugsyTests", dependencies: ["Hugsy"], path: "tests/swift"),
     .testTarget(name: "HugsyRenderTests", dependencies: ["Hugsy"], path: "tests/render"),
     .target(name: "RegistryModels", path: "tools/Models"),

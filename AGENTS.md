@@ -1,6 +1,6 @@
 # Working on Hugsy
 
-Hugsy is an animation-heavy, iOS-first, copy-and-own SwiftUI registry. Do not add basic controls or introduce third-party Swift runtime dependencies into adopting apps.
+Hugsy is an animation-heavy, iOS-first, copy-and-own registry. Every component ships a SwiftUI view and a UIKit view controller adapter. Do not add basic controls or introduce third-party Swift runtime dependencies into adopting apps.
 
 - The source of truth is `registry/catalog.json` and `registry/swift/`. `registry/catalog.ts` validates website metadata. The Swift build plugin compiles the same metadata and source into the native CLI. Never edit generated registry files.
 - Run `bun install --frozen-lockfile`, `bun run build`, then `bun run ci` and `bun run test:e2e`.
@@ -8,10 +8,10 @@ Hugsy is an animation-heavy, iOS-first, copy-and-own SwiftUI registry. Do not ad
 - Keep `strict`, unchecked-index checks, exact optional properties, and unused-code checks enabled. No `any`, assertions, non-null assertions, or type-error suppressions.
 - No prose comments in code. Functional compiler, formatter, and accessibility-lint directives are the only exceptions. Explain decisions in documentation and names.
 - Every animation must respect Reduce Motion. Keep native labels, keyboard access, stable IDs, and an alternative to drag-only interactions.
-- Native captures and interactive browser studies must be labeled accurately. Present native iOS captures inside an iPhone device, not as desktop web widgets.
-- New components need source, metadata, interaction states, usage, a browser demo, and compilation in the native gallery.
+- Keep the catalog to a small set of animated components. Each needs a SwiftUI view, a UIKit adapter named `<Component>ViewController.swift` guarded by `#if canImport(UIKit)` that depends on `uikit-bridge`, and a demo in the native gallery for both frameworks.
+- New components need source, metadata, interaction states, SwiftUI and UIKit usage, and compilation in the native gallery.
 - Pages deploys only `dist/client`. Never introduce runtime server functions, secrets, analytics, or external fonts.
-- Keep website, build, and capture automation in TypeScript. Do not introduce Python. Swift is for the native components, example app, CLI, and MCP server.
+- Keep website and build automation in TypeScript. Do not introduce Python. Swift is for the native components, example app, CLI, and MCP server.
 - Maintain root-path routing on `https://hugsy.pulkit.page`, unique canonical URLs, prerendered content, and gzip budgets.
 - Use synthetic demo content. Never publish project data or credentials in screenshots or logs.
 - Use Pukbot for supported GitHub writes, checkpoint commits, and squash merges. PR descriptions must be one line.
