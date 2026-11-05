@@ -64,7 +64,7 @@
     "chrome-launcher": "1.2.1",
     "html-validate": "11.18.0",
     "knip": "6.44.1",
-    "lighthouse": "13.5.0",
+    "lighthouse": "13.6.0",
     "markdownlint-cli2": "0.24.0",
     "node-html-markdown": "2.0.0",
     "parse5": "8.1.0",
