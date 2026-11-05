@@ -7,7 +7,8 @@
   flex: 1;
   flex-direction: column;
   min-height: 0;
-  padding: calc(8 * var(--pt)) calc(20 * var(--pt)) calc(30 * var(--pt));
+  padding: calc((var(--safe-top) + 8) * var(--pt)) calc(20 * var(--pt))
+    calc((var(--safe-bottom) + 12) * var(--pt));
   font-size: calc(15 * var(--pt));
 }
 .demo button {
@@ -78,7 +79,7 @@
   width: calc(60 * var(--pt));
   height: calc(60 * var(--pt));
   border-radius: 50%;
-  background: color-mix(in srgb, var(--screen-background, #fff) 80%, transparent);
+  background: color-mix(in srgb, var(--screen-background) 80%, transparent);
   box-shadow:
     0 0 0 1px color-mix(in srgb, currentColor 8%, transparent),
     0 calc(8 * var(--pt)) calc(20 * var(--pt)) rgb(0 0 0 / 10%);
@@ -106,7 +107,7 @@
 }
 .demo-pill,
 .demo-pill svg {
-  color: var(--screen-background, #fff);
+  color: var(--screen-background);
 }
 .demo-pill svg {
   width: calc(16 * var(--pt));
@@ -129,7 +130,7 @@
   transition: background 0.2s;
 }
 .demo-segmented button[aria-pressed="true"] {
-  background: var(--screen-background, #fff);
+  background: var(--screen-background);
   box-shadow: 0 1px 4px rgb(0 0 0 / 14%);
 }
 
@@ -297,13 +298,16 @@
 .capsule-demo {
   padding-top: 0;
 }
+.capsule-demo .demo-title {
+  margin-bottom: calc(4 * var(--pt));
+}
 .capsule {
   --width: calc(126 * var(--pt));
   --height: calc(37 * var(--pt));
   --stretch: 0px;
   position: absolute;
-  z-index: 2;
-  top: calc(-43 * var(--pt));
+  z-index: 7;
+  top: calc(var(--island-top) * var(--pt));
   left: 50%;
   width: var(--width);
   height: max(calc(var(--height) * 0.85), calc(var(--height) + var(--stretch)));
@@ -316,9 +320,6 @@
     width 0.7s var(--spring-bouncy),
     height 0.7s var(--spring-bouncy),
     border-radius 0.7s var(--spring-bouncy);
-}
-.device:not([data-device="iphone"]) .capsule {
-  top: calc(10 * var(--pt));
 }
 .capsule[data-phase="alert"] {
   --width: calc(300 * var(--pt));
@@ -498,7 +499,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-top: calc(56 * var(--pt));
+  padding-top: calc((var(--safe-top) + 44) * var(--pt));
 }
 .capsule-list {
   display: grid;
@@ -637,7 +638,7 @@
 .radial-backdrop {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--screen-background, #fff) 55%, transparent);
+  background: color-mix(in srgb, var(--screen-background) 55%, transparent);
   opacity: 0;
   backdrop-filter: blur(6px);
   transition: opacity 0.3s;
@@ -649,7 +650,7 @@
 }
 .radial-menu {
   position: absolute;
-  bottom: calc(40 * var(--pt));
+  bottom: calc((var(--safe-bottom) + 12) * var(--pt));
   left: 50%;
   width: calc(64 * var(--pt));
   height: calc(64 * var(--pt));
@@ -678,7 +679,7 @@
 }
 .radial-action {
   inset: calc(4 * var(--pt));
-  background: color-mix(in srgb, var(--screen-background, #fff) 85%, transparent);
+  background: color-mix(in srgb, var(--screen-background) 85%, transparent);
   box-shadow:
     0 0 0 1px color-mix(in srgb, currentColor 8%, transparent),
     0 calc(8 * var(--pt)) calc(18 * var(--pt)) rgb(0 0 0 / 12%);

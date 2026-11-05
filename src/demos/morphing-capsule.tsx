@@ -223,7 +223,6 @@ export default function MorphingCapsule({ variant }: DemoProps) {
       </div>
       <div className="capsule-stage">
         <p className="demo-title">{variant === "delivery" ? "Orders" : "Listen now"}</p>
-        <p className="demo-hint">Tap or pull the capsule.</p>
         <ul className="capsule-list">
           {stories.slice(0, 4).map((story) => (
             <li key={story.id}>
