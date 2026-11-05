@@ -32,11 +32,17 @@ Add the SwiftUI view and its UIKit adapter to `registry/swift/`, list both files
 
 ## Interactive previews
 
-Component pages show each component inside a CSS device frame that switches between iPhone, iPad, and Mac. The frame is `src/components/device.tsx` with styles in `src/styles/device.css`. It uses no images or third-party libraries, so switching devices is instant.
+Component pages show each component inside a CSS device frame that switches between an iPhone 17 Pro, an 11-inch iPad Pro, and a 14-inch MacBook Pro. The frame is `src/components/device.tsx` with styles in `src/styles/device.css`. It follows real hardware proportions and uses no images or third-party libraries.
 
-Each demo is a lazily loaded React module in `src/demos/`, registered in `src/demos/registry.ts` with one or more screens. A component with several screens gets a screen switcher automatically. Size demo content with the `--pt` custom property, which equals one screen point of the current device, so the same demo scales across frames. Use container queries on `screen` for layouts that change between devices. Drive gestures with pointer events, keep a button or keyboard alternative for every gesture, and use the shared `--spring-*` easing curves.
+Each demo is a lazily loaded React module in `src/demos/`, registered in `src/demos/registry.ts` with one or more screens. A component with several screens gets a screen switcher automatically. Size demo content with the `--pt` custom property, which equals one screen point of the current device, so the same demo scales across frames. Apps draw under the status bar as they do on iOS, so offset content with `--safe-top` and `--safe-bottom`. On Mac, demos run inside a desktop window. Use container queries on `screen` for layouts that change between devices. Drive gestures with pointer events, keep a button or keyboard alternative for every gesture, and use the shared `--spring-*` easing curves.
 
 Highlighted source for a component page is generated per page into `generated/pages/` and loaded by that route, so other pages never download it. `bun scripts/check-site.ts` enforces an initial JavaScript budget for every page and a size limit for lazy chunks.
+
+## Theme and Markdown pages
+
+Colors are CSS variables built with `light-dark()`, so the first paint follows the visitor's system preference without JavaScript. A saved choice is applied by a small script in the prerendered `<head>`, before the body paints. The site is static, so a per-visitor theme cannot be part of the HTML itself.
+
+Every page has a Markdown version, such as `/docs/cli.md` for `/docs/cli/`, linked from the footer. `scripts/markdown-pages.ts` converts the rendered HTML, so the two never drift. It writes static files after the build and serves the same output from the development server.
 
 ## Required checks
 
