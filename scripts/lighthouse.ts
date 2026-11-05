@@ -105,6 +105,12 @@ try {
   await Promise.all(
     workers.map(async (worker) => {
       await ready(worker);
+      await send(worker, {
+        url: new URL(routes[0] ?? "/", origin).href,
+        formFactor: "mobile",
+        categories,
+        reportPath: join(process.cwd(), output, "warmup.html"),
+      });
       for (let job = jobs.shift(); job; job = jobs.shift()) {
         const { route, formFactor } = job;
         const name = `${slug(route)}-${formFactor}`;

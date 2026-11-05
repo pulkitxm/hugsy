@@ -1,9 +1,40 @@
-import { Suspense, startTransition, useEffect, useState } from "react";
+import { memo, Suspense, startTransition, useEffect, useState } from "react";
 import { demos } from "../demos/registry";
 import { Device, type DeviceKind, deviceKinds } from "./device";
 import { Laptop, RotateCcw, Smartphone, Tablet } from "./icons";
 
 const icons = { iphone: Smartphone, ipad: Tablet, mac: Laptop };
+
+const PreviewStage = memo(function PreviewStage({
+  name,
+  screenID,
+  kind,
+  label,
+  animate,
+  session,
+}: {
+  name: string;
+  screenID: string;
+  kind: DeviceKind;
+  label: string;
+  animate: boolean;
+  session: number;
+}) {
+  const screen = demos[name]?.find((item) => item.id === screenID);
+  if (!screen) {
+    return null;
+  }
+  const Demo = screen.component;
+  return (
+    <div className="device-stage" data-device={kind}>
+      <Device key={kind} kind={kind} label={label} animate={animate}>
+        <Suspense fallback={<div className="demo" />}>
+          <Demo key={`${screen.id}-${session}`} variant={screen.id} />
+        </Suspense>
+      </Device>
+    </div>
+  );
+});
 
 export function DevicePreview({ name, title }: { name: string; title: string }) {
   const screens = demos[name] ?? [];
@@ -17,7 +48,6 @@ export function DevicePreview({ name, title }: { name: string; title: string }) 
   if (!screen) {
     return null;
   }
-  const Demo = screen.component;
   const device = deviceKinds.find((item) => item.kind === kind) ?? deviceKinds[0];
   return (
     <section className="preview-frame device-preview" aria-label={`${title} preview`}>
@@ -70,18 +100,14 @@ export function DevicePreview({ name, title }: { name: string; title: string }) 
           </button>
         </div>
       </div>
-      <div className="device-stage" data-device={kind}>
-        <Device
-          key={kind}
-          kind={kind}
-          label={`${title} on ${device?.label ?? "iPhone"}`}
-          animate={switched}
-        >
-          <Suspense fallback={<div className="demo" />}>
-            <Demo key={`${screen.id}-${session}`} variant={screen.id} />
-          </Suspense>
-        </Device>
-      </div>
+      <PreviewStage
+        name={name}
+        screenID={screen.id}
+        kind={kind}
+        label={`${title} on ${device?.label ?? "iPhone"}`}
+        animate={switched}
+        session={session}
+      />
       <p className="preview-note">
         {device?.model} · Interactive web preview of the native component
       </p>
