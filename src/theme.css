@@ -2,6 +2,7 @@
 @import url("./styles/motion.css") layer(base);
 @import url("./styles/device.css") layer(frame);
 @import url("./styles/demos.css") layer(demos);
+@import url("../generated/syntax.css") layer(pages);
 
 @layer reset {
   *,
@@ -771,13 +772,9 @@
     font: 12.5px / 1.75 var(--mono);
   }
   .code-block code {
+    color: light-dark(#24292e, #e1e4e8);
     font: inherit;
-  }
-  .code-line {
     white-space: pre;
-  }
-  .syntax-token {
-    color: light-dark(var(--code-light), var(--code-dark));
   }
   .source-files summary {
     display: inline-flex;

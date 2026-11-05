@@ -77,7 +77,7 @@ test("source is syntax highlighted, copyable, and available as a standalone Swif
   await page.locator(".source-files summary").click();
   await expect(page.locator(".source-files pre").first()).toContainText("import SwiftUI");
   await expect(page.locator(".source-files pre").last()).toContainText("canImport(UIKit)");
-  expect(await page.locator(".source-preview .syntax-token").count()).toBeGreaterThan(20);
+  expect(await page.locator(".source-preview code span").count()).toBeGreaterThan(20);
   await page.getByRole("button", { name: "Copy hugsyexpandingcards.swift code" }).click();
   await expect(page.getByText("Copied", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
@@ -103,7 +103,7 @@ test("documentation navigation and installation are native-first", async ({ page
   expect(body).toContain("UIKit");
   expect(body).toContain("HugsySwipeDeckViewController");
   expect(body).not.toMatch(/\bnpm\b|\bnpx\b|Node\.js/);
-  expect(await page.locator(".syntax-token").count()).toBeGreaterThan(15);
+  expect(await page.locator(".code-block code span").count()).toBeGreaterThan(15);
   await page.getByRole("link", { name: "MCP", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Tools", exact: true })).toBeVisible();
 });
@@ -277,6 +277,35 @@ test("device switching keeps the page steady and shows device hardware", async (
   await page.getByRole("button", { name: "iPad", exact: true }).click();
   await expect(page.locator(".device-camera")).toBeVisible();
   await expect(page.locator(".mac-notch")).toHaveCount(0);
+});
+
+test("every code block is highlighted in the prerendered HTML", async ({ browser, baseURL }) => {
+  if (!baseURL) {
+    throw new Error("Configure the website origin before testing highlighting.");
+  }
+  const page = await browser.newPage({ baseURL, javaScriptEnabled: false });
+  try {
+    for (const path of pages) {
+      await page.goto(path);
+      for (const code of await page.locator(".code-block code").all()) {
+        expect(await code.locator("span").count()).toBeGreaterThan(0);
+      }
+    }
+  } finally {
+    await page.close();
+  }
+});
+
+test("code stays highlighted after client navigation in both themes", async ({ page }) => {
+  await page.goto("docs/cli/");
+  await page.getByRole("link", { name: "MCP", exact: true }).first().click();
+  await expect(page).toHaveURL(/\/docs\/mcp\/$/);
+  const token = page.locator(".code-block code span").first();
+  await expect(token).toBeVisible();
+  const light = await token.evaluate((element) => getComputedStyle(element).color);
+  await page.getByRole("button", { name: "Toggle color theme" }).click();
+  const dark = await token.evaluate((element) => getComputedStyle(element).color);
+  expect(dark).not.toBe(light);
 });
 
 test("theme switching changes every element instantly", async ({ page }) => {

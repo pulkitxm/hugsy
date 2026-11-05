@@ -3,7 +3,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { Resvg } from "@resvg/resvg-js";
 import { createHighlighter } from "shiki";
 import { catalog, showcase } from "../registry/catalog";
-import type { Highlights, HighlightToken } from "../registry/highlight";
+import type { Highlights } from "../registry/highlight";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
 import {
@@ -69,31 +69,53 @@ const highlighter = await createHighlighter({
   langs: ["swift", "shellscript", "json"],
 });
 type Sample = [code: string, lang: "swift" | "shellscript" | "json"];
+const defaultColors = "#24292e|#e1e4e8";
+const palette = new Map<string, string>();
+function tokenClass(light: string, dark: string) {
+  const colors = `${light}|${dark}`.toLowerCase();
+  if (colors === defaultColors) {
+    return "";
+  }
+  const existing = palette.get(colors);
+  if (existing) {
+    return existing;
+  }
+  const created = `s${palette.size}`;
+  palette.set(colors, created);
+  return created;
+}
+function escapeHtml(text: string) {
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
 function highlight(samples: Sample[]): Highlights {
   return Object.fromEntries(
     samples.map(([code, lang]) => {
-      let start = 0;
       const lines = highlighter
         .codeToTokensWithThemes(code, {
           lang,
           themes: { light: "github-light", dark: "github-dark" },
         })
         .map((line) => {
-          const position = start;
-          const tokens = line.map((token): HighlightToken => {
-            const offset = start;
-            start += token.content.length;
-            return [
-              token.content,
+          const runs: { name: string; text: string }[] = [];
+          for (const token of line) {
+            const name = tokenClass(
               token.variants["light"]?.color ?? "#24292e",
               token.variants["dark"]?.color ?? "#e1e4e8",
-              offset,
-            ];
-          });
-          start += 1;
-          return { start: position, tokens };
+            );
+            const previous = runs.at(-1);
+            if (previous && (previous.name === name || token.content.trim() === "")) {
+              previous.text += token.content;
+            } else {
+              runs.push({ name, text: token.content });
+            }
+          }
+          return runs
+            .map(({ name, text }) =>
+              name ? `<span class="${name}">${escapeHtml(text)}</span>` : escapeHtml(text),
+            )
+            .join("");
         });
-      return [code, lines];
+      return [code, lines.join("\n")];
     }),
   );
 }
@@ -165,5 +187,14 @@ await writeFile(
       [uikitExample, "swift"],
     ]),
   ),
+);
+await writeFile(
+  "generated/syntax.css",
+  `${[...palette]
+    .map(([colors, name]) => {
+      const [light, dark] = colors.split("|");
+      return `.${name}{color:light-dark(${light},${dark})}`;
+    })
+    .join("\n")}\n`,
 );
 highlighter.dispose();
