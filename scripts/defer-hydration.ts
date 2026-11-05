@@ -5,13 +5,28 @@ import { sitePaths } from "./markdown-pages";
 const preloadPattern = /<link rel="modulepreload" href="([^"]+)"[^>]*\/?>/g;
 const entryPattern = /<script type="module"[^>]*src="([^"]+)"[^>]*><\/script>/;
 
+const unsafeScriptCharacters: Record<string, string> = {
+  "<": "\\u003C",
+  ">": "\\u003E",
+  "&": "\\u0026",
+  "\u2028": "\\u2028",
+  "\u2029": "\\u2029",
+};
+
+function scriptLiteral(value: unknown) {
+  return JSON.stringify(value).replace(
+    /[<>&\u2028\u2029]/g,
+    (character) => unsafeScriptCharacters[character] ?? "",
+  );
+}
+
 export function deferHydration(html: string) {
   const entry = html.match(entryPattern);
   if (!entry?.[1]) {
     throw new Error("Expected a module entry script to defer.");
   }
   const preloads = [...html.matchAll(preloadPattern)].flatMap((match) => match[1] ?? []);
-  const loader = `<script>(function(){var d;function g(){if(d)return;d=1;${JSON.stringify(preloads)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.href=h;document.head.append(l)});var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(entry[1])};document.head.append(s)}new PerformanceObserver(function(){setTimeout(g,60)}).observe({type:"paint",buffered:true});setTimeout(g,800)})()</script>`;
+  const loader = `<script>(function(){var d;function g(){if(d)return;d=1;${scriptLiteral(preloads)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.href=h;document.head.append(l)});var s=document.createElement("script");s.type="module";s.src=${scriptLiteral(entry[1])};document.head.append(s)}new PerformanceObserver(function(){setTimeout(g,60)}).observe({type:"paint",buffered:true});setTimeout(g,800)})()</script>`;
   return html.replace(preloadPattern, "").replace(entryPattern, loader);
 }
 
