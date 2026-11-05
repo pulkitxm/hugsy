@@ -1,8 +1,13 @@
 import { Link, useLocation } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { markdownUrl } from "../lib/seo";
 import { themeStorageKey } from "../lib/theme";
 import { ArrowUpRight, Moon, Sun } from "./icons";
 
 export function Header() {
+  useEffect(() => {
+    document.documentElement.dataset["hydrated"] = "";
+  }, []);
   function toggleTheme() {
     const root = document.documentElement;
     const next = root.dataset["theme"] === "dark" ? "light" : "dark";
@@ -52,13 +57,16 @@ export function Header() {
 
 export function Footer() {
   const { pathname } = useLocation();
-  const markdown = pathname === "/" ? "/index.md" : `${pathname.replace(/\/$/, "")}.md`;
   return (
     <footer className="site-footer">
       <div className="footer-inner container">
         <span>Animated iOS components for SwiftUI and UIKit.</span>
         <nav aria-label="Footer">
-          <a href={markdown} className="markdown-link" aria-label="View this page as Markdown">
+          <a
+            href={markdownUrl(pathname)}
+            className="markdown-link"
+            aria-label="View this page as Markdown"
+          >
             .md
           </a>
           <a href="https://github.com/pulkitxm/hugsy">

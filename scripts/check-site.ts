@@ -4,7 +4,8 @@ import { gzipSync } from "node:zlib";
 import { type DefaultTreeAdapterTypes, parse } from "parse5";
 import { registrySchema } from "../registry/schema";
 import { siteOrigin as origin } from "../registry/site";
-import { markdownPath, sitePaths as paths } from "./markdown-pages";
+import { markdownUrl } from "../src/lib/seo";
+import { sitePaths as paths } from "./markdown-pages";
 
 const root = "dist/client";
 function elements(node: DefaultTreeAdapterTypes.Node): DefaultTreeAdapterTypes.Element[] {
@@ -24,7 +25,7 @@ for (const path of paths) {
     throw new Error(`Missing or duplicate title: ${path}`);
   }
   titles.add(text);
-  if (!readFileSync(join(root, markdownPath(path)), "utf8").startsWith("#")) {
+  if (!readFileSync(join(root, markdownUrl(path)), "utf8").startsWith("#")) {
     throw new Error(`Missing Markdown page: ${path}`);
   }
   if (nodes.filter((node) => node.tagName === "h1").length !== 1) {
@@ -33,8 +34,30 @@ for (const path of paths) {
   const description = nodes.find(
     (node) => node.tagName === "meta" && attribute(node, "name") === "description",
   );
-  if (((description && attribute(description, "content")?.length) || 0) < 50) {
-    throw new Error(`Missing description: ${path}`);
+  const descriptionLength = (description && attribute(description, "content")?.length) || 0;
+  if (descriptionLength < 70 || descriptionLength > 165) {
+    throw new Error(`Description should be 70 to 165 characters: ${path} has ${descriptionLength}`);
+  }
+  if (text.length > 60) {
+    throw new Error(`Title exceeds 60 characters: ${path}`);
+  }
+  for (const tag of ["og:title", "og:description", "og:image", "og:url", "og:image:alt"]) {
+    if (!nodes.some((node) => node.tagName === "meta" && attribute(node, "property") === tag)) {
+      throw new Error(`Missing ${tag}: ${path}`);
+    }
+  }
+  const card = nodes.find(
+    (node) => node.tagName === "meta" && attribute(node, "name") === "twitter:card",
+  );
+  if (card && attribute(card, "content") !== "summary_large_image") {
+    throw new Error(`Expected a large Twitter card: ${path}`);
+  }
+  const data = nodes.find(
+    (node) => node.tagName === "script" && attribute(node, "type") === "application/ld+json",
+  );
+  const json = data?.childNodes.map((node) => ("value" in node ? node.value : "")).join("");
+  if (!json || !JSON.parse(json)["@graph"]) {
+    throw new Error(`Missing structured data: ${path}`);
   }
   if (
     !nodes.some(

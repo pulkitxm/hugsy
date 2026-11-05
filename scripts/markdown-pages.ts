@@ -4,6 +4,7 @@ import { NodeHtmlMarkdown } from "node-html-markdown";
 import { type DefaultTreeAdapterTypes, parse, serialize } from "parse5";
 import type { Plugin } from "vite";
 import { showcase } from "../registry/catalog";
+import { markdownUrl } from "../src/lib/seo";
 
 type Node = DefaultTreeAdapterTypes.Node;
 type Element = DefaultTreeAdapterTypes.Element;
@@ -85,10 +86,6 @@ export function pageMarkdown(html: string) {
   return `${markdown.replace(/\n+```(\n|$)/g, "\n```$1").trim()}\n`;
 }
 
-export function markdownPath(path: string) {
-  return path === "/" ? "/index.md" : `${path.replace(/\/$/, "")}.md`;
-}
-
 export const sitePaths = [
   "/",
   "/components/",
@@ -102,7 +99,7 @@ export const sitePaths = [
 
 export function writeMarkdownPages(root: string) {
   for (const path of sitePaths) {
-    const target = join(root, markdownPath(path));
+    const target = join(root, markdownUrl(path));
     mkdirSync(dirname(target), { recursive: true });
     writeFileSync(target, pageMarkdown(readFileSync(join(root, path, "index.html"), "utf8")));
   }
@@ -114,7 +111,7 @@ export function markdownPages(): Plugin {
     configureServer(server) {
       server.middlewares.use((request, response, next) => {
         const path = request.url?.split("?")[0] ?? "";
-        const page = sitePaths.find((candidate) => markdownPath(candidate) === path);
+        const page = sitePaths.find((candidate) => markdownUrl(candidate) === path);
         const host = request.headers.host;
         if (!page || !host) {
           next();
