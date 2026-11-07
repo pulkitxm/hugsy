@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
+import { hasValidPullRequestTitle } from "./check-pr-policy";
 
 const eventPath = process.env["GITHUB_EVENT_PATH"];
 if (!eventPath) {
@@ -17,11 +18,7 @@ const event = z
   })
   .parse(JSON.parse(readFileSync(eventPath, "utf8")));
 const request = event.pull_request;
-if (
-  !/^(?:feat|fix|perf|refactor|test|docs|chore|ci|build|style|revert)(?:\([a-z0-9/-]+\))?!?: .+/.test(
-    request.title,
-  )
-) {
+if (!hasValidPullRequestTitle(request.title)) {
   throw new Error("Use a conventional pull request title.");
 }
 const lines = (request.body ?? "").trim().split(/\r?\n/);

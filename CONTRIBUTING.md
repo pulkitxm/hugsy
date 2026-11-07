@@ -80,6 +80,6 @@ Native image-rendering tests run on Apple Silicon because the Intel runner's vir
 
 ## Pull requests
 
-Use conventional titles and commits, a single-line description, coherent checkpoint commits, and small diffs. No prose comments in code. Put rationale in names and documentation. Never add attribution trailers. Use Pukbot for supported GitHub operations and squash merges.
+Use conventional titles and commits when possible, or an imperative title that starts with a recognized verb, plus a single-line description, coherent checkpoint commits, and small diffs. No prose comments in code. Put rationale in names and documentation. Never add attribution trailers. Use Pukbot for supported GitHub operations and squash merges.
 
 Visual changes need end-result evidence from synthetic fixtures. Never upload private data, original project captures, credentials, or unsanitized local paths.
