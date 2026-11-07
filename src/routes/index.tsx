@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
   head: () =>
     seo(
       "Animated iOS components",
-      "Five animated iOS components with a SwiftUI view and a UIKit view controller each. Try them on a realistic iPhone, iPad, or Mac, then own the Swift source.",
+      "Six animated iOS components with a SwiftUI view and a UIKit view controller each. Try them on a realistic iPhone, iPad, or Mac, then own the Swift source.",
       "/",
     ),
   loader: loadDocsHighlights,

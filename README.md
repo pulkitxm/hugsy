@@ -4,7 +4,7 @@ Source-owned iOS components and services, distributed with one native Swift CLI.
 
 [Website](https://hugsy.pulkit.page/) · [Components](https://hugsy.pulkit.page/components/) · [Documentation](https://hugsy.pulkit.page/docs/)
 
-Five animated components: swipe deck, parallax carousel, morphing capsule, expanding cards, and radial menu. Each ships a SwiftUI view and a UIKit view controller, so SwiftUI and UIKit apps adopt the same source. The distribution format also supports Foundation services and other Apple frameworks through multi-file entries, shared dependencies, and binary resources. Adopting apps gain no third-party runtime dependency.
+Six animated components: swipe deck, parallax carousel, morphing capsule, expanding cards, radial menu, and stacked cards. Each ships a SwiftUI view and a UIKit view controller, so SwiftUI and UIKit apps adopt the same source. The distribution format also supports Foundation services and other Apple frameworks through multi-file entries, shared dependencies, and binary resources. Adopting apps gain no third-party runtime dependency.
 
 ## Use a component
 

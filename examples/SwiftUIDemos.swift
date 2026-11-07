@@ -147,6 +147,17 @@ struct ExpandingCardsDemo: View {
   }
 }
 
+struct StackedCardsDemo: View {
+  @State private var cards = Array(DemoCard.samples.prefix(3))
+
+  var body: some View {
+    HugsyStackedCards(items: $cards) { card in
+      DemoCardFace(card: card, expanded: false)
+    }
+    .padding(20)
+  }
+}
+
 struct RadialMenuDemo: View {
   @State private var expanded = false
   @State private var last = "Nothing yet"

@@ -48,20 +48,20 @@ test("offscreen demos wait until they scroll into view", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("components/");
   await page.waitForTimeout(3000);
-  await expect(page.locator(".radial-demo")).toHaveCount(0);
+  await expect(page.locator(".stacked-demo")).toHaveCount(0);
   await page.locator(".showcase-card").last().scrollIntoViewIfNeeded();
-  await expect(page.locator(".radial-demo")).toHaveCount(1);
+  await expect(page.locator(".stacked-demo")).toHaveCount(1);
 });
 
 test("landing page shows every component live on an iPhone", async ({ page }) => {
   await page.goto("");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Animated components for iOS.");
-  await expect(page.locator(".showcase-card")).toHaveCount(5);
+  await expect(page.locator(".showcase-card")).toHaveCount(6);
   await expect(page.getByRole("region", { name: "Swipe deck on iPhone" })).toBeVisible();
   await expect(page.locator(".showcase-card .swipe-card").first()).toBeVisible();
   await page.getByRole("link", { name: "Browse components" }).click();
   await expect(page).toHaveURL(/\/components\/$/);
-  await expect(page.locator(".component-gallery .showcase-card")).toHaveCount(5);
+  await expect(page.locator(".component-gallery .showcase-card")).toHaveCount(6);
   await expect(page.locator(".showcase-description").first()).toContainText("fling away");
   await page.getByRole("link", { name: /^Morphing capsule/ }).click();
   await expect(page).toHaveURL(/\/components\/morphing-capsule\/$/);
