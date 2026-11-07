@@ -69,6 +69,10 @@
           .init(id: "note", title: "New note", symbol: "square.and.pencil") {},
           .init(id: "link", title: "Save link", symbol: "link") {},
         ])
+      case .stackedCards:
+        HugsyStackedCardsViewController(items: Array(DemoCard.samples.prefix(3))) { card in
+          Self.cardView(card)
+        }
       }
     }
 

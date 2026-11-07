@@ -11,7 +11,7 @@ import { demos } from "../src/demos/registry";
 const registry = registrySchema.parse(data);
 
 describe("iOS registry", () => {
-  it("has five animated components with UIKit adapters and accurate checksums", () => {
+  it("has six animated components with UIKit adapters and accurate checksums", () => {
     expect(registry.platform).toBe("ios");
     expect(registry.minimumVersion).toBe("17.0");
     expect(showcase.map((item) => item.name)).toEqual([
@@ -20,6 +20,7 @@ describe("iOS registry", () => {
       "morphing-capsule",
       "expanding-cards",
       "radial-menu",
+      "stacked-cards",
     ]);
     expect(catalog.filter((item) => item.category === "Infrastructure")).toHaveLength(1);
     for (const item of registry.components) {

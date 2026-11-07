@@ -53,7 +53,7 @@ const cards: Card[] = [
   {
     slug: "components",
     path: "/components/",
-    title: "Five live components.",
+    title: "Six live components.",
     subtitle: "Try them on iPhone, iPad, and Mac.",
     hue: 210,
     visual: "row",
@@ -112,6 +112,14 @@ const cards: Card[] = [
     visual: "device",
     anchorBottom: true,
     prepare: async (page) => clickButton(page, "Open actions"),
+  },
+  {
+    slug: "stacked-cards",
+    path: "/components/stacked-cards/",
+    title: "Stacked cards",
+    subtitle: "Swipe the front card to cycle.",
+    hue: 320,
+    visual: "device",
   },
   {
     slug: "docs",

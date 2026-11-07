@@ -679,9 +679,44 @@
   translate: calc(var(--x) * var(--pt)) calc(var(--y) * var(--pt));
 }
 
+.stacked-demo {
+  --dy: 0px;
+  --rotation: 0deg;
+}
+.stacked-stage {
+  position: relative;
+  flex: none;
+  width: min(100%, calc(420 * var(--pt)));
+  height: calc(200 * var(--pt));
+  margin-inline: auto;
+  touch-action: none;
+}
+.stacked-card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--card-radius);
+  box-shadow: 0 calc(14 * var(--pt)) calc(30 * var(--pt)) rgb(0 0 0 / 16%);
+  transform: translateY(calc(var(--index) * 14 * var(--pt))) scale(calc(1 - var(--index) * 0.05));
+  transition: transform 0.5s var(--spring-smooth);
+}
+.stacked-card[data-top] {
+  cursor: grab;
+}
+.stacked-card[data-dragging] {
+  transform: translateY(var(--dy)) rotate(var(--rotation));
+}
+.stacked-demo[data-mode="drag"] .stacked-card[data-dragging] {
+  transition: none;
+  cursor: grabbing;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .swipe-card[data-top] {
     transform: translate(var(--dx), var(--dy));
+  }
+  .stacked-card[data-dragging] {
+    transform: translateY(var(--dy));
   }
   .carousel-card {
     transform: scale(calc(1 - var(--distance) * 0.1));

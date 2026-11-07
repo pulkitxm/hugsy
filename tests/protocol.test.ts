@@ -13,7 +13,7 @@ describe("native Swift CLI", () => {
       encoding: "utf8",
     });
     expect(result.status).toBe(0);
-    expect(JSON.parse(result.stdout).components).toHaveLength(6);
+    expect(JSON.parse(result.stdout).components).toHaveLength(7);
   });
   it("supports the complete noninteractive installation workflow", () => {
     const cwd = mkdtempSync(join(tmpdir(), "hugsy-cli-"));

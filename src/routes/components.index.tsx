@@ -9,7 +9,7 @@ export const Route = createFileRoute("/components/")({
   head: () =>
     seo(
       "Components",
-      "Five animated iOS components for SwiftUI and UIKit: swipe deck, parallax carousel, morphing capsule, expanding cards, and radial menu.",
+      "Six animated iOS components for SwiftUI and UIKit: swipe deck, parallax carousel, morphing capsule, expanding cards, radial menu, and stacked cards.",
       "/components/",
     ),
   component: Components,

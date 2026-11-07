@@ -15,6 +15,7 @@ import Testing
     _ = HugsyExpandingCards(items: [Sample](), selection: .constant(nil)) { item, _ in
       Text(item.id)
     }
+    _ = HugsyStackedCards(items: .constant([Sample]())) { item in Text(item.id) }
   }
 
   @Test func invalidSizesAreClampedToUsableBounds() {
@@ -38,6 +39,12 @@ import Testing
     #expect(cards.cardHeight == 44)
     #expect(cards.expandedHeight == 44)
     #expect(HugsyRadialMenu(actions: [], isExpanded: .constant(false), radius: -10).radius == 70)
+    let stack = HugsyStackedCards(
+      items: .constant([Sample]()), visibleCount: 40, cardHeight: -10, threshold: -5
+    ) { item in Text(item.id) }
+    #expect(stack.visibleCount == 5)
+    #expect(stack.cardHeight == 44)
+    #expect(stack.threshold == 44)
   }
 
   @Test func capsuleSizesGrowMonotonically() {

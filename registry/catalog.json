@@ -130,6 +130,32 @@
     "uikitUsage": "let menu = HugsyRadialMenuViewController(actions: [\n  .init(id: \"photo\", title: \"Add photo\", symbol: \"camera\") { addPhoto() },\n  .init(id: \"note\", title: \"New note\", symbol: \"square.and.pencil\") { newNote() }\n])\nmenu.didChangeExpansion = { expanded in\n  print(expanded)\n}\naddChild(menu)\nview.addSubview(menu.view)\nmenu.didMove(toParent: self)"
   },
   {
+    "name": "stacked-cards",
+    "title": "Stacked cards",
+    "description": "Cards stacked in a pile you cycle. Drag the front card up or down past the threshold to send it to the back, and the next card steps forward.",
+    "category": "Gestures",
+    "technique": "Stack morphing",
+    "filename": "HugsyStackedCards.swift",
+    "frameworks": ["SwiftUI", "UIKit"],
+    "dependencies": ["uikit-bridge"],
+    "files": [
+      {
+        "path": "HugsyStackedCards.swift",
+        "kind": "source"
+      },
+      {
+        "path": "HugsyStackedCardsViewController.swift",
+        "kind": "source"
+      }
+    ],
+    "states": ["Collapsed", "Dragging", "Springing back", "Cycling"],
+    "interaction": "Drag the front card up or down past the threshold to send it to the back, and the next card becomes the front.",
+    "accessibility": "The front card exposes a named action to send the card to the back. Cards under the front card are hidden from VoiceOver. Reduce Motion relocates cards instantly and removes the rotation.",
+    "integration": "Bind an array of Identifiable items; the first item is the front card. Cycling moves the front item to the end of the binding and calls onCycle. Give the component a frame with enough height for cardHeight.",
+    "usage": "@State private var cards = Card.samples\n\nHugsyStackedCards(items: $cards) { card in\n  CardView(card: card)\n}\n.frame(height: 240)",
+    "uikitUsage": "let stack = HugsyStackedCardsViewController(items: cards) { card in\n  CardView(card: card)\n}\nstack.didCycle = { card in\n  print(card.id)\n}\naddChild(stack)\nview.addSubview(stack.view)\nstack.didMove(toParent: self)"
+  },
+  {
     "name": "uikit-bridge",
     "title": "UIKit bridge",
     "description": "Shared helpers that host Hugsy components inside UIKit view controllers and display your own UIViews inside them.",

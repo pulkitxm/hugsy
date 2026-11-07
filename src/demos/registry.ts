@@ -14,6 +14,7 @@ const parallaxCarousel = lazy(() => import("./parallax-carousel"));
 const morphingCapsule = lazy(() => import("./morphing-capsule"));
 const expandingCards = lazy(() => import("./expanding-cards"));
 const radialMenu = lazy(() => import("./radial-menu"));
+const stackedCards = lazy(() => import("./stacked-cards"));
 
 export const demos: Record<string, DemoScreen[]> = {
   "swipe-deck": [
@@ -41,5 +42,13 @@ export const demos: Record<string, DemoScreen[]> = {
   ],
   "radial-menu": [
     { id: "notes", label: "Notes", hint: "Tap the plus button", component: radialMenu },
+  ],
+  "stacked-cards": [
+    {
+      id: "stories",
+      label: "Stories",
+      hint: "Swipe the front card up or down to cycle",
+      component: stackedCards,
+    },
   ],
 };
