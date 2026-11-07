@@ -13,7 +13,10 @@ public struct HugsyStackedCards<Item: Identifiable, Content: View>: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   public init(
-    items: Binding<[Item]>, visibleCount: Int = 3, cardHeight: CGFloat = 200, threshold: CGFloat = 90,
+    items: Binding<[Item]>,
+    visibleCount: Int = 3,
+    cardHeight: CGFloat = 200,
+    threshold: CGFloat = 90,
     onCycle: @escaping @MainActor (Item) -> Void = { _ in },
     @ViewBuilder content: @escaping (Item) -> Content
   ) {
