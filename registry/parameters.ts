@@ -149,6 +149,45 @@ export const componentParameters: Record<string, Parameter[]> = {
       description: "A view builder receiving the model and expanded state.",
     },
   ],
+  "stacked-cards": [
+    {
+      name: "items",
+      type: "Binding<[Item: Identifiable]>",
+      defaultValue: "Required",
+      description: "The stack, front card first. Cycling moves the front item to the end.",
+    },
+    {
+      name: "visibleCount",
+      type: "Int",
+      defaultValue: "3",
+      description: "Cards drawn in the pile, clamped between 1 and 5.",
+    },
+    {
+      name: "cardHeight",
+      type: "CGFloat",
+      defaultValue: "200",
+      description: "Height of each card, clamped to at least 44 points.",
+    },
+    {
+      name: "threshold",
+      type: "CGFloat",
+      defaultValue: "90",
+      description:
+        "Vertical travel that commits a cycle, at least 44 points. Fast flicks commit sooner.",
+    },
+    {
+      name: "onCycle",
+      type: "(Item) -> Void",
+      defaultValue: "No-op",
+      description: "Called after the front card moved to the back of the binding.",
+    },
+    {
+      name: "content",
+      type: "(Item) -> Content",
+      defaultValue: "Required",
+      description: "Card builder receiving the model.",
+    },
+  ],
   "radial-menu": [
     {
       name: "actions",

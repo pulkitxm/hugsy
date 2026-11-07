@@ -21,6 +21,7 @@ enum GalleryDemo: String, CaseIterable, Identifiable {
   case morphingCapsule = "morphing-capsule"
   case expandingCards = "expanding-cards"
   case radialMenu = "radial-menu"
+  case stackedCards = "stacked-cards"
 
   var id: String { rawValue }
 
@@ -31,6 +32,7 @@ enum GalleryDemo: String, CaseIterable, Identifiable {
     case .morphingCapsule: "Morphing capsule"
     case .expandingCards: "Expanding cards"
     case .radialMenu: "Radial menu"
+    case .stackedCards: "Stacked cards"
     }
   }
 
@@ -41,6 +43,7 @@ enum GalleryDemo: String, CaseIterable, Identifiable {
     case .morphingCapsule: MorphingCapsuleDemo()
     case .expandingCards: ExpandingCardsDemo()
     case .radialMenu: RadialMenuDemo()
+    case .stackedCards: StackedCardsDemo()
     }
   }
 }
