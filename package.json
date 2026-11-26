@@ -67,7 +67,7 @@
     "lighthouse": "13.6.0",
     "markdownlint-cli2": "0.24.0",
     "node-html-markdown": "2.0.0",
-    "parse5": "8.1.0",
+    "parse5": "8.1.1",
     "shiki": "4.6.0",
     "sirv": "3.0.2",
     "typescript": "7.0.2",
